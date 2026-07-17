@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -17,8 +18,9 @@ export function SiteNav({ isSignedIn }: { isSignedIn: boolean }) {
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-ink/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
-        <Link href="/" className="font-display text-2xl uppercase tracking-tight text-paper">
-          Nyx <span className="text-volt">Creators Hub</span>
+        <Link href="/" className="flex items-center gap-2.5 font-display text-xl uppercase tracking-tight text-paper">
+          <Image src="/logo-icon-white.png" alt="" width={32} height={22} className="h-6 w-auto" />
+          Creators <span className="text-volt">Hub</span>
         </Link>
 
         <nav className="hidden items-center gap-8 lg:flex">

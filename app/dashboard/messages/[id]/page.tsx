@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
+import { signMessageAttachment } from "@/lib/storage";
 import { sendMessage } from "@/app/dashboard/messages/actions";
 
 export default async function MessageThreadPage({
@@ -36,10 +37,17 @@ export default async function MessageThreadPage({
       .maybeSingle(),
     supabase
       .from("messages")
-      .select("id, sender_id, body, created_at")
+      .select("id, sender_id, body, attachment_url, attachment_type, created_at")
       .eq("conversation_id", id)
       .order("created_at"),
   ]);
+
+  const messagesWithSignedUrls = await Promise.all(
+    (messages ?? []).map(async (m) => ({
+      ...m,
+      signedUrl: m.attachment_url ? await signMessageAttachment(supabase, m.attachment_url) : null,
+    }))
+  );
 
   const send = sendMessage.bind(null, id);
 
@@ -50,7 +58,7 @@ export default async function MessageThreadPage({
       </h1>
 
       <div className="mt-8 space-y-3">
-        {messages?.map((m) => (
+        {messagesWithSignedUrls.map((m) => (
           <div
             key={m.id}
             className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${
@@ -59,27 +67,51 @@ export default async function MessageThreadPage({
                 : "border border-line text-paper/80"
             }`}
           >
-            {m.body}
+            {m.signedUrl && m.attachment_type === "image" && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={m.signedUrl} alt="Attachment" className="mb-2 max-h-64 rounded-lg" />
+            )}
+            {m.signedUrl && m.attachment_type === "pdf" && (
+              <a
+                href={m.signedUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="mb-2 block underline"
+              >
+                📄 View PDF
+              </a>
+            )}
+            {m.body && <p>{m.body}</p>}
           </div>
         ))}
-        {!messages?.length && (
+        {!messagesWithSignedUrls.length && (
           <p className="text-sm text-paper/40">Say hello to start the conversation.</p>
         )}
       </div>
 
-      <form action={send} className="mt-8 flex gap-2">
-        <input
-          name="body"
-          required
-          placeholder="Write a message…"
-          className="flex-1 rounded-full border border-line bg-transparent px-4 py-2.5 text-sm text-paper outline-none focus:border-volt"
-        />
-        <button
-          type="submit"
-          className="rounded-full bg-volt px-5 py-2.5 text-xs font-semibold uppercase tracking-wide text-ink"
-        >
-          Send
-        </button>
+      <form action={send} className="mt-8 space-y-2">
+        <div className="flex gap-2">
+          <input
+            name="body"
+            placeholder="Write a message…"
+            className="flex-1 rounded-full border border-line bg-transparent px-4 py-2.5 text-sm text-paper outline-none focus:border-volt"
+          />
+          <button
+            type="submit"
+            className="rounded-full bg-volt px-5 py-2.5 text-xs font-semibold uppercase tracking-wide text-ink"
+          >
+            Send
+          </button>
+        </div>
+        <label className="flex w-fit cursor-pointer items-center gap-2 text-xs text-paper/50 hover:text-paper">
+          📎 Attach image or PDF
+          <input
+            type="file"
+            name="attachment"
+            accept="image/png,image/jpeg,image/webp,image/gif,application/pdf"
+            className="hidden"
+          />
+        </label>
       </form>
     </div>
   );

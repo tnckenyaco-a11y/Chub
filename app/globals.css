@@ -1,21 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --color-ink: #0a0a0f;
-  --color-paper: #f5f4ef;
-  --color-volt: #d7ff3f;
-  --color-magenta: #ff3ea5;
-  --color-line: rgba(245, 244, 239, 0.14);
+  /* Official Nyx Creators Hub brand palette */
+  --color-ink: #1b120b; /* Depth Black */
+  --color-paper: #ffffff; /* Canvas White */
+  --color-brand: #851490; /* Nyx Vision Purple (primary) */
+  --color-volt: #ff7b10; /* Doer Orange (accent — CTAs, highlights) */
+  --color-magenta: #e5484d; /* error/destructive only, not a brand color */
+  --color-line: rgba(255, 255, 255, 0.14);
 }
 
 @theme inline {
   --color-ink: var(--color-ink);
   --color-paper: var(--color-paper);
+  --color-brand: var(--color-brand);
   --color-volt: var(--color-volt);
   --color-magenta: var(--color-magenta);
   --color-line: var(--color-line);
-  --font-display: var(--font-anton);
-  --font-sans: var(--font-manrope);
+  --font-display: var(--font-baloo);
+  --font-sans: var(--font-montserrat);
 }
 
 html {

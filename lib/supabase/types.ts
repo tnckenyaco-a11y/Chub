@@ -243,6 +243,8 @@ export type Database = {
       }
       messages: {
         Row: {
+          attachment_type: string | null
+          attachment_url: string | null
           body: string
           conversation_id: string
           created_at: string
@@ -251,6 +253,8 @@ export type Database = {
           sender_id: string
         }
         Insert: {
+          attachment_type?: string | null
+          attachment_url?: string | null
           body: string
           conversation_id: string
           created_at?: string
@@ -259,6 +263,8 @@ export type Database = {
           sender_id: string
         }
         Update: {
+          attachment_type?: string | null
+          attachment_url?: string | null
           body?: string
           conversation_id?: string
           created_at?: string
@@ -413,12 +419,61 @@ export type Database = {
           },
         ]
       }
+      portfolio_items: {
+        Row: {
+          created_at: string
+          file_type: string
+          file_url: string
+          id: string
+          link_url: string | null
+          profile_id: string
+          sort_order: number
+          title: string | null
+        }
+        Insert: {
+          created_at?: string
+          file_type?: string
+          file_url: string
+          id?: string
+          link_url?: string | null
+          profile_id: string
+          sort_order?: number
+          title?: string | null
+        }
+        Update: {
+          created_at?: string
+          file_type?: string
+          file_url?: string
+          id?: string
+          link_url?: string | null
+          profile_id?: string
+          sort_order?: number
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_items_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "portfolio_items_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           bio: string | null
           city: string | null
           country: string | null
+          cover_url: string | null
           created_at: string
           first_name: string
           id: string
@@ -426,14 +481,17 @@ export type Database = {
           last_name: string
           phone: string | null
           role: Database["public"]["Enums"]["user_role"]
+          social_links: Json
           updated_at: string
           username: string
+          website_url: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
           country?: string | null
+          cover_url?: string | null
           created_at?: string
           first_name?: string
           id: string
@@ -441,14 +499,17 @@ export type Database = {
           last_name?: string
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          social_links?: Json
           updated_at?: string
           username: string
+          website_url?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
           country?: string | null
+          cover_url?: string | null
           created_at?: string
           first_name?: string
           id?: string
@@ -456,8 +517,10 @@ export type Database = {
           last_name?: string
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          social_links?: Json
           updated_at?: string
           username?: string
+          website_url?: string | null
         }
         Relationships: []
       }
@@ -873,36 +936,45 @@ export type Database = {
           bio: string | null
           city: string | null
           country: string | null
+          cover_url: string | null
           created_at: string | null
           first_name: string | null
           id: string | null
           last_name: string | null
           role: Database["public"]["Enums"]["user_role"] | null
+          social_links: Json | null
           username: string | null
+          website_url: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
           country?: string | null
+          cover_url?: string | null
           created_at?: string | null
           first_name?: string | null
           id?: string | null
           last_name?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          social_links?: Json | null
           username?: string | null
+          website_url?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
           country?: string | null
+          cover_url?: string | null
           created_at?: string | null
           first_name?: string | null
           id?: string | null
           last_name?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          social_links?: Json | null
           username?: string | null
+          website_url?: string | null
         }
         Relationships: []
       }
