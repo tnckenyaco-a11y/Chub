@@ -27,7 +27,7 @@ export default async function MessagesInboxPage() {
 
   return (
     <div>
-      <h1 className="font-display text-4xl uppercase text-paper">Messages</h1>
+      <h1 className="font-display text-4xl uppercase text-ink">Messages</h1>
 
       <ul className="mt-8 space-y-2">
         {conversations?.map((c) => {
@@ -39,10 +39,10 @@ export default async function MessagesInboxPage() {
                 href={`/dashboard/messages/${c.id}`}
                 className="flex items-center justify-between rounded-lg border border-line px-4 py-3 transition hover:border-volt"
               >
-                <span className="text-paper">
+                <span className="text-ink">
                   {other ? `${other.first_name} ${other.last_name}` : "Unknown user"}
                 </span>
-                <span className="text-xs text-paper/40">
+                <span className="text-xs text-ink/40">
                   {new Date(c.last_message_at).toLocaleDateString()}
                 </span>
               </Link>
@@ -50,7 +50,7 @@ export default async function MessagesInboxPage() {
           );
         })}
         {!conversations?.length && (
-          <p className="text-sm text-paper/40">No conversations yet.</p>
+          <p className="text-sm text-ink/40">No conversations yet.</p>
         )}
       </ul>
     </div>

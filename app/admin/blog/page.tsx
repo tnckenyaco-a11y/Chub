@@ -11,7 +11,7 @@ export default async function AdminBlogPage() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-4xl uppercase text-paper">Blog</h1>
+        <h1 className="font-display text-4xl uppercase text-ink">Blog</h1>
         <Link
           href="/admin/blog/new"
           className="rounded-full bg-volt px-5 py-2.5 text-xs font-semibold uppercase tracking-wide text-ink"
@@ -27,12 +27,12 @@ export default async function AdminBlogPage() {
               href={`/admin/blog/${p.id}`}
               className="flex items-center justify-between rounded-lg border border-line px-4 py-3 transition hover:border-volt"
             >
-              <span className="text-paper">{p.title}</span>
+              <span className="text-ink">{p.title}</span>
               <span
                 className={
                   p.status === "published"
                     ? "text-xs uppercase text-volt"
-                    : "text-xs uppercase text-paper/40"
+                    : "text-xs uppercase text-ink/40"
                 }
               >
                 {p.status}
@@ -40,7 +40,7 @@ export default async function AdminBlogPage() {
             </Link>
           </li>
         ))}
-        {!posts?.length && <p className="text-sm text-paper/40">No posts yet.</p>}
+        {!posts?.length && <p className="text-sm text-ink/40">No posts yet.</p>}
       </ul>
     </div>
   );

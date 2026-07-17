@@ -53,7 +53,7 @@ export default async function MessageThreadPage({
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="font-display text-3xl uppercase text-paper">
+      <h1 className="font-display text-3xl uppercase text-ink">
         {other ? `${other.first_name} ${other.last_name}` : "Conversation"}
       </h1>
 
@@ -64,7 +64,7 @@ export default async function MessageThreadPage({
             className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${
               m.sender_id === profile.id
                 ? "ml-auto bg-volt text-ink"
-                : "border border-line text-paper/80"
+                : "border border-line text-ink/80"
             }`}
           >
             {m.signedUrl && m.attachment_type === "image" && (
@@ -85,7 +85,7 @@ export default async function MessageThreadPage({
           </div>
         ))}
         {!messagesWithSignedUrls.length && (
-          <p className="text-sm text-paper/40">Say hello to start the conversation.</p>
+          <p className="text-sm text-ink/40">Say hello to start the conversation.</p>
         )}
       </div>
 
@@ -94,7 +94,7 @@ export default async function MessageThreadPage({
           <input
             name="body"
             placeholder="Write a message…"
-            className="flex-1 rounded-full border border-line bg-transparent px-4 py-2.5 text-sm text-paper outline-none focus:border-volt"
+            className="flex-1 rounded-full border border-line bg-transparent px-4 py-2.5 text-sm text-ink outline-none focus:border-volt"
           />
           <button
             type="submit"
@@ -103,7 +103,7 @@ export default async function MessageThreadPage({
             Send
           </button>
         </div>
-        <label className="flex w-fit cursor-pointer items-center gap-2 text-xs text-paper/50 hover:text-paper">
+        <label className="flex w-fit cursor-pointer items-center gap-2 text-xs text-ink/50 hover:text-ink">
           📎 Attach image or PDF
           <input
             type="file"

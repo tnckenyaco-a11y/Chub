@@ -23,14 +23,17 @@ const columns = [
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-line bg-brand">
+    <footer className="border-t border-paper/15 bg-brand">
       <div className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
         <div className="grid gap-12 lg:grid-cols-[2fr_1fr_1fr]">
           <div>
-            <p className="flex items-center gap-2.5 font-display text-2xl uppercase text-paper">
-              <Image src="/logo-icon-white.png" alt="" width={32} height={22} className="h-6 w-auto" />
-              Creators Hub
-            </p>
+            <Image
+              src="/logo-lockup-white.png"
+              alt="Creators Hub"
+              width={2782}
+              height={708}
+              className="h-9 w-auto"
+            />
             <p className="mt-4 max-w-sm text-sm text-paper/70">
               The trusted marketplace connecting Africa&apos;s creative talent with brands
               who need them — vetted creatives, guaranteed payment, real work.
@@ -56,7 +59,7 @@ export function SiteFooter() {
             </div>
           ))}
         </div>
-        <div className="mt-16 flex flex-col gap-4 border-t border-line pt-8 text-xs text-paper/60 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-16 flex flex-col gap-4 border-t border-paper/15 pt-8 text-xs text-paper/60 sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} Nyx House of Creatives. All rights reserved.</p>
           <div className="flex gap-6">
             <a

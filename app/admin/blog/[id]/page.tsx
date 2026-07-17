@@ -28,10 +28,10 @@ export default async function EditBlogPostPage({
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-4xl uppercase text-paper">Edit Post</h1>
+        <h1 className="font-display text-4xl uppercase text-ink">Edit Post</h1>
         <span
           className={
-            post.status === "published" ? "text-xs uppercase text-volt" : "text-xs uppercase text-paper/40"
+            post.status === "published" ? "text-xs uppercase text-volt" : "text-xs uppercase text-ink/40"
           }
         >
           {post.status}
@@ -60,7 +60,7 @@ export default async function EditBlogPostPage({
         <form action={publish}>
           <button
             type="submit"
-            className="rounded-full border border-line px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper hover:border-paper"
+            className="rounded-full border border-line px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink hover:border-ink"
           >
             {post.status === "published" ? "Unpublish" : "Publish"}
           </button>

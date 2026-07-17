@@ -20,8 +20,8 @@ export default async function NewProjectPage({
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-16 lg:px-10">
-      <h1 className="font-display text-4xl uppercase text-paper">Post a Project</h1>
-      <p className="mt-2 text-sm text-paper/50">
+      <h1 className="font-display text-4xl uppercase text-ink">Post a Project</h1>
+      <p className="mt-2 text-sm text-ink/50">
         Your project goes live once an admin reviews and approves it.
       </p>
 
@@ -33,35 +33,35 @@ export default async function NewProjectPage({
 
       <form action={createProject} className="mt-8 space-y-6">
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-wide text-paper/50">
+          <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">
             Title
           </span>
           <input
             name="title"
             required
             placeholder="e.g. Videographer needed for product launch"
-            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-paper outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
           />
         </label>
 
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-wide text-paper/50">
+          <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">
             Description
           </span>
           <textarea
             name="description"
             rows={5}
-            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-3 text-paper outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-3 text-ink outline-none focus:border-volt"
           />
         </label>
 
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-wide text-paper/50">
+          <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">
             Category
           </span>
           <select
             name="category_id"
-            className="mt-1.5 w-full rounded-lg border border-line bg-ink px-4 py-2.5 text-paper outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-paper px-4 py-2.5 text-ink outline-none focus:border-volt"
           >
             <option value="">Select a category</option>
             {categories?.map((c) => (
@@ -73,14 +73,14 @@ export default async function NewProjectPage({
         </label>
 
         <fieldset>
-          <legend className="text-xs font-semibold uppercase tracking-wide text-paper/50">
+          <legend className="text-xs font-semibold uppercase tracking-wide text-ink/50">
             Focus Areas
           </legend>
           <div className="mt-2 flex flex-wrap gap-3">
             {focusAreas?.map((f) => (
               <label
                 key={f.id}
-                className="flex items-center gap-2 rounded-full border border-line px-3 py-1.5 text-xs text-paper/70 has-[:checked]:border-volt has-[:checked]:text-volt"
+                className="flex items-center gap-2 rounded-full border border-line px-3 py-1.5 text-xs text-ink/70 has-[:checked]:border-volt has-[:checked]:text-volt"
               >
                 <input type="checkbox" name="focus_area_ids" value={f.id} className="sr-only" />
                 {f.name}
@@ -110,23 +110,23 @@ export default async function NewProjectPage({
 
         <div className="grid grid-cols-2 gap-4">
           <label className="block">
-            <span className="text-xs text-paper/50">Budget min (KES)</span>
+            <span className="text-xs text-ink/50">Budget min (KES)</span>
             <input
               name="budget_min"
               type="number"
               min={0}
               required
-              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-paper outline-none focus:border-volt"
+              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
             />
           </label>
           <label className="block">
-            <span className="text-xs text-paper/50">Budget max (KES)</span>
+            <span className="text-xs text-ink/50">Budget max (KES)</span>
             <input
               name="budget_max"
               type="number"
               min={0}
               required
-              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-paper outline-none focus:border-volt"
+              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
             />
           </label>
         </div>

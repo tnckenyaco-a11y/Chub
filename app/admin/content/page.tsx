@@ -10,8 +10,8 @@ export default async function AdminContentPage() {
 
   return (
     <div>
-      <h1 className="font-display text-4xl uppercase text-paper">Content (CMS)</h1>
-      <p className="mt-2 text-sm text-paper/50">
+      <h1 className="font-display text-4xl uppercase text-ink">Content (CMS)</h1>
+      <p className="mt-2 text-sm text-ink/50">
         These pages drive the public site — no more hardcoded copy or dead links.
       </p>
 
@@ -22,8 +22,8 @@ export default async function AdminContentPage() {
               href={`/admin/content/${p.slug}`}
               className="flex items-center justify-between rounded-lg border border-line px-4 py-3 transition hover:border-volt"
             >
-              <span className="text-paper">{p.title}</span>
-              <span className="text-xs text-paper/40">/{p.slug}</span>
+              <span className="text-ink">{p.title}</span>
+              <span className="text-xs text-ink/40">/{p.slug}</span>
             </Link>
           </li>
         ))}

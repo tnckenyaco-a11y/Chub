@@ -18,8 +18,8 @@ export default async function DashboardLayout({
             style={profile.avatar_url ? { backgroundImage: `url(${profile.avatar_url})` } : undefined}
           />
           <div className="text-right">
-            <p className="text-sm text-paper">{profile.first_name || profile.username}</p>
-            <p className="text-xs capitalize text-paper/50">{profile.role}</p>
+            <p className="text-sm text-ink">{profile.first_name || profile.username}</p>
+            <p className="text-xs capitalize text-ink/50">{profile.role}</p>
           </div>
         </div>
       </div>

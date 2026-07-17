@@ -24,7 +24,7 @@ export default async function BlogPostPage({
           {post.category}
         </p>
       )}
-      <h1 className="font-display mt-2 text-4xl uppercase text-paper sm:text-5xl">
+      <h1 className="font-display mt-2 text-4xl uppercase text-ink sm:text-5xl">
         {post.title}
       </h1>
       {post.cover_image_url && (
@@ -35,7 +35,7 @@ export default async function BlogPostPage({
           className="mt-8 w-full rounded-2xl object-cover"
         />
       )}
-      <div className="mt-8 whitespace-pre-wrap leading-relaxed text-paper/80">
+      <div className="mt-8 whitespace-pre-wrap leading-relaxed text-ink/80">
         {post.body}
       </div>
     </article>

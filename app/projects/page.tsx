@@ -1,5 +1,8 @@
 import Link from "next/link";
+import { Clock, Tag, Users, Wallet } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { ListingHero } from "@/components/listing-hero";
+import { timeAgo } from "@/lib/format";
 
 export default async function ProjectsPage({
   searchParams,
@@ -14,7 +17,7 @@ export default async function ProjectsPage({
     supabase
       .from("projects")
       .select(
-        "id, title, slug, pricing_type, budget_min, budget_max, created_at, categories(slug), proposals(count)"
+        "id, title, slug, pricing_type, budget_min, budget_max, created_at, categories(slug, name), proposals(count)"
       )
       .eq("status", "published")
       .order("created_at", { ascending: false }),
@@ -25,61 +28,83 @@ export default async function ProjectsPage({
     : projects;
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
-      <h1 className="font-display text-5xl uppercase text-paper">Projects</h1>
-      <p className="mt-2 text-sm text-paper/60">Brand-posted jobs, open for proposals.</p>
+    <div>
+      <ListingHero
+        eyebrow="Open Work"
+        title="Projects"
+        subtitle="Brand-posted jobs, open for proposals."
+      />
 
-      <div className="mt-8 flex flex-wrap gap-2">
-        <Link
-          href="/projects"
-          className={`rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-wide ${
-            !category ? "border-volt text-volt" : "border-line text-paper/60 hover:border-paper"
-          }`}
-        >
-          All
-        </Link>
-        {categories?.map((c) => (
+      <div className="mx-auto max-w-7xl px-6 py-12 lg:px-10">
+        <div className="flex flex-wrap gap-2">
           <Link
-            key={c.id}
-            href={`/projects?category=${c.slug}`}
+            href="/projects"
             className={`rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-wide ${
-              category === c.slug
-                ? "border-volt text-volt"
-                : "border-line text-paper/60 hover:border-paper"
+              !category ? "border-volt text-volt" : "border-line text-ink/60 hover:border-ink"
             }`}
           >
-            {c.name}
+            All
           </Link>
-        ))}
-      </div>
+          {categories?.map((c) => (
+            <Link
+              key={c.id}
+              href={`/projects?category=${c.slug}`}
+              className={`rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-wide ${
+                category === c.slug
+                  ? "border-volt text-volt"
+                  : "border-line text-ink/60 hover:border-ink"
+              }`}
+            >
+              {c.name}
+            </Link>
+          ))}
+        </div>
 
-      <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered?.map((p) => (
-          <Link
-            key={p.id}
-            href={`/projects/${p.slug}`}
-            className="rounded-2xl border border-line p-6 transition hover:border-volt"
-          >
-            <p className="text-xs uppercase tracking-wide text-paper/40">
-              {p.pricing_type === "fixed" ? "Fixed Price" : "Hourly Rate"}
-            </p>
-            <h2 className="mt-2 font-semibold text-paper">{p.title}</h2>
-            <p className="mt-3 text-sm text-volt">
-              Ksh {p.budget_min.toLocaleString()} – {p.budget_max.toLocaleString()}
-            </p>
-            <p className="mt-2 text-xs text-paper/40">
-              {p.proposals?.[0]?.count ?? 0} sent proposal
-              {(p.proposals?.[0]?.count ?? 0) === 1 ? "" : "s"}
-            </p>
-          </Link>
-        ))}
-      </div>
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered?.map((p) => (
+            <Link
+              key={p.id}
+              href={`/projects/${p.slug}`}
+              className="group flex flex-col rounded-2xl border border-line bg-paper p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-volt hover:shadow-md"
+            >
+              <div className="flex items-center justify-between">
+                {p.categories?.name && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-brand">
+                    <Tag className="h-3 w-3" />
+                    {p.categories.name}
+                  </span>
+                )}
+                <p className="flex items-center gap-1 text-[11px] uppercase tracking-wide text-ink/40">
+                  <Clock className="h-3 w-3" />
+                  {timeAgo(p.created_at)}
+                </p>
+              </div>
+              <h2 className="mt-3 font-semibold text-ink transition group-hover:text-brand">
+                {p.title}
+              </h2>
+              <p className="mt-1 text-xs uppercase tracking-wide text-ink/40">
+                {p.pricing_type === "fixed" ? "Fixed Price" : "Hourly Rate"}
+              </p>
+              <div className="mt-auto flex items-center justify-between pt-4">
+                <p className="flex items-center gap-1 text-sm font-semibold text-volt">
+                  <Wallet className="h-3.5 w-3.5" />
+                  Ksh {p.budget_min.toLocaleString()}–{p.budget_max.toLocaleString()}
+                </p>
+                <p className="flex items-center gap-1 text-xs text-ink/40">
+                  <Users className="h-3.5 w-3.5" />
+                  {p.proposals?.[0]?.count ?? 0}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
 
-      {!filtered?.length && (
-        <p className="mt-16 text-sm text-paper/50">
-          No projects match yet — check back as brands post more work.
-        </p>
-      )}
+        {!filtered?.length && (
+          <p className="mt-16 text-sm text-ink/50">
+            No projects match yet — check back as brands post more work.
+          </p>
+        )}
+      </div>
     </div>
   );
 }

@@ -15,7 +15,7 @@ export default async function AdminCategoriesPage() {
 
   return (
     <div>
-      <h1 className="font-display text-4xl uppercase text-paper">Categories</h1>
+      <h1 className="font-display text-4xl uppercase text-ink">Categories</h1>
 
       <div className="mt-8 grid gap-12 lg:grid-cols-2">
         <TaxonomyList
@@ -48,14 +48,14 @@ function TaxonomyList({
 }) {
   return (
     <div>
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-paper/50">{title}</h2>
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">{title}</h2>
       <ul className="mt-4 space-y-2">
         {items.map((item) => (
           <li
             key={item.id}
             className="flex items-center justify-between rounded-lg border border-line px-4 py-2.5"
           >
-            <span className="text-paper">{item.name}</span>
+            <span className="text-ink">{item.name}</span>
             <form
               action={async () => {
                 "use server";
@@ -64,14 +64,14 @@ function TaxonomyList({
             >
               <button
                 type="submit"
-                className="text-xs uppercase tracking-wide text-paper/40 hover:text-magenta"
+                className="text-xs uppercase tracking-wide text-ink/40 hover:text-magenta"
               >
                 Remove
               </button>
             </form>
           </li>
         ))}
-        {!items.length && <p className="text-sm text-paper/40">None yet.</p>}
+        {!items.length && <p className="text-sm text-ink/40">None yet.</p>}
       </ul>
 
       <form action={addAction} className="mt-4 flex gap-2">
@@ -79,7 +79,7 @@ function TaxonomyList({
           name="name"
           placeholder="New name…"
           required
-          className="flex-1 rounded-lg border border-line bg-transparent px-4 py-2.5 text-sm text-paper outline-none focus:border-volt"
+          className="flex-1 rounded-lg border border-line bg-transparent px-4 py-2.5 text-sm text-ink outline-none focus:border-volt"
         />
         <button
           type="submit"

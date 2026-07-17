@@ -16,11 +16,17 @@ export function SiteNav({ isSignedIn }: { isSignedIn: boolean }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-ink/95 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-line bg-paper/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
-        <Link href="/" className="flex items-center gap-2.5 font-display text-xl uppercase tracking-tight text-paper">
-          <Image src="/logo-icon-white.png" alt="" width={32} height={22} className="h-6 w-auto" />
-          Creators <span className="text-volt">Hub</span>
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/logo-lockup-dark.png"
+            alt="Creators Hub"
+            width={1844}
+            height={494}
+            priority
+            className="h-8 w-auto sm:h-9"
+          />
         </Link>
 
         <nav className="hidden items-center gap-8 lg:flex">
@@ -28,7 +34,7 @@ export function SiteNav({ isSignedIn }: { isSignedIn: boolean }) {
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm uppercase tracking-wide text-paper/80 transition hover:text-volt"
+              className="text-sm uppercase tracking-wide text-ink/80 transition hover:text-volt"
             >
               {link.label}
             </Link>
@@ -38,13 +44,13 @@ export function SiteNav({ isSignedIn }: { isSignedIn: boolean }) {
         <div className="hidden items-center gap-4 lg:flex">
           <Link
             href={isSignedIn ? "/dashboard" : "/sign-in"}
-            className="text-sm uppercase tracking-wide text-paper/80 transition hover:text-volt"
+            className="text-sm uppercase tracking-wide text-ink/80 transition hover:text-volt"
           >
             {isSignedIn ? "Dashboard" : "Sign In"}
           </Link>
           <Link
             href="/projects/new"
-            className="rounded-full bg-volt px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-ink transition hover:bg-paper"
+            className="rounded-full bg-volt px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-ink transition hover:bg-ink hover:text-paper"
           >
             Post a Project
           </Link>
@@ -53,7 +59,7 @@ export function SiteNav({ isSignedIn }: { isSignedIn: boolean }) {
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="text-paper lg:hidden"
+          className="text-ink lg:hidden"
           aria-label="Toggle menu"
           aria-expanded={open}
         >
@@ -69,7 +75,7 @@ export function SiteNav({ isSignedIn }: { isSignedIn: boolean }) {
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="font-display text-2xl uppercase text-paper"
+                className="font-display text-2xl uppercase text-ink"
               >
                 {link.label}
               </Link>
@@ -77,7 +83,7 @@ export function SiteNav({ isSignedIn }: { isSignedIn: boolean }) {
             <Link
               href={isSignedIn ? "/dashboard" : "/sign-in"}
               onClick={() => setOpen(false)}
-              className="font-display text-2xl uppercase text-paper"
+              className="font-display text-2xl uppercase text-ink"
             >
               {isSignedIn ? "Dashboard" : "Sign In"}
             </Link>

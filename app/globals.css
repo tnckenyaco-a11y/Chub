@@ -7,7 +7,7 @@
   --color-brand: #851490; /* Nyx Vision Purple (primary) */
   --color-volt: #ff7b10; /* Doer Orange (accent — CTAs, highlights) */
   --color-magenta: #e5484d; /* error/destructive only, not a brand color */
-  --color-line: rgba(255, 255, 255, 0.14);
+  --color-line: rgba(27, 18, 11, 0.12);
 }
 
 @theme inline {
@@ -17,7 +17,8 @@
   --color-volt: var(--color-volt);
   --color-magenta: var(--color-magenta);
   --color-line: var(--color-line);
-  --font-display: var(--font-baloo);
+  --font-display: var(--font-dm-sans);
+  --font-accent: var(--font-playfair);
   --font-sans: var(--font-montserrat);
 }
 
@@ -26,8 +27,8 @@ html {
 }
 
 body {
-  background: var(--color-ink);
-  color: var(--color-paper);
+  background: var(--color-paper);
+  color: var(--color-ink);
   font-family: var(--font-sans);
 }
 
@@ -45,7 +46,12 @@ body {
 
 .font-display {
   font-family: var(--font-display);
-  letter-spacing: 0.01em;
+  letter-spacing: -0.01em;
+}
+
+.font-accent {
+  font-family: var(--font-accent);
+  font-style: italic;
 }
 
 @keyframes marquee {

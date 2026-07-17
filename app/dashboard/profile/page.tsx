@@ -38,12 +38,12 @@ export default async function ProfilePage() {
 
   return (
     <div className="max-w-3xl">
-      <h1 className="font-display text-4xl uppercase text-paper">Profile</h1>
+      <h1 className="font-display text-4xl uppercase text-ink">Profile</h1>
 
       {/* Avatar + cover uploads */}
       <div className="mt-8 grid gap-6 sm:grid-cols-2">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-paper/50">
+          <p className="text-xs font-semibold uppercase tracking-wide text-ink/50">
             Your Photo
           </p>
           <div className="mt-2 flex items-center gap-4">
@@ -55,11 +55,11 @@ export default async function ProfilePage() {
               <AutoSubmitFileInput name="avatar" accept="image/png,image/jpeg,image/webp,image/gif" />
             </form>
           </div>
-          <p className="mt-2 text-xs text-paper/40">Max file size 10MB.</p>
+          <p className="mt-2 text-xs text-ink/40">Max file size 10MB.</p>
         </div>
 
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-paper/50">
+          <p className="text-xs font-semibold uppercase tracking-wide text-ink/50">
             Cover Image
           </p>
           <div
@@ -69,7 +69,7 @@ export default async function ProfilePage() {
           <form action={uploadCover} className="mt-2">
             <AutoSubmitFileInput name="cover" accept="image/png,image/jpeg,image/webp,image/gif" />
           </form>
-          <p className="mt-2 text-xs text-paper/40">Recommended 1920×400px, max 10MB.</p>
+          <p className="mt-2 text-xs text-ink/40">Recommended 1920×400px, max 10MB.</p>
         </div>
       </div>
 
@@ -87,18 +87,18 @@ export default async function ProfilePage() {
         <Field label="Website" name="website_url" type="url" defaultValue={full?.website_url ?? ""} />
 
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-wide text-paper/50">Bio</span>
+          <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">Bio</span>
           <textarea
             name="bio"
             rows={5}
             defaultValue={full?.bio ?? ""}
             placeholder="Tell brands and creatives about yourself…"
-            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-paper outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
           />
         </label>
 
         <fieldset>
-          <legend className="text-xs font-semibold uppercase tracking-wide text-paper/50">
+          <legend className="text-xs font-semibold uppercase tracking-wide text-ink/50">
             Social Links
           </legend>
           <div className="mt-2 grid grid-cols-2 gap-4">
@@ -120,7 +120,7 @@ export default async function ProfilePage() {
 
       {/* Portfolio */}
       <section className="mt-14">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-paper/50">Portfolio</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">Portfolio</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           {portfolio?.map((item) => {
             const remove = deletePortfolioItem.bind(null, item.id);
@@ -131,7 +131,7 @@ export default async function ProfilePage() {
                     href={item.file_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex h-32 items-center justify-center bg-paper/5 text-xs uppercase text-paper/60"
+                    className="flex h-32 items-center justify-center bg-paper/5 text-xs uppercase text-ink/60"
                   >
                     PDF Document
                   </a>
@@ -142,9 +142,9 @@ export default async function ProfilePage() {
                   />
                 )}
                 <div className="flex items-center justify-between p-2">
-                  <p className="truncate text-xs text-paper/70">{item.title || "Untitled"}</p>
+                  <p className="truncate text-xs text-ink/70">{item.title || "Untitled"}</p>
                   <form action={remove}>
-                    <button type="submit" className="text-xs text-paper/40 hover:text-magenta">
+                    <button type="submit" className="text-xs text-ink/40 hover:text-magenta">
                       Remove
                     </button>
                   </form>
@@ -156,34 +156,34 @@ export default async function ProfilePage() {
 
         <form action={addPortfolioItem} className="mt-6 grid gap-3 rounded-2xl border border-line p-5 sm:grid-cols-2">
           <label className="block sm:col-span-2">
-            <span className="text-xs text-paper/50">File (image or PDF)</span>
+            <span className="text-xs text-ink/50">File (image or PDF)</span>
             <input
               type="file"
               name="file"
               required
               accept="image/png,image/jpeg,image/webp,image/gif,application/pdf"
-              className="mt-1.5 w-full text-sm text-paper file:mr-3 file:rounded-full file:border file:border-line file:bg-transparent file:px-4 file:py-1.5 file:text-xs file:uppercase file:text-paper"
+              className="mt-1.5 w-full text-sm text-ink file:mr-3 file:rounded-full file:border file:border-line file:bg-transparent file:px-4 file:py-1.5 file:text-xs file:uppercase file:text-ink"
             />
           </label>
           <label className="block">
-            <span className="text-xs text-paper/50">Title (optional)</span>
+            <span className="text-xs text-ink/50">Title (optional)</span>
             <input
               name="title"
-              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2 text-sm text-paper outline-none focus:border-volt"
+              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2 text-sm text-ink outline-none focus:border-volt"
             />
           </label>
           <label className="block">
-            <span className="text-xs text-paper/50">Link (optional)</span>
+            <span className="text-xs text-ink/50">Link (optional)</span>
             <input
               name="link_url"
               type="url"
               placeholder="https://…"
-              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2 text-sm text-paper outline-none focus:border-volt"
+              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2 text-sm text-ink outline-none focus:border-volt"
             />
           </label>
           <button
             type="submit"
-            className="col-span-full rounded-full border border-line px-5 py-2.5 text-xs font-semibold uppercase tracking-wide text-paper hover:border-volt"
+            className="col-span-full rounded-full border border-line px-5 py-2.5 text-xs font-semibold uppercase tracking-wide text-ink hover:border-volt"
           >
             Add to Portfolio
           </button>
@@ -208,13 +208,13 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="text-xs font-semibold uppercase tracking-wide text-paper/50">{label}</span>
+      <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">{label}</span>
       <input
         name={name}
         type={type}
         defaultValue={defaultValue}
         placeholder={placeholder}
-        className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-paper outline-none focus:border-volt"
+        className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
       />
     </label>
   );

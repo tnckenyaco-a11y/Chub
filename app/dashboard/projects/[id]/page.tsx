@@ -57,8 +57,8 @@ export default async function EditProjectPage({
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-4xl uppercase text-paper">Edit Project</h1>
-        <span className="text-xs uppercase text-paper/50">{project.status.replace("_", " ")}</span>
+        <h1 className="font-display text-4xl uppercase text-ink">Edit Project</h1>
+        <span className="text-xs uppercase text-ink/50">{project.status.replace("_", " ")}</span>
       </div>
 
       {saved && (
@@ -69,35 +69,35 @@ export default async function EditProjectPage({
 
       <form action={update} className="mt-8 max-w-2xl space-y-5">
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-wide text-paper/50">
+          <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">
             Title
           </span>
           <input
             name="title"
             defaultValue={project.title}
             required
-            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-paper outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
           />
         </label>
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-wide text-paper/50">
+          <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">
             Description
           </span>
           <textarea
             name="description"
             defaultValue={project.description}
             rows={5}
-            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-3 text-paper outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-3 text-ink outline-none focus:border-volt"
           />
         </label>
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-wide text-paper/50">
+          <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">
             Category
           </span>
           <select
             name="category_id"
             defaultValue={project.category_id ?? ""}
-            className="mt-1.5 w-full rounded-lg border border-line bg-ink px-4 py-2.5 text-paper outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-paper px-4 py-2.5 text-ink outline-none focus:border-volt"
           >
             <option value="">Select a category</option>
             {categories?.map((c) => (
@@ -116,7 +116,7 @@ export default async function EditProjectPage({
       </form>
 
       <section className="mt-14">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-paper/50">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">
           Proposals ({proposals?.length ?? 0})
         </h2>
         <div className="mt-4 space-y-4">
@@ -126,13 +126,13 @@ export default async function EditProjectPage({
             return (
               <div key={p.id} className="rounded-2xl border border-line p-5">
                 <div className="flex items-center justify-between">
-                  <p className="font-semibold text-paper">
+                  <p className="font-semibold text-ink">
                     {p.creative?.first_name} {p.creative?.last_name}
                   </p>
                   <p className="text-sm text-volt">Ksh {p.rate.toLocaleString()}</p>
                 </div>
-                {p.message && <p className="mt-2 text-sm text-paper/60">{p.message}</p>}
-                <p className="mt-3 text-xs uppercase text-paper/40">{p.status}</p>
+                {p.message && <p className="mt-2 text-sm text-ink/60">{p.message}</p>}
+                <p className="mt-3 text-xs uppercase text-ink/40">{p.status}</p>
                 {p.status === "pending" && (
                   <div className="mt-4 flex gap-3">
                     <form action={accept}>
@@ -168,7 +168,7 @@ export default async function EditProjectPage({
                           name="phone_number"
                           required
                           placeholder="M-Pesa phone (07XXXXXXXX)"
-                          className="w-full rounded-lg border border-line bg-transparent px-4 py-2 text-sm text-paper outline-none focus:border-volt"
+                          className="w-full rounded-lg border border-line bg-transparent px-4 py-2 text-sm text-ink outline-none focus:border-volt"
                         />
                         <button
                           type="submit"
@@ -183,7 +183,7 @@ export default async function EditProjectPage({
               </div>
             );
           })}
-          {!proposals?.length && <p className="text-sm text-paper/40">No proposals yet.</p>}
+          {!proposals?.length && <p className="text-sm text-ink/40">No proposals yet.</p>}
         </div>
       </section>
 
@@ -191,7 +191,7 @@ export default async function EditProjectPage({
         <form action={close}>
           <button
             type="submit"
-            className="rounded-full border border-line px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper hover:border-paper"
+            className="rounded-full border border-line px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink hover:border-ink"
           >
             Close Project
           </button>

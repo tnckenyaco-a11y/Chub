@@ -3,14 +3,14 @@ import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 
 const statusColor: Record<string, string> = {
-  pending_payment: "text-paper/50",
+  pending_payment: "text-ink/50",
   paid: "text-volt",
   in_progress: "text-volt",
   delivered: "text-volt",
   completed: "text-volt",
   disputed: "text-magenta",
-  refunded: "text-paper/30",
-  cancelled: "text-paper/30",
+  refunded: "text-ink/30",
+  cancelled: "text-ink/30",
 };
 
 export default async function OrdersPage() {
@@ -27,7 +27,7 @@ export default async function OrdersPage() {
 
   return (
     <div>
-      <h1 className="font-display text-4xl uppercase text-paper">Orders</h1>
+      <h1 className="font-display text-4xl uppercase text-ink">Orders</h1>
 
       <ul className="mt-8 space-y-2">
         {orders?.map((o) => {
@@ -38,18 +38,18 @@ export default async function OrdersPage() {
                 href={`/dashboard/orders/${o.id}`}
                 className="flex items-center justify-between rounded-lg border border-line px-4 py-3 transition hover:border-volt"
               >
-                <span className="text-paper">
+                <span className="text-ink">
                   {counterpart ? `${counterpart.first_name} ${counterpart.last_name}` : "Order"} · Ksh{" "}
                   {o.amount_kes.toLocaleString()}
                 </span>
-                <span className={`text-xs uppercase ${statusColor[o.status] ?? "text-paper/50"}`}>
+                <span className={`text-xs uppercase ${statusColor[o.status] ?? "text-ink/50"}`}>
                   {o.status.replace("_", " ")}
                 </span>
               </Link>
             </li>
           );
         })}
-        {!orders?.length && <p className="text-sm text-paper/40">No orders yet.</p>}
+        {!orders?.length && <p className="text-sm text-ink/40">No orders yet.</p>}
       </ul>
     </div>
   );

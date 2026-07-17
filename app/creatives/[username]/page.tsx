@@ -79,10 +79,10 @@ export default async function CreativeProfilePage({
             style={profile.avatar_url ? { backgroundImage: `url(${profile.avatar_url})` } : undefined}
           />
           <div>
-            <h1 className="font-display text-4xl uppercase text-paper">
+            <h1 className="font-display text-4xl uppercase text-ink">
               {profile.first_name} {profile.last_name}
             </h1>
-            <p className="mt-1 text-sm text-paper/50">
+            <p className="mt-1 text-sm text-ink/50">
               @{profile.username}
               {(profile.city || profile.country) &&
                 ` · ${[profile.city, profile.country].filter(Boolean).join(", ")}`}
@@ -98,7 +98,7 @@ export default async function CreativeProfilePage({
                 <form action={messageAction}>
                   <button
                     type="submit"
-                    className="rounded-full border border-line px-5 py-2 text-xs font-semibold uppercase tracking-wide text-paper hover:border-volt hover:text-volt"
+                    className="rounded-full border border-line px-5 py-2 text-xs font-semibold uppercase tracking-wide text-ink hover:border-volt hover:text-volt"
                   >
                     Send Message
                   </button>
@@ -109,7 +109,7 @@ export default async function CreativeProfilePage({
                   href={profile.website_url}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-xs uppercase tracking-wide text-paper/60 hover:text-volt"
+                  className="text-xs uppercase tracking-wide text-ink/60 hover:text-volt"
                 >
                   Website ↗
                 </a>
@@ -120,7 +120,7 @@ export default async function CreativeProfilePage({
                   href={url}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-xs uppercase tracking-wide text-paper/60 hover:text-volt"
+                  className="text-xs uppercase tracking-wide text-ink/60 hover:text-volt"
                 >
                   {SOCIAL_LABELS[key] ?? key} ↗
                 </a>
@@ -129,11 +129,11 @@ export default async function CreativeProfilePage({
           </div>
         </div>
 
-        {profile.bio && <p className="mt-8 max-w-2xl text-paper/70">{profile.bio}</p>}
+        {profile.bio && <p className="mt-8 max-w-2xl text-ink/70">{profile.bio}</p>}
 
         {portfolio && portfolio.length > 0 && (
           <section className="mt-14">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-paper/50">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">
               Portfolio
             </h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-3">
@@ -148,7 +148,7 @@ export default async function CreativeProfilePage({
                     className="block overflow-hidden rounded-xl border border-line"
                   >
                     {item.file_type === "pdf" ? (
-                      <div className="flex h-36 items-center justify-center bg-paper/5 text-xs uppercase text-paper/60">
+                      <div className="flex h-36 items-center justify-center bg-paper/5 text-xs uppercase text-ink/60">
                         PDF Document
                       </div>
                     ) : (
@@ -158,7 +158,7 @@ export default async function CreativeProfilePage({
                       />
                     )}
                     {item.title && (
-                      <p className="p-2 truncate text-xs text-paper/70">{item.title}</p>
+                      <p className="p-2 truncate text-xs text-ink/70">{item.title}</p>
                     )}
                   </Wrapper>
                 );
@@ -168,7 +168,7 @@ export default async function CreativeProfilePage({
         )}
 
         <section className="mt-14">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-paper/50">Services</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">Services</h2>
           {services?.length ? (
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               {services.map((s) => (
@@ -177,29 +177,29 @@ export default async function CreativeProfilePage({
                   href={`/services/${s.slug}`}
                   className="rounded-2xl border border-line p-5 transition hover:border-volt"
                 >
-                  <p className="font-semibold text-paper">{s.title}</p>
-                  <p className="mt-1 line-clamp-2 text-sm text-paper/60">{s.description}</p>
+                  <p className="font-semibold text-ink">{s.title}</p>
+                  <p className="mt-1 line-clamp-2 text-sm text-ink/60">{s.description}</p>
                 </Link>
               ))}
             </div>
           ) : (
-            <p className="mt-4 text-sm text-paper/40">No published services yet.</p>
+            <p className="mt-4 text-sm text-ink/40">No published services yet.</p>
           )}
         </section>
 
         <section className="mt-14">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-paper/50">Reviews</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">Reviews</h2>
           {reviews?.length ? (
             <div className="mt-4 space-y-4">
               {reviews.map((r, i) => (
                 <div key={i} className="rounded-2xl border border-line p-5">
                   <p className="text-sm text-volt">{r.overall_rating} ★</p>
-                  {r.comment && <p className="mt-2 text-sm text-paper/70">{r.comment}</p>}
+                  {r.comment && <p className="mt-2 text-sm text-ink/70">{r.comment}</p>}
                 </div>
               ))}
             </div>
           ) : (
-            <p className="mt-4 text-sm text-paper/40">No reviews yet.</p>
+            <p className="mt-4 text-sm text-ink/40">No reviews yet.</p>
           )}
         </section>
       </div>

@@ -37,7 +37,7 @@ export default async function Home() {
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-volt">
               {content?.hero.eyebrow ?? "Create. Connect. Thrive."}
             </p>
-            <h1 className="font-display mt-6 text-6xl uppercase leading-[0.95] text-paper sm:text-7xl lg:text-8xl">
+            <h1 className="font-display mt-6 text-6xl uppercase leading-[0.95] text-ink sm:text-7xl lg:text-8xl">
               {(content?.hero.headline ?? ["The Future", "of African", "Creativity."]).map(
                 (line, i) => (
                   <span key={i} className="block">
@@ -49,13 +49,13 @@ export default async function Home() {
             <div className="mt-10 flex flex-wrap gap-4">
               <Link
                 href={content?.hero.cta_primary.href ?? "/creatives"}
-                className="rounded-full bg-volt px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-ink transition hover:bg-paper"
+                className="rounded-full bg-volt px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-ink transition hover:bg-ink hover:text-paper"
               >
                 {content?.hero.cta_primary.label ?? "Find Creatives"}
               </Link>
               <Link
                 href={content?.hero.cta_secondary.href ?? "/projects/new"}
-                className="rounded-full border border-line px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-paper transition hover:border-paper"
+                className="rounded-full border border-line px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-ink transition hover:border-ink"
               >
                 {content?.hero.cta_secondary.label ?? "Post a Project"}
               </Link>
@@ -63,10 +63,10 @@ export default async function Home() {
           </div>
 
           <div className="lg:justify-self-end">
-            <p className="font-display text-7xl text-volt sm:text-8xl">
+            <p className="font-accent text-7xl text-volt sm:text-8xl">
               {content?.hero.stat_value ?? "$4.2B"}
             </p>
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-paper/60">
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-ink/60">
               {content?.hero.stat_label}
             </p>
           </div>
@@ -92,17 +92,17 @@ export default async function Home() {
       {/* How it works */}
       {content?.how_it_works && (
         <section className="mx-auto max-w-7xl px-6 py-24 lg:px-10">
-          <h2 className="font-display text-4xl uppercase text-paper sm:text-5xl">
+          <h2 className="font-display text-4xl uppercase text-ink sm:text-5xl">
             How It Works
           </h2>
           <div className="mt-12 grid gap-10 sm:grid-cols-3">
             {content.how_it_works.map((item) => (
               <div key={item.step}>
                 <p className="font-display text-5xl text-magenta">{item.step}</p>
-                <h3 className="mt-4 text-lg font-semibold uppercase tracking-wide text-paper">
+                <h3 className="mt-4 text-lg font-semibold uppercase tracking-wide text-ink">
                   {item.title}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-paper/60">{item.body}</p>
+                <p className="mt-2 text-sm leading-relaxed text-ink/60">{item.body}</p>
               </div>
             ))}
           </div>
@@ -118,9 +118,11 @@ export default async function Home() {
               {content.testimonials.map((t) => (
                 <blockquote
                   key={t.name}
-                  className="rounded-2xl border border-ink/10 bg-ink/[0.03] p-8"
+                  className="rounded-2xl border border-ink/10 bg-ink/[0.02] p-8 shadow-sm"
                 >
-                  <p className="text-sm leading-relaxed text-ink/80">&ldquo;{t.quote}&rdquo;</p>
+                  <p className="font-accent text-xl leading-snug text-ink/90">
+                    &ldquo;{t.quote}&rdquo;
+                  </p>
                   <footer className="mt-6">
                     <p className="font-semibold">{t.name}</p>
                     <p className="text-xs uppercase tracking-wide text-ink/50">{t.role}</p>
@@ -134,22 +136,22 @@ export default async function Home() {
 
       {/* Final CTA */}
       <section className="mx-auto max-w-7xl px-6 py-24 text-center lg:px-10">
-        <h2 className="font-display text-4xl uppercase text-paper sm:text-5xl">
+        <h2 className="font-display text-4xl uppercase text-ink sm:text-5xl">
           Join the movement.
         </h2>
-        <p className="mx-auto mt-4 max-w-xl text-paper/60">
+        <p className="mx-auto mt-4 max-w-xl text-ink/60">
           Let&apos;s build the future of African creativity, together.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-4">
           <Link
             href="/sign-up?role=creative"
-            className="rounded-full bg-volt px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-ink transition hover:bg-paper"
+            className="rounded-full bg-volt px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-ink transition hover:bg-ink hover:text-paper"
           >
             Join as a Creative
           </Link>
           <Link
             href="/sign-up?role=brand"
-            className="rounded-full border border-line px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-paper transition hover:border-paper"
+            className="rounded-full border border-line px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-ink transition hover:border-ink"
           >
             Join as a Brand
           </Link>

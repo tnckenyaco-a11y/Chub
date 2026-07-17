@@ -1,5 +1,19 @@
+import {
+  Banknote,
+  Briefcase,
+  CheckCircle2,
+  ClipboardList,
+  type LucideIcon,
+} from "lucide-react";
 import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
+
+const ICON_STYLES = [
+  { icon: Briefcase, bg: "bg-brand" },
+  { icon: ClipboardList, bg: "bg-volt" },
+  { icon: CheckCircle2, bg: "bg-emerald-600" },
+  { icon: Banknote, bg: "bg-amber-500" },
+];
 
 export default async function DashboardPage() {
   const profile = await requireProfile();
@@ -12,19 +26,31 @@ export default async function DashboardPage() {
       <p className="text-xs font-semibold uppercase tracking-[0.3em] text-volt">
         {profile.role}
       </p>
-      <h1 className="font-display mt-4 text-4xl uppercase text-paper">
+      <h1 className="font-display mt-4 text-4xl uppercase text-ink">
         Welcome back, {profile.first_name || profile.username}
       </h1>
 
       <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((s) => (
-          <div key={s.label} className="rounded-2xl border border-line p-6">
-            <p className="font-display text-3xl text-volt">{s.value}</p>
-            <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-paper/50">
-              {s.label}
-            </p>
-          </div>
-        ))}
+        {stats.map((s, i) => {
+          const style = ICON_STYLES[i % ICON_STYLES.length];
+          const Icon: LucideIcon = style.icon;
+          return (
+            <div
+              key={s.label}
+              className="rounded-2xl border border-line bg-paper p-6 shadow-sm"
+            >
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold uppercase tracking-wide text-ink/50">
+                  {s.label}
+                </p>
+                <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${style.bg}`}>
+                  <Icon className="h-5 w-5 text-paper" />
+                </span>
+              </div>
+              <p className="font-display mt-4 text-3xl text-ink">{s.value}</p>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

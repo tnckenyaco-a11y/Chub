@@ -10,7 +10,7 @@ export default async function NewBlogPostPage({
 
   return (
     <div>
-      <h1 className="font-display text-4xl uppercase text-paper">New Post</h1>
+      <h1 className="font-display text-4xl uppercase text-ink">New Post</h1>
       {error && (
         <p className="mt-6 rounded-lg border border-magenta/40 bg-magenta/10 px-4 py-3 text-sm text-magenta">
           {error}

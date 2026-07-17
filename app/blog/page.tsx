@@ -16,7 +16,7 @@ export default async function BlogPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-20 lg:px-10">
-      <h1 className="font-display text-4xl uppercase text-paper">Blog</h1>
+      <h1 className="font-display text-4xl uppercase text-ink">Blog</h1>
       <div className="mt-10 space-y-10">
         {posts.map((post) => (
           <Link key={post.slug} href={`/blog/${post.slug}`} className="block group">
@@ -25,10 +25,10 @@ export default async function BlogPage() {
                 {post.category}
               </p>
             )}
-            <h2 className="font-display mt-2 text-2xl uppercase text-paper group-hover:text-volt">
+            <h2 className="font-display mt-2 text-2xl uppercase text-ink group-hover:text-volt">
               {post.title}
             </h2>
-            {post.excerpt && <p className="mt-2 text-sm text-paper/60">{post.excerpt}</p>}
+            {post.excerpt && <p className="mt-2 text-sm text-ink/60">{post.excerpt}</p>}
           </Link>
         ))}
       </div>

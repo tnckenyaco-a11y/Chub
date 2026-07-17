@@ -11,8 +11,8 @@ export default async function SignUpPage({
 
   return (
     <div className="mx-auto flex min-h-[80vh] max-w-md flex-col justify-center px-6 py-16">
-      <h1 className="font-display text-4xl uppercase text-paper">Sign Up</h1>
-      <p className="mt-2 text-sm text-paper/60">
+      <h1 className="font-display text-4xl uppercase text-ink">Sign Up</h1>
+      <p className="mt-2 text-sm text-ink/60">
         Already have an account?{" "}
         <Link href="/sign-in" className="text-volt hover:underline">
           Sign in
@@ -61,7 +61,7 @@ export default async function SignUpPage({
 
         <button
           type="submit"
-          className="w-full rounded-full bg-volt px-6 py-3.5 text-sm font-semibold uppercase tracking-wide text-ink transition hover:bg-paper"
+          className="w-full rounded-full bg-volt px-6 py-3.5 text-sm font-semibold uppercase tracking-wide text-ink transition hover:bg-ink hover:text-paper"
         >
           Sign Up
         </button>
@@ -85,7 +85,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="text-xs font-semibold uppercase tracking-wide text-paper/50">
+      <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">
         {label}
         {required ? " *" : ""}
       </span>
@@ -94,7 +94,7 @@ function Field({
         type={type}
         required={required}
         defaultValue={defaultValue}
-        className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-paper outline-none focus:border-volt"
+        className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
       />
     </label>
   );

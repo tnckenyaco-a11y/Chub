@@ -47,23 +47,23 @@ export default async function ProjectDetailPage({
             {project.categories.name}
           </p>
         )}
-        <h1 className="font-display mt-2 text-4xl uppercase text-paper sm:text-5xl">
+        <h1 className="font-display mt-2 text-4xl uppercase text-ink sm:text-5xl">
           {project.title}
         </h1>
         {project.brand && (
-          <p className="mt-4 text-sm text-paper/60">
+          <p className="mt-4 text-sm text-ink/60">
             Posted by {project.brand.first_name} {project.brand.last_name}
             {project.brand.city ? ` · ${project.brand.city}` : ""}
           </p>
         )}
-        <p className="mt-8 whitespace-pre-wrap leading-relaxed text-paper/70">
+        <p className="mt-8 whitespace-pre-wrap leading-relaxed text-ink/70">
           {project.description}
         </p>
       </div>
 
       <div>
         <div className="rounded-2xl border border-line p-6">
-          <p className="text-xs uppercase tracking-wide text-paper/40">
+          <p className="text-xs uppercase tracking-wide text-ink/40">
             {project.pricing_type === "fixed" ? "Fixed Price" : "Hourly Rate"}
           </p>
           <p className="font-display mt-2 text-2xl text-volt">
@@ -84,7 +84,7 @@ export default async function ProjectDetailPage({
 
         {profile?.role === "creative" ? (
           myProposal ? (
-            <p className="mt-6 text-sm text-paper/60">
+            <p className="mt-6 text-sm text-ink/60">
               You already sent a proposal — status:{" "}
               <span className="uppercase text-volt">{myProposal.status}</span>
             </p>
@@ -92,21 +92,21 @@ export default async function ProjectDetailPage({
             <form action={submit} className="mt-6 space-y-4">
               <input type="hidden" name="project_id" value={project.id} />
               <label className="block">
-                <span className="text-xs text-paper/50">Your rate (KES)</span>
+                <span className="text-xs text-ink/50">Your rate (KES)</span>
                 <input
                   name="rate"
                   type="number"
                   min={0}
                   required
-                  className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-paper outline-none focus:border-volt"
+                  className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
                 />
               </label>
               <label className="block">
-                <span className="text-xs text-paper/50">Message</span>
+                <span className="text-xs text-ink/50">Message</span>
                 <textarea
                   name="message"
                   rows={4}
-                  className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-3 text-paper outline-none focus:border-volt"
+                  className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-3 text-ink outline-none focus:border-volt"
                 />
               </label>
               <button
@@ -118,7 +118,7 @@ export default async function ProjectDetailPage({
             </form>
           )
         ) : (
-          <p className="mt-6 text-sm text-paper/40">
+          <p className="mt-6 text-sm text-ink/40">
             Sign in as a creative to send a proposal.
           </p>
         )}

@@ -55,13 +55,13 @@ export default async function AdminOverviewPage() {
 
   return (
     <div>
-      <h1 className="font-display text-4xl uppercase text-paper">Overview</h1>
+      <h1 className="font-display text-4xl uppercase text-ink">Overview</h1>
 
       <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((s) => (
           <div key={s.label} className="rounded-2xl border border-line p-6">
             <p className="font-display text-3xl text-volt">{s.value}</p>
-            <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-paper/50">
+            <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-ink/50">
               {s.label}
             </p>
           </div>
@@ -75,18 +75,18 @@ export default async function AdminOverviewPage() {
       </div>
 
       <div className="mt-12">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-paper/50">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">
           Top Categories (published services)
         </h2>
         <div className="mt-4 space-y-2">
           {topCategories.map(([name, count]) => (
             <div key={name} className="flex items-center justify-between text-sm">
-              <span className="text-paper/70">{name}</span>
+              <span className="text-ink/70">{name}</span>
               <span className="text-volt">{count}</span>
             </div>
           ))}
           {!topCategories.length && (
-            <p className="text-sm text-paper/40">No published services yet.</p>
+            <p className="text-sm text-ink/40">No published services yet.</p>
           )}
         </div>
       </div>
@@ -98,15 +98,15 @@ function FunnelCard({ title, funnel }: { title: string; funnel: Record<string, n
   const entries = Object.entries(funnel);
   return (
     <div className="rounded-2xl border border-line p-6">
-      <h3 className="text-sm font-semibold uppercase tracking-wide text-paper/50">{title}</h3>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-ink/50">{title}</h3>
       <div className="mt-4 space-y-2">
         {entries.map(([status, count]) => (
           <div key={status} className="flex items-center justify-between text-sm">
-            <span className="capitalize text-paper/70">{status.replace("_", " ")}</span>
-            <span className="text-paper">{count}</span>
+            <span className="capitalize text-ink/70">{status.replace("_", " ")}</span>
+            <span className="text-ink">{count}</span>
           </div>
         ))}
-        {!entries.length && <p className="text-sm text-paper/40">No data yet.</p>}
+        {!entries.length && <p className="text-sm text-ink/40">No data yet.</p>}
       </div>
     </div>
   );

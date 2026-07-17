@@ -5,10 +5,10 @@ import { createClient } from "@/lib/supabase/server";
 import { withdrawProposal } from "@/app/proposals/actions";
 
 const statusColor: Record<string, string> = {
-  pending: "text-paper/50",
+  pending: "text-ink/50",
   accepted: "text-volt",
   rejected: "text-magenta",
-  withdrawn: "text-paper/30",
+  withdrawn: "text-ink/30",
 };
 
 export default async function MyProposalsPage() {
@@ -24,7 +24,7 @@ export default async function MyProposalsPage() {
 
   return (
     <div>
-      <h1 className="font-display text-4xl uppercase text-paper">My Proposals</h1>
+      <h1 className="font-display text-4xl uppercase text-ink">My Proposals</h1>
 
       <ul className="mt-8 space-y-2">
         {proposals?.map((p) => {
@@ -36,21 +36,21 @@ export default async function MyProposalsPage() {
             >
               <div>
                 {p.project && (
-                  <Link href={`/projects/${p.project.slug}`} className="text-paper hover:text-volt">
+                  <Link href={`/projects/${p.project.slug}`} className="text-ink hover:text-volt">
                     {p.project.title}
                   </Link>
                 )}
-                <p className="text-xs text-paper/40">Ksh {p.rate.toLocaleString()}</p>
+                <p className="text-xs text-ink/40">Ksh {p.rate.toLocaleString()}</p>
               </div>
               <div className="flex items-center gap-4">
-                <span className={`text-xs uppercase ${statusColor[p.status] ?? "text-paper/50"}`}>
+                <span className={`text-xs uppercase ${statusColor[p.status] ?? "text-ink/50"}`}>
                   {p.status}
                 </span>
                 {p.status === "pending" && (
                   <form action={withdraw}>
                     <button
                       type="submit"
-                      className="text-xs uppercase tracking-wide text-paper/40 hover:text-magenta"
+                      className="text-xs uppercase tracking-wide text-ink/40 hover:text-magenta"
                     >
                       Withdraw
                     </button>
@@ -61,7 +61,7 @@ export default async function MyProposalsPage() {
           );
         })}
         {!proposals?.length && (
-          <p className="text-sm text-paper/40">No proposals sent yet.</p>
+          <p className="text-sm text-ink/40">No proposals sent yet.</p>
         )}
       </ul>
     </div>

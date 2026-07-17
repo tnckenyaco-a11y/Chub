@@ -45,8 +45,8 @@ export default async function EditServicePage({
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-4xl uppercase text-paper">Edit Service</h1>
-        <span className="text-xs uppercase text-paper/50">{service.status.replace("_", " ")}</span>
+        <h1 className="font-display text-4xl uppercase text-ink">Edit Service</h1>
+        <span className="text-xs uppercase text-ink/50">{service.status.replace("_", " ")}</span>
       </div>
 
       {saved && (
@@ -57,35 +57,35 @@ export default async function EditServicePage({
 
       <form action={update} className="mt-8 max-w-2xl space-y-5">
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-wide text-paper/50">
+          <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">
             Title
           </span>
           <input
             name="title"
             defaultValue={service.title}
             required
-            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-paper outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
           />
         </label>
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-wide text-paper/50">
+          <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">
             Description
           </span>
           <textarea
             name="description"
             defaultValue={service.description}
             rows={5}
-            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-3 text-paper outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-3 text-ink outline-none focus:border-volt"
           />
         </label>
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-wide text-paper/50">
+          <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">
             Category
           </span>
           <select
             name="category_id"
             defaultValue={service.category_id ?? ""}
-            className="mt-1.5 w-full rounded-lg border border-line bg-ink px-4 py-2.5 text-paper outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-paper px-4 py-2.5 text-ink outline-none focus:border-volt"
           >
             <option value="">Select a category</option>
             {categories?.map((c) => (
@@ -104,7 +104,7 @@ export default async function EditServicePage({
       </form>
 
       <section className="mt-14">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-paper/50">Packages</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">Packages</h2>
         <div className="mt-4 space-y-3">
           {packages?.map((p) => {
             const removePkg = deletePackage.bind(null, id, p.id);
@@ -114,8 +114,8 @@ export default async function EditServicePage({
                 className="flex items-center justify-between rounded-lg border border-line px-4 py-3"
               >
                 <div>
-                  <p className="text-paper">{p.title}</p>
-                  <p className="text-xs text-paper/50">
+                  <p className="text-ink">{p.title}</p>
+                  <p className="text-xs text-ink/50">
                     Ksh {p.price_kes.toLocaleString()} · {p.delivery_days}d delivery ·{" "}
                     {p.revisions} revisions
                   </p>
@@ -124,7 +124,7 @@ export default async function EditServicePage({
                   <form action={removePkg}>
                     <button
                       type="submit"
-                      className="text-xs uppercase tracking-wide text-paper/40 hover:text-magenta"
+                      className="text-xs uppercase tracking-wide text-ink/40 hover:text-magenta"
                     >
                       Remove
                     </button>
@@ -137,46 +137,46 @@ export default async function EditServicePage({
 
         <form action={addPkg} className="mt-6 grid gap-4 rounded-2xl border border-line p-5 sm:grid-cols-2">
           <label className="block">
-            <span className="text-xs text-paper/50">Package name</span>
+            <span className="text-xs text-ink/50">Package name</span>
             <input
               name="title"
               required
-              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-paper outline-none focus:border-volt"
+              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
             />
           </label>
           <label className="block">
-            <span className="text-xs text-paper/50">Price (KES)</span>
+            <span className="text-xs text-ink/50">Price (KES)</span>
             <input
               name="price_kes"
               type="number"
               min={0}
               required
-              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-paper outline-none focus:border-volt"
+              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
             />
           </label>
           <label className="block">
-            <span className="text-xs text-paper/50">Delivery time (days)</span>
+            <span className="text-xs text-ink/50">Delivery time (days)</span>
             <input
               name="delivery_days"
               type="number"
               min={1}
               required
-              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-paper outline-none focus:border-volt"
+              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
             />
           </label>
           <label className="block">
-            <span className="text-xs text-paper/50">Revisions</span>
+            <span className="text-xs text-ink/50">Revisions</span>
             <input
               name="revisions"
               type="number"
               min={0}
               defaultValue={1}
-              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-paper outline-none focus:border-volt"
+              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
             />
           </label>
           <button
             type="submit"
-            className="col-span-full rounded-full border border-line px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper hover:border-volt"
+            className="col-span-full rounded-full border border-line px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink hover:border-volt"
           >
             Add Package
           </button>

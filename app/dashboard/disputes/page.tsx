@@ -13,7 +13,7 @@ export default async function MyDisputesPage() {
 
   return (
     <div>
-      <h1 className="font-display text-4xl uppercase text-paper">Disputes</h1>
+      <h1 className="font-display text-4xl uppercase text-ink">Disputes</h1>
 
       <ul className="mt-8 space-y-2">
         {disputes?.map((d) => (
@@ -22,9 +22,9 @@ export default async function MyDisputesPage() {
               href={`/dashboard/orders/${d.order_id}`}
               className="flex items-center justify-between rounded-lg border border-line px-4 py-3 transition hover:border-volt"
             >
-              <span className="text-paper">{d.reason}</span>
+              <span className="text-ink">{d.reason}</span>
               <span className="flex items-center gap-4">
-                <span className="text-xs text-paper/40">
+                <span className="text-xs text-ink/40">
                   Ksh {d.orders?.amount_kes.toLocaleString()}
                 </span>
                 <span className="text-xs uppercase text-volt">{d.status.replace("_", " ")}</span>
@@ -33,7 +33,7 @@ export default async function MyDisputesPage() {
           </li>
         ))}
         {!disputes?.length && (
-          <p className="text-sm text-paper/40">
+          <p className="text-sm text-ink/40">
             No disputes — raise one from an order if something goes wrong.
           </p>
         )}

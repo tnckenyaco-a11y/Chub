@@ -8,7 +8,7 @@ export function AutoSubmitFileInput({
   accept: string;
 }) {
   return (
-    <label className="cursor-pointer rounded-full border border-line px-4 py-2 text-xs font-semibold uppercase tracking-wide text-paper hover:border-volt">
+    <label className="cursor-pointer rounded-full border border-line px-4 py-2 text-xs font-semibold uppercase tracking-wide text-ink hover:border-volt">
       Upload
       <input
         type="file"

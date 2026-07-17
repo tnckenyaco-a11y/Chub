@@ -38,19 +38,19 @@ export default async function ServiceDetailPage({
             {service.categories.name}
           </p>
         )}
-        <h1 className="font-display mt-2 text-4xl uppercase text-paper sm:text-5xl">
+        <h1 className="font-display mt-2 text-4xl uppercase text-ink sm:text-5xl">
           {service.title}
         </h1>
         {service.creative && (
           <Link
             href={`/creatives/${service.creative.username}`}
-            className="mt-4 inline-block text-sm text-paper/60 hover:text-volt"
+            className="mt-4 inline-block text-sm text-ink/60 hover:text-volt"
           >
             by {service.creative.first_name} {service.creative.last_name}
             {service.creative.city ? ` · ${service.creative.city}` : ""}
           </Link>
         )}
-        <p className="mt-8 whitespace-pre-wrap leading-relaxed text-paper/70">
+        <p className="mt-8 whitespace-pre-wrap leading-relaxed text-ink/70">
           {service.description}
         </p>
       </div>
@@ -61,13 +61,13 @@ export default async function ServiceDetailPage({
           return (
             <div key={p.id} className="rounded-2xl border border-line p-6">
               <div className="flex items-center justify-between">
-                <p className="font-semibold text-paper">{p.title}</p>
+                <p className="font-semibold text-ink">{p.title}</p>
                 <p className="font-display text-2xl text-volt">
                   Ksh {p.price_kes.toLocaleString()}
                 </p>
               </div>
-              {p.description && <p className="mt-2 text-sm text-paper/60">{p.description}</p>}
-              <p className="mt-3 text-xs text-paper/40">
+              {p.description && <p className="mt-2 text-sm text-ink/60">{p.description}</p>}
+              <p className="mt-3 text-xs text-ink/40">
                 {p.delivery_days} day delivery · {p.revisions} revision
                 {p.revisions === 1 ? "" : "s"}
               </p>
@@ -78,7 +78,7 @@ export default async function ServiceDetailPage({
                     name="phone_number"
                     required
                     placeholder="M-Pesa phone (07XXXXXXXX)"
-                    className="w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-sm text-paper outline-none focus:border-volt"
+                    className="w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-sm text-ink outline-none focus:border-volt"
                   />
                   <button
                     type="submit"
@@ -88,7 +88,7 @@ export default async function ServiceDetailPage({
                   </button>
                 </form>
               ) : (
-                <p className="mt-4 text-xs text-paper/40">Sign in as a brand to book this.</p>
+                <p className="mt-4 text-xs text-ink/40">Sign in as a brand to book this.</p>
               )}
             </div>
           );

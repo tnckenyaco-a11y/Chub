@@ -5,9 +5,9 @@ import { createClient } from "@/lib/supabase/server";
 
 const statusColor: Record<string, string> = {
   published: "text-volt",
-  pending_review: "text-paper/50",
+  pending_review: "text-ink/50",
   rejected: "text-magenta",
-  archived: "text-paper/30",
+  archived: "text-ink/30",
 };
 
 export default async function MyServicesPage() {
@@ -24,7 +24,7 @@ export default async function MyServicesPage() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-4xl uppercase text-paper">My Services</h1>
+        <h1 className="font-display text-4xl uppercase text-ink">My Services</h1>
         <Link
           href="/dashboard/services/new"
           className="rounded-full bg-volt px-5 py-2.5 text-xs font-semibold uppercase tracking-wide text-ink"
@@ -40,15 +40,15 @@ export default async function MyServicesPage() {
               href={`/dashboard/services/${s.id}`}
               className="flex items-center justify-between rounded-lg border border-line px-4 py-3 transition hover:border-volt"
             >
-              <span className="text-paper">{s.title}</span>
-              <span className={`text-xs uppercase ${statusColor[s.status] ?? "text-paper/50"}`}>
+              <span className="text-ink">{s.title}</span>
+              <span className={`text-xs uppercase ${statusColor[s.status] ?? "text-ink/50"}`}>
                 {s.status.replace("_", " ")}
               </span>
             </Link>
           </li>
         ))}
         {!services?.length && (
-          <p className="text-sm text-paper/40">
+          <p className="text-sm text-ink/40">
             No services yet — post one and it&apos;ll go live once approved.
           </p>
         )}

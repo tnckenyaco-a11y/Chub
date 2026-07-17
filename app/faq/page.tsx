@@ -7,15 +7,15 @@ export default async function FaqPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-20 lg:px-10">
-      <h1 className="font-display text-4xl uppercase text-paper">FAQ</h1>
+      <h1 className="font-display text-4xl uppercase text-ink">FAQ</h1>
       {items.length === 0 ? (
         <ComingSoon title="" note="FAQs are being written — check back soon." />
       ) : (
         <div className="mt-10 space-y-6">
           {items.map((item) => (
             <div key={item.question} className="border-b border-line pb-6">
-              <p className="font-semibold text-paper">{item.question}</p>
-              <p className="mt-2 text-sm text-paper/60">{item.answer}</p>
+              <p className="font-semibold text-ink">{item.question}</p>
+              <p className="mt-2 text-sm text-ink/60">{item.answer}</p>
             </div>
           ))}
         </div>

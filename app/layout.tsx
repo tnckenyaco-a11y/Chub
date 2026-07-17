@@ -1,13 +1,20 @@
 import type { Metadata } from "next";
-import { Baloo_2, Montserrat } from "next/font/google";
+import { DM_Sans, Montserrat, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { createClient } from "@/lib/supabase/server";
 
-const baloo = Baloo_2({
-  variable: "--font-baloo",
-  weight: ["600", "700", "800"],
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
+  weight: ["500", "600", "700"],
+  subsets: ["latin"],
+});
+
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  weight: ["500", "600"],
+  style: ["italic"],
   subsets: ["latin"],
 });
 
@@ -33,8 +40,11 @@ export default async function RootLayout({
   } = await supabase.auth.getUser();
 
   return (
-    <html lang="en" className={`${baloo.variable} ${montserrat.variable} h-full`}>
-      <body className="flex min-h-full flex-col bg-ink text-paper antialiased">
+    <html
+      lang="en"
+      className={`${dmSans.variable} ${playfair.variable} ${montserrat.variable} h-full`}
+    >
+      <body className="flex min-h-full flex-col bg-paper text-ink antialiased">
         <SiteNav isSignedIn={Boolean(user)} />
         <main className="flex-1">{children}</main>
         <SiteFooter />

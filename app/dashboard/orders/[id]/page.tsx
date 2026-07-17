@@ -58,10 +58,10 @@ export default async function OrderDetailPage({
       <p className="text-xs font-semibold uppercase tracking-[0.3em] text-volt">
         {order.status.replace("_", " ")}
       </p>
-      <h1 className="font-display mt-2 text-3xl uppercase text-paper">
+      <h1 className="font-display mt-2 text-3xl uppercase text-ink">
         {context ?? "Order"}
       </h1>
-      <p className="mt-2 text-sm text-paper/60">
+      <p className="mt-2 text-sm text-ink/60">
         {isBrand ? "Creative" : "Brand"}:{" "}
         {isBrand
           ? `${order.creative?.first_name} ${order.creative?.last_name}`
@@ -82,7 +82,7 @@ export default async function OrderDetailPage({
       )}
 
       {order.status === "pending_payment" && (
-        <p className="mt-8 text-sm text-paper/50">Waiting for M-Pesa payment confirmation…</p>
+        <p className="mt-8 text-sm text-ink/50">Waiting for M-Pesa payment confirmation…</p>
       )}
 
       {order.status === "paid" && !isBrand && (
@@ -120,19 +120,19 @@ export default async function OrderDetailPage({
 
       {payments && payments.length > 0 && (
         <div className="mt-10">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-paper/50">Payments</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">Payments</h2>
           <div className="mt-3 space-y-2">
             {payments.map((p, i) => (
               <div key={i} className="flex items-center justify-between text-sm">
-                <span className="capitalize text-paper/70">{p.kind}</span>
-                <span className="text-paper/50">Ksh {p.amount_kes.toLocaleString()}</span>
+                <span className="capitalize text-ink/70">{p.kind}</span>
+                <span className="text-ink/50">Ksh {p.amount_kes.toLocaleString()}</span>
                 <span
                   className={
                     p.status === "successful"
                       ? "text-volt"
                       : p.status === "failed"
                         ? "text-magenta"
-                        : "text-paper/40"
+                        : "text-ink/40"
                   }
                 >
                   {p.status}
@@ -148,15 +148,15 @@ export default async function OrderDetailPage({
           <p className="text-xs font-semibold uppercase tracking-wide text-magenta">
             Dispute — {dispute.status.replace("_", " ")}
           </p>
-          <p className="mt-2 text-sm text-paper/70">{dispute.reason}</p>
+          <p className="mt-2 text-sm text-ink/70">{dispute.reason}</p>
           {dispute.admin_notes && (
-            <p className="mt-2 text-sm text-paper/50">Admin notes: {dispute.admin_notes}</p>
+            <p className="mt-2 text-sm text-ink/50">Admin notes: {dispute.admin_notes}</p>
           )}
         </div>
       ) : (
         ["paid", "in_progress", "delivered"].includes(order.status) && (
           <details className="mt-10">
-            <summary className="cursor-pointer text-xs uppercase tracking-wide text-paper/40 hover:text-magenta">
+            <summary className="cursor-pointer text-xs uppercase tracking-wide text-ink/40 hover:text-magenta">
               Raise a dispute
             </summary>
             <form action={dispute_} className="mt-4 space-y-3">
@@ -165,7 +165,7 @@ export default async function OrderDetailPage({
                 required
                 rows={3}
                 placeholder="What went wrong?"
-                className="w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-sm text-paper outline-none focus:border-magenta"
+                className="w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-sm text-ink outline-none focus:border-magenta"
               />
               <button
                 type="submit"
@@ -180,7 +180,7 @@ export default async function OrderDetailPage({
 
       {order.status === "completed" && !alreadyReviewed && (
         <form action={review} className="mt-10 space-y-4 rounded-2xl border border-line p-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-paper/50">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">
             Leave a Review
           </h2>
           <RatingField name="overall_rating" label="Overall" required />
@@ -192,7 +192,7 @@ export default async function OrderDetailPage({
             name="comment"
             rows={3}
             placeholder="Share details of your experience…"
-            className="w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-sm text-paper outline-none focus:border-volt"
+            className="w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-sm text-ink outline-none focus:border-volt"
           />
           <button
             type="submit"
@@ -217,7 +217,7 @@ function RatingField({
 }) {
   return (
     <label className="flex items-center justify-between">
-      <span className="text-xs text-paper/50">
+      <span className="text-xs text-ink/50">
         {label}
         {required ? " *" : ""}
       </span>
@@ -225,7 +225,7 @@ function RatingField({
         name={name}
         required={required}
         defaultValue={required ? "5" : ""}
-        className="rounded-md border border-line bg-ink px-2 py-1 text-xs text-paper"
+        className="rounded-md border border-line bg-paper px-2 py-1 text-xs text-ink"
       >
         {!required && <option value="">—</option>}
         {[1, 2, 3, 4, 5].map((n) => (

@@ -24,7 +24,7 @@ export default async function AdminEditContentPage({
 
   return (
     <div>
-      <h1 className="font-display text-4xl uppercase text-paper">Edit /{page.slug}</h1>
+      <h1 className="font-display text-4xl uppercase text-ink">Edit /{page.slug}</h1>
 
       {saved && (
         <p className="mt-6 rounded-lg border border-volt/40 bg-volt/10 px-4 py-3 text-sm text-volt">
@@ -39,17 +39,17 @@ export default async function AdminEditContentPage({
 
       <form action={updateAction} className="mt-8 max-w-3xl space-y-5">
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-wide text-paper/50">
+          <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">
             Title
           </span>
           <input
             name="title"
             defaultValue={page.title}
-            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-paper outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
           />
         </label>
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-wide text-paper/50">
+          <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">
             Content (JSON)
           </span>
           <textarea
@@ -57,7 +57,7 @@ export default async function AdminEditContentPage({
             defaultValue={JSON.stringify(page.content, null, 2)}
             rows={24}
             spellCheck={false}
-            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-3 font-mono text-xs text-paper outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-3 font-mono text-xs text-ink outline-none focus:border-volt"
           />
         </label>
         <button
