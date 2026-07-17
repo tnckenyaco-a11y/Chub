@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentProfile } from "@/lib/current-user";
+import { initiateServiceCheckout } from "@/app/checkout/actions";
 
 export default async function ServiceDetailPage({
   params,
@@ -9,6 +11,7 @@ export default async function ServiceDetailPage({
 }) {
   const { slug } = await params;
   const supabase = await createClient();
+  const viewer = await getCurrentProfile();
 
   const { data: service } = await supabase
     .from("services")
@@ -53,28 +56,43 @@ export default async function ServiceDetailPage({
       </div>
 
       <div className="space-y-4">
-        {packages?.map((p) => (
-          <div key={p.id} className="rounded-2xl border border-line p-6">
-            <div className="flex items-center justify-between">
-              <p className="font-semibold text-paper">{p.title}</p>
-              <p className="font-display text-2xl text-volt">
-                Ksh {p.price_kes.toLocaleString()}
+        {packages?.map((p) => {
+          const checkout = initiateServiceCheckout.bind(null, p.id);
+          return (
+            <div key={p.id} className="rounded-2xl border border-line p-6">
+              <div className="flex items-center justify-between">
+                <p className="font-semibold text-paper">{p.title}</p>
+                <p className="font-display text-2xl text-volt">
+                  Ksh {p.price_kes.toLocaleString()}
+                </p>
+              </div>
+              {p.description && <p className="mt-2 text-sm text-paper/60">{p.description}</p>}
+              <p className="mt-3 text-xs text-paper/40">
+                {p.delivery_days} day delivery · {p.revisions} revision
+                {p.revisions === 1 ? "" : "s"}
               </p>
+
+              {viewer?.role === "brand" ? (
+                <form action={checkout} className="mt-4 space-y-2">
+                  <input
+                    name="phone_number"
+                    required
+                    placeholder="M-Pesa phone (07XXXXXXXX)"
+                    className="w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-sm text-paper outline-none focus:border-volt"
+                  />
+                  <button
+                    type="submit"
+                    className="w-full rounded-full bg-volt px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-ink"
+                  >
+                    Continue (Ksh {p.price_kes.toLocaleString()})
+                  </button>
+                </form>
+              ) : (
+                <p className="mt-4 text-xs text-paper/40">Sign in as a brand to book this.</p>
+              )}
             </div>
-            {p.description && <p className="mt-2 text-sm text-paper/60">{p.description}</p>}
-            <p className="mt-3 text-xs text-paper/40">
-              {p.delivery_days} day delivery · {p.revisions} revision
-              {p.revisions === 1 ? "" : "s"}
-            </p>
-            <button
-              disabled
-              title="Checkout launches with the payment integration"
-              className="mt-4 w-full cursor-not-allowed rounded-full border border-line px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-paper/40"
-            >
-              Continue (Ksh {p.price_kes.toLocaleString()})
-            </button>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

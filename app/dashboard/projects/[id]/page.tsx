@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { forbidden, notFound } from "next/navigation";
 import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
@@ -7,6 +8,7 @@ import {
   deleteProject,
   updateProject,
 } from "@/app/dashboard/projects/actions";
+import { initiateProposalCheckout } from "@/app/checkout/actions";
 
 export default async function EditProjectPage({
   params,
@@ -39,6 +41,14 @@ export default async function EditProjectPage({
   ]);
 
   if (!project || project.brand_id !== profile.id) notFound();
+
+  const acceptedProposalIds = (proposals ?? [])
+    .filter((p) => p.status === "accepted")
+    .map((p) => p.id);
+  const { data: existingOrders } = acceptedProposalIds.length
+    ? await supabase.from("orders").select("id, proposal_id").in("proposal_id", acceptedProposalIds)
+    : { data: [] };
+  const orderByProposal = new Map((existingOrders ?? []).map((o) => [o.proposal_id, o.id]));
 
   const update = updateProject.bind(null, id);
   const close = closeProject.bind(null, id);
@@ -141,6 +151,33 @@ export default async function EditProjectPage({
                         Reject
                       </button>
                     </form>
+                  </div>
+                )}
+                {p.status === "accepted" && (
+                  <div className="mt-4">
+                    {orderByProposal.has(p.id) ? (
+                      <Link
+                        href={`/dashboard/orders/${orderByProposal.get(p.id)}`}
+                        className="text-xs font-semibold uppercase tracking-wide text-volt hover:underline"
+                      >
+                        View Order →
+                      </Link>
+                    ) : (
+                      <form action={initiateProposalCheckout.bind(null, p.id)} className="space-y-2">
+                        <input
+                          name="phone_number"
+                          required
+                          placeholder="M-Pesa phone (07XXXXXXXX)"
+                          className="w-full rounded-lg border border-line bg-transparent px-4 py-2 text-sm text-paper outline-none focus:border-volt"
+                        />
+                        <button
+                          type="submit"
+                          className="rounded-full bg-volt px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-ink"
+                        >
+                          Pay &amp; Start (Ksh {p.rate.toLocaleString()})
+                        </button>
+                      </form>
+                    )}
                   </div>
                 )}
               </div>
