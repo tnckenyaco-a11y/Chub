@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/current-user";
 import { initiateServiceCheckout } from "@/app/checkout/actions";
+import { ImageGallery } from "@/components/image-gallery";
 
 export default async function ServiceDetailPage({
   params,
@@ -16,7 +17,7 @@ export default async function ServiceDetailPage({
   const { data: service } = await supabase
     .from("services")
     .select(
-      "id, title, description, status, categories(name), creative:profiles!services_creative_id_fkey(username, first_name, last_name, city, country)"
+      "id, title, description, status, categories(name), creative:profiles!services_creative_id_fkey(username, first_name, last_name, city, country), service_images(file_url, sort_order)"
     )
     .eq("slug", slug)
     .eq("status", "published")
@@ -30,9 +31,18 @@ export default async function ServiceDetailPage({
     .eq("service_id", service.id)
     .order("sort_order");
 
+  const images = [...(service.service_images ?? [])]
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map((img) => img.file_url);
+
   return (
     <div className="mx-auto grid max-w-6xl gap-12 px-6 py-16 lg:grid-cols-[1.4fr_1fr] lg:px-10">
       <div>
+        {images.length > 0 && (
+          <div className="mb-8">
+            <ImageGallery images={images} />
+          </div>
+        )}
         {service.categories && (
           <p className="text-xs font-semibold uppercase tracking-wide text-volt">
             {service.categories.name}

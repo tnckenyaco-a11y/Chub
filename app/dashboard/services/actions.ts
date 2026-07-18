@@ -5,6 +5,7 @@ import { redirect, forbidden } from "next/navigation";
 import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/slugify";
+import { uploadPublicMedia } from "@/lib/storage";
 
 async function requireCreative() {
   const profile = await requireProfile();
@@ -111,5 +112,34 @@ export async function deletePackage(serviceId: string, packageId: string) {
   await requireCreative();
   const supabase = await createClient();
   await supabase.from("service_packages").delete().eq("id", packageId);
+  revalidatePath(`/dashboard/services/${serviceId}`);
+}
+
+export async function addServiceImage(serviceId: string, formData: FormData) {
+  const profile = await requireCreative();
+  const supabase = await createClient();
+
+  const file = formData.get("file") as File | null;
+  if (!file || file.size === 0) return;
+
+  const url = await uploadPublicMedia(supabase, profile.id, "service", file);
+  const { count } = await supabase
+    .from("service_images")
+    .select("*", { count: "exact", head: true })
+    .eq("service_id", serviceId);
+
+  await supabase.from("service_images").insert({
+    service_id: serviceId,
+    file_url: url,
+    sort_order: count ?? 0,
+  });
+
+  revalidatePath(`/dashboard/services/${serviceId}`);
+}
+
+export async function deleteServiceImage(serviceId: string, imageId: string) {
+  await requireCreative();
+  const supabase = await createClient();
+  await supabase.from("service_images").delete().eq("id", imageId);
   revalidatePath(`/dashboard/services/${serviceId}`);
 }

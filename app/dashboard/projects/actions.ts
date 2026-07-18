@@ -5,6 +5,7 @@ import { redirect, forbidden } from "next/navigation";
 import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/slugify";
+import { uploadPublicMedia } from "@/lib/storage";
 
 async function requireBrand() {
   const profile = await requireProfile();
@@ -90,6 +91,35 @@ export async function deleteProject(id: string) {
   await supabase.from("projects").delete().eq("id", id);
   revalidatePath("/dashboard/projects");
   redirect("/dashboard/projects");
+}
+
+export async function addProjectImage(projectId: string, formData: FormData) {
+  const profile = await requireBrand();
+  const supabase = await createClient();
+
+  const file = formData.get("file") as File | null;
+  if (!file || file.size === 0) return;
+
+  const url = await uploadPublicMedia(supabase, profile.id, "project", file);
+  const { count } = await supabase
+    .from("project_images")
+    .select("*", { count: "exact", head: true })
+    .eq("project_id", projectId);
+
+  await supabase.from("project_images").insert({
+    project_id: projectId,
+    file_url: url,
+    sort_order: count ?? 0,
+  });
+
+  revalidatePath(`/dashboard/projects/${projectId}`);
+}
+
+export async function deleteProjectImage(projectId: string, imageId: string) {
+  await requireBrand();
+  const supabase = await createClient();
+  await supabase.from("project_images").delete().eq("id", imageId);
+  revalidatePath(`/dashboard/projects/${projectId}`);
 }
 
 export async function decideProposal(id: string, status: "accepted" | "rejected") {

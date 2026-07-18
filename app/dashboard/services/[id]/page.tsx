@@ -3,10 +3,13 @@ import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 import {
   addPackage,
+  addServiceImage,
   deletePackage,
   deleteService,
+  deleteServiceImage,
   updateService,
 } from "@/app/dashboard/services/actions";
+import { AutoSubmitFileInput } from "@/components/auto-submit-file-input";
 
 export default async function EditServicePage({
   params,
@@ -22,25 +25,32 @@ export default async function EditServicePage({
   const { saved } = await searchParams;
   const supabase = await createClient();
 
-  const [{ data: service }, { data: categories }, { data: packages }] = await Promise.all([
-    supabase
-      .from("services")
-      .select("id, title, description, category_id, status, creative_id")
-      .eq("id", id)
-      .maybeSingle(),
-    supabase.from("categories").select("id, name").order("sort_order"),
-    supabase
-      .from("service_packages")
-      .select("id, title, price_kes, delivery_days, revisions")
-      .eq("service_id", id)
-      .order("sort_order"),
-  ]);
+  const [{ data: service }, { data: categories }, { data: packages }, { data: images }] =
+    await Promise.all([
+      supabase
+        .from("services")
+        .select("id, title, description, category_id, status, creative_id")
+        .eq("id", id)
+        .maybeSingle(),
+      supabase.from("categories").select("id, name").order("sort_order"),
+      supabase
+        .from("service_packages")
+        .select("id, title, price_kes, delivery_days, revisions")
+        .eq("service_id", id)
+        .order("sort_order"),
+      supabase
+        .from("service_images")
+        .select("id, file_url")
+        .eq("service_id", id)
+        .order("sort_order"),
+    ]);
 
   if (!service || service.creative_id !== profile.id) notFound();
 
   const update = updateService.bind(null, id);
   const remove = deleteService.bind(null, id);
   const addPkg = addPackage.bind(null, id);
+  const addImage = addServiceImage.bind(null, id);
 
   return (
     <div>
@@ -102,6 +112,35 @@ export default async function EditServicePage({
           Save
         </button>
       </form>
+
+      <section className="mt-14 max-w-2xl">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">Images</h2>
+        <div className="mt-4 grid grid-cols-3 gap-4 sm:grid-cols-4">
+          {images?.map((img) => {
+            const removeImg = deleteServiceImage.bind(null, id, img.id);
+            return (
+              <div key={img.id} className="overflow-hidden rounded-xl border border-line">
+                <div
+                  className="h-24 bg-cover bg-center"
+                  style={{ backgroundImage: `url(${img.file_url})` }}
+                />
+                <form action={removeImg}>
+                  <button
+                    type="submit"
+                    className="w-full py-1.5 text-xs text-ink/40 hover:text-magenta"
+                  >
+                    Remove
+                  </button>
+                </form>
+              </div>
+            );
+          })}
+        </div>
+        <form action={addImage} className="mt-4">
+          <AutoSubmitFileInput name="file" accept="image/png,image/jpeg,image/webp,image/gif" />
+        </form>
+        <p className="mt-2 text-xs text-ink/40">Add photos of your work. Max file size 10MB.</p>
+      </section>
 
       <section className="mt-14">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">Packages</h2>

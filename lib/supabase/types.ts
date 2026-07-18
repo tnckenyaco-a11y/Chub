@@ -554,6 +554,38 @@ export type Database = {
           },
         ]
       }
+      project_images: {
+        Row: {
+          created_at: string
+          file_url: string
+          id: string
+          project_id: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          file_url: string
+          id?: string
+          project_id: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          file_url?: string
+          id?: string
+          project_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_images_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           brand_id: string
@@ -774,6 +806,38 @@ export type Database = {
           },
           {
             foreignKeyName: "service_focus_areas_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_images: {
+        Row: {
+          created_at: string
+          file_url: string
+          id: string
+          service_id: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          file_url: string
+          id?: string
+          service_id: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          file_url?: string
+          id?: string
+          service_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_images_service_id_fkey"
             columns: ["service_id"]
             isOneToOne: false
             referencedRelation: "services"

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/current-user";
 import { submitProposal } from "@/app/proposals/actions";
+import { ImageGallery } from "@/components/image-gallery";
 
 export default async function ProjectDetailPage({
   params,
@@ -18,13 +19,17 @@ export default async function ProjectDetailPage({
   const { data: project } = await supabase
     .from("projects")
     .select(
-      "id, title, description, pricing_type, budget_min, budget_max, categories(name), brand:profiles!projects_brand_id_fkey(first_name, last_name, city)"
+      "id, title, description, pricing_type, budget_min, budget_max, categories(name), brand:profiles!projects_brand_id_fkey(first_name, last_name, city), project_images(file_url, sort_order)"
     )
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();
 
   if (!project) notFound();
+
+  const images = [...(project.project_images ?? [])]
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map((img) => img.file_url);
 
   let myProposal = null;
   if (profile?.role === "creative") {
@@ -42,6 +47,11 @@ export default async function ProjectDetailPage({
   return (
     <div className="mx-auto grid max-w-6xl gap-12 px-6 py-16 lg:grid-cols-[1.4fr_1fr] lg:px-10">
       <div>
+        {images.length > 0 && (
+          <div className="mb-8">
+            <ImageGallery images={images} />
+          </div>
+        )}
         {project.categories && (
           <p className="text-xs font-semibold uppercase tracking-wide text-volt">
             {project.categories.name}

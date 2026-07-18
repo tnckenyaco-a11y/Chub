@@ -3,12 +3,15 @@ import { forbidden, notFound } from "next/navigation";
 import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 import {
+  addProjectImage,
   closeProject,
   decideProposal,
   deleteProject,
+  deleteProjectImage,
   updateProject,
 } from "@/app/dashboard/projects/actions";
 import { initiateProposalCheckout } from "@/app/checkout/actions";
+import { AutoSubmitFileInput } from "@/components/auto-submit-file-input";
 
 export default async function EditProjectPage({
   params,
@@ -24,21 +27,27 @@ export default async function EditProjectPage({
   const { saved } = await searchParams;
   const supabase = await createClient();
 
-  const [{ data: project }, { data: categories }, { data: proposals }] = await Promise.all([
-    supabase
-      .from("projects")
-      .select("id, title, description, category_id, status, brand_id")
-      .eq("id", id)
-      .maybeSingle(),
-    supabase.from("categories").select("id, name").order("sort_order"),
-    supabase
-      .from("proposals")
-      .select(
-        "id, message, rate, status, created_at, creative:profiles!proposals_creative_id_fkey(username, first_name, last_name)"
-      )
-      .eq("project_id", id)
-      .order("created_at", { ascending: false }),
-  ]);
+  const [{ data: project }, { data: categories }, { data: proposals }, { data: images }] =
+    await Promise.all([
+      supabase
+        .from("projects")
+        .select("id, title, description, category_id, status, brand_id")
+        .eq("id", id)
+        .maybeSingle(),
+      supabase.from("categories").select("id, name").order("sort_order"),
+      supabase
+        .from("proposals")
+        .select(
+          "id, message, rate, status, created_at, creative:profiles!proposals_creative_id_fkey(username, first_name, last_name)"
+        )
+        .eq("project_id", id)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("project_images")
+        .select("id, file_url")
+        .eq("project_id", id)
+        .order("sort_order"),
+    ]);
 
   if (!project || project.brand_id !== profile.id) notFound();
 
@@ -53,6 +62,7 @@ export default async function EditProjectPage({
   const update = updateProject.bind(null, id);
   const close = closeProject.bind(null, id);
   const remove = deleteProject.bind(null, id);
+  const addImage = addProjectImage.bind(null, id);
 
   return (
     <div>
@@ -114,6 +124,35 @@ export default async function EditProjectPage({
           Save
         </button>
       </form>
+
+      <section className="mt-14 max-w-2xl">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">Images</h2>
+        <div className="mt-4 grid grid-cols-3 gap-4 sm:grid-cols-4">
+          {images?.map((img) => {
+            const removeImg = deleteProjectImage.bind(null, id, img.id);
+            return (
+              <div key={img.id} className="overflow-hidden rounded-xl border border-line">
+                <div
+                  className="h-24 bg-cover bg-center"
+                  style={{ backgroundImage: `url(${img.file_url})` }}
+                />
+                <form action={removeImg}>
+                  <button
+                    type="submit"
+                    className="w-full py-1.5 text-xs text-ink/40 hover:text-magenta"
+                  >
+                    Remove
+                  </button>
+                </form>
+              </div>
+            );
+          })}
+        </div>
+        <form action={addImage} className="mt-4">
+          <AutoSubmitFileInput name="file" accept="image/png,image/jpeg,image/webp,image/gif" />
+        </form>
+        <p className="mt-2 text-xs text-ink/40">Add reference photos for this project. Max file size 10MB.</p>
+      </section>
 
       <section className="mt-14">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">
