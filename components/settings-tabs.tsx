@@ -6,13 +6,16 @@ export function SettingsTabs({
   general,
   media,
   branding,
+  identity,
 }: {
   general: ReactNode;
   media: ReactNode;
   branding: ReactNode;
+  identity: ReactNode;
 }) {
   const tabs = [
     { id: "general", label: "General", content: general },
+    { id: "identity", label: "Site Identity", content: identity },
     { id: "media", label: "Media Library", content: media },
     { id: "branding", label: "Branding", content: branding },
   ] as const;

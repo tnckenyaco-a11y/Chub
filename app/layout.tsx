@@ -5,6 +5,7 @@ import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { createClient } from "@/lib/supabase/server";
 import { getBranding, DEFAULT_BRANDING } from "@/lib/branding";
+import { getSiteIdentity } from "@/lib/site-identity";
 import { shadeHex } from "@/lib/color";
 
 const dmSans = DM_Sans({
@@ -25,11 +26,25 @@ const montserrat = Montserrat({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Nyx Creators Hub — The Future of African Creativity",
-  description:
-    "The trusted marketplace connecting Africa's creative talent with brands who need them.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const identity = await getSiteIdentity();
+
+  return {
+    title: `${identity.site_name} — The Future of African Creativity`,
+    description: identity.tagline,
+    openGraph: {
+      title: identity.site_name,
+      description: identity.tagline,
+      images: identity.og_image_url ? [identity.og_image_url] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: identity.site_name,
+      description: identity.tagline,
+      images: identity.og_image_url ? [identity.og_image_url] : undefined,
+    },
+  };
+}
 
 export default async function RootLayout({
   children,

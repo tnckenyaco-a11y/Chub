@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/require-admin";
 import { getBranding } from "@/lib/branding";
+import { getSiteIdentity } from "@/lib/site-identity";
 import { isValidHex } from "@/lib/color";
 import { uploadPublicMedia } from "@/lib/storage";
 
@@ -89,6 +90,32 @@ export async function updateBranding(formData: FormData) {
 
   revalidatePath("/", "layout");
   redirect("/admin/settings?saved=branding");
+}
+
+export async function updateSiteIdentity(formData: FormData) {
+  const { supabase, user } = await requireAdmin();
+
+  const current = await getSiteIdentity();
+  const siteName = String(formData.get("site_name") ?? "").trim() || current.site_name;
+  const tagline = String(formData.get("tagline") ?? "").trim() || current.tagline;
+  const legalName = String(formData.get("legal_name") ?? "").trim() || current.legal_name;
+
+  let ogImageUrl = current.og_image_url;
+  const ogImageFile = formData.get("og_image") as File | null;
+  if (ogImageFile && ogImageFile.size > 0) {
+    ogImageUrl = await uploadPublicMedia(supabase, user.id, "branding", ogImageFile);
+  }
+
+  await supabase
+    .from("site_pages")
+    .update({
+      content: { site_name: siteName, tagline, legal_name: legalName, og_image_url: ogImageUrl },
+      updated_by: user.id,
+    })
+    .eq("slug", "site_identity");
+
+  revalidatePath("/", "layout");
+  redirect("/admin/settings?saved=identity");
 }
 
 export async function deleteMediaAsset(path: string) {

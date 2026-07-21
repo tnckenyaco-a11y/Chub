@@ -1,6 +1,7 @@
 import { FileText, Trash2 } from "lucide-react";
 import { getSitePage } from "@/lib/site-pages";
 import { getBranding } from "@/lib/branding";
+import { getSiteIdentity } from "@/lib/site-identity";
 import { createClient } from "@/lib/supabase/server";
 import { listPublicMedia } from "@/lib/storage";
 import { SettingsTabs } from "@/components/settings-tabs";
@@ -8,6 +9,7 @@ import {
   updateContactInfo,
   updateSocialLinks,
   updateBranding,
+  updateSiteIdentity,
   deleteMediaAsset,
 } from "@/app/admin/settings/actions";
 import { InstagramIcon, TikTokIcon, LinkedInIcon, WhatsAppIcon, YouTubeIcon } from "@/components/social-icons";
@@ -38,10 +40,11 @@ export default async function AdminSettingsPage({
 }) {
   const { saved, error } = await searchParams;
   const supabase = await createClient();
-  const [contactPage, socialPage, branding, media] = await Promise.all([
+  const [contactPage, socialPage, branding, identity, media] = await Promise.all([
     getSitePage<ContactContent>("contact"),
     getSitePage<SocialContent>("social_links"),
     getBranding(),
+    getSiteIdentity(),
     listPublicMedia(supabase),
   ]);
   const contact = contactPage?.content ?? {};
@@ -51,7 +54,7 @@ export default async function AdminSettingsPage({
     <div>
       <h1 className="font-display text-3xl text-ink">Platform Settings</h1>
       <p className="mt-2 text-sm text-ink/50">
-        Manage contact info, social links, media library, and brand appearance.
+        Manage contact info, social links, site identity, media library, and brand appearance.
       </p>
 
       <SettingsTabs
@@ -132,6 +135,64 @@ export default async function AdminSettingsPage({
                 className="mt-5 rounded-full bg-grad-volt px-6 py-3 text-xs font-bold uppercase tracking-wide text-ink shadow-sm transition hover:opacity-90"
               >
                 Save Social Links
+              </button>
+            </form>
+          </div>
+        }
+        identity={
+          <div className="max-w-2xl space-y-6">
+            {saved === "identity" && (
+              <p className="rounded-lg border border-green/40 bg-green/10 px-4 py-3 text-sm text-green">
+                Site identity saved.
+              </p>
+            )}
+
+            <form
+              action={updateSiteIdentity}
+              className="rounded-2xl border border-line bg-paper p-6 shadow-sm"
+            >
+              <h2 className="text-sm font-semibold text-ink">Site Identity</h2>
+              <p className="mt-1 text-xs text-ink/50">
+                Powers the browser tab title, search-engine description, and what a social share
+                card of the site looks like.
+              </p>
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                <Field label="Site Name" name="site_name" defaultValue={identity.site_name} />
+                <Field label="Legal / Company Name" name="legal_name" defaultValue={identity.legal_name} />
+              </div>
+              <label className="mt-4 block">
+                <span className="text-[11px] font-bold uppercase tracking-wide text-ink/50">
+                  Tagline
+                </span>
+                <textarea
+                  name="tagline"
+                  defaultValue={identity.tagline}
+                  rows={2}
+                  className="mt-1.5 w-full rounded-lg border border-line px-3.5 py-2.5 text-sm outline-none focus:border-brand"
+                />
+                <p className="mt-1 text-[11px] text-ink/40">
+                  Used as the site's meta description and the footer blurb.
+                </p>
+              </label>
+
+              <div className="mt-5">
+                <LogoField
+                  label="Social Share Image"
+                  name="og_image"
+                  currentUrl={identity.og_image_url}
+                  previewBg="bg-bg"
+                />
+                <p className="mt-1.5 text-[11px] text-ink/40">
+                  Shown when a link to the site is shared on WhatsApp, X, LinkedIn, etc.
+                  Recommended: 1200×630px.
+                </p>
+              </div>
+
+              <button
+                type="submit"
+                className="mt-6 rounded-full bg-grad-volt px-6 py-3 text-xs font-bold uppercase tracking-wide text-ink shadow-sm transition hover:opacity-90"
+              >
+                Save Site Identity
               </button>
             </form>
           </div>

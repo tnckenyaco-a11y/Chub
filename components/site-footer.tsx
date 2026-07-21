@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getSitePage } from "@/lib/site-pages";
 import { getBranding } from "@/lib/branding";
+import { getSiteIdentity } from "@/lib/site-identity";
 import { InstagramIcon, TikTokIcon, LinkedInIcon, WhatsAppIcon, YouTubeIcon } from "@/components/social-icons";
 
 const columns = [
@@ -36,9 +37,10 @@ const SOCIAL_ICONS: Record<string, React.ComponentType<{ className?: string }>> 
 };
 
 export async function SiteFooter() {
-  const [socialPage, branding] = await Promise.all([
+  const [socialPage, branding, identity] = await Promise.all([
     getSitePage<SocialContent>("social_links"),
     getBranding(),
+    getSiteIdentity(),
   ]);
   const socialLinks = Object.entries(socialPage?.content ?? {}).filter(
     ([, entry]) => entry.enabled && entry.url
@@ -57,10 +59,7 @@ export async function SiteFooter() {
               className="h-9 w-auto self-start"
               unoptimized={Boolean(branding.logo_light_url)}
             />
-            <p className="mt-4 max-w-sm text-sm text-paper/70">
-              The trusted marketplace connecting Africa&apos;s creative talent with brands
-              who need them — vetted creatives, guaranteed payment, real work.
-            </p>
+            <p className="mt-4 max-w-sm text-sm text-paper/70">{identity.tagline}</p>
           </div>
           {columns.map((col) => (
             <div key={col.title}>
@@ -83,7 +82,7 @@ export async function SiteFooter() {
           ))}
         </div>
         <div className="mt-16 flex flex-col gap-4 border-t border-paper/15 pt-8 text-xs text-paper/60 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} Nyx House of Creatives. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {identity.legal_name}. All rights reserved.</p>
           {socialLinks.length > 0 && (
             <div className="flex gap-4">
               {socialLinks.map(([key, entry]) => {
