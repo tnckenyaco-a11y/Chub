@@ -1,5 +1,6 @@
 import { requireProfile } from "@/lib/current-user";
 import { DashboardNav } from "@/components/dashboard-nav";
+import { AssistantWidget } from "@/components/assistant-widget";
 
 export default async function DashboardLayout({
   children,
@@ -28,6 +29,7 @@ export default async function DashboardLayout({
         <DashboardNav role={profile.role} />
         <div className="min-w-0 flex-1">{children}</div>
       </div>
+      <AssistantWidget role={profile.role} />
     </div>
   );
 }

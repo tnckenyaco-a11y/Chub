@@ -270,12 +270,12 @@ export default async function Home() {
                 <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
                   <h3 className="font-display text-lg text-paper">Nyx, your AI assistant</h3>
                   <span className="rounded-full bg-paper/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-paper">
-                    Coming soon
+                    Live
                   </span>
                 </div>
                 <p className="mt-1 max-w-lg text-sm text-paper/70">
-                  We&apos;re building an AI assistant into every dashboard to help with payouts,
-                  proposals, and order status. It&apos;s on the roadmap — not live yet.
+                  Built into every dashboard — ask about your orders, proposals, or earnings,
+                  or have it send a proposal or release a payout for you.
                 </p>
               </div>
             </div>
