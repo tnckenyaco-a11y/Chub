@@ -9,6 +9,7 @@ import {
   Flag,
   MessageCircle,
   ShoppingBag,
+  TrendingUp,
   User,
   Settings,
 } from "lucide-react";
@@ -29,6 +30,9 @@ export function DashboardNav({ role }: { role: "creative" | "brand" | "admin" })
       ? [{ href: "/dashboard/projects", label: "My Projects", icon: Briefcase }]
       : []),
     { href: "/dashboard/orders", label: "Orders", icon: ShoppingBag },
+    ...(role === "creative"
+      ? [{ href: "/dashboard/earnings", label: "Earnings", icon: TrendingUp }]
+      : []),
     { href: "/dashboard/messages", label: "Messages", icon: MessageCircle },
   ];
 
@@ -38,9 +42,9 @@ export function DashboardNav({ role }: { role: "creative" | "brand" | "admin" })
   ];
 
   return (
-    <aside className="flex w-64 shrink-0 flex-col justify-between rounded-2xl bg-brand p-5">
+    <aside className="flex w-64 shrink-0 flex-col justify-between rounded-2xl bg-grad-brand p-5">
       <div>
-        <p className="px-2 text-xs font-semibold uppercase tracking-[0.3em] text-paper/60">
+        <p className="px-2 text-xs font-semibold uppercase tracking-[0.3em] text-paper/50">
           Dashboard
         </p>
         <nav className="mt-4 flex flex-col gap-1">
@@ -85,8 +89,8 @@ function NavItem({
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${
-        active ? "bg-paper text-brand" : "text-paper/80 hover:bg-paper/10 hover:text-paper"
+      className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+        active ? "bg-paper text-brand shadow-sm" : "text-paper/80 hover:bg-paper/10 hover:text-paper"
       }`}
     >
       <Icon size={18} />

@@ -31,7 +31,7 @@ export default async function EditBlogPostPage({
         <h1 className="font-display text-4xl uppercase text-ink">Edit Post</h1>
         <span
           className={
-            post.status === "published" ? "text-xs uppercase text-volt" : "text-xs uppercase text-ink/40"
+            post.status === "published" ? "text-xs uppercase text-green" : "text-xs uppercase text-ink/40"
           }
         >
           {post.status}
@@ -39,7 +39,7 @@ export default async function EditBlogPostPage({
       </div>
 
       {saved && (
-        <p className="mt-6 rounded-lg border border-volt/40 bg-volt/10 px-4 py-3 text-sm text-volt">
+        <p className="mt-6 rounded-lg border border-green/40 bg-green/10 px-4 py-3 text-sm text-green">
           Saved.
         </p>
       )}
@@ -49,7 +49,7 @@ export default async function EditBlogPostPage({
         <div className="flex flex-wrap gap-3">
           <button
             type="submit"
-            className="rounded-full bg-volt px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink"
+            className="rounded-full bg-grad-brand px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
           >
             Save
           </button>

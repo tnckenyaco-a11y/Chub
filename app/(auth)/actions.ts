@@ -1,7 +1,15 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+
+async function siteOrigin() {
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  const protocol = h.get("x-forwarded-proto") ?? (host?.includes("localhost") ? "http" : "https");
+  return host ? `${protocol}://${host}` : "http://localhost:3000";
+}
 
 export async function signUp(formData: FormData) {
   const role = formData.get("role") === "creative" ? "creative" : "brand";
@@ -71,4 +79,42 @@ export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/");
+}
+
+export async function requestPasswordReset(formData: FormData) {
+  const email = String(formData.get("email") ?? "").trim();
+  if (!email) {
+    redirect(`/forgot-password?error=${encodeURIComponent("Enter your email address.")}`);
+  }
+
+  const supabase = await createClient();
+  const origin = await siteOrigin();
+  await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/auth/callback?next=/reset-password`,
+  });
+
+  // Always redirect to the same confirmation screen, whether or not the
+  // email exists — avoids leaking which addresses have accounts.
+  redirect("/forgot-password/check-email");
+}
+
+export async function updatePassword(formData: FormData) {
+  const password = String(formData.get("password") ?? "");
+  const confirmPassword = String(formData.get("confirm_password") ?? "");
+
+  if (password !== confirmPassword) {
+    redirect(`/reset-password?error=${encodeURIComponent("Passwords do not match.")}`);
+  }
+  if (password.length < 8) {
+    redirect(`/reset-password?error=${encodeURIComponent("Password must be at least 8 characters.")}`);
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ password });
+
+  if (error) {
+    redirect(`/reset-password?error=${encodeURIComponent(error.message)}`);
+  }
+
+  redirect("/sign-in?reset=1");
 }

@@ -1,3 +1,4 @@
+import { Check, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { moderateProject, moderateService } from "@/app/admin/listings/actions";
 
@@ -19,10 +20,10 @@ export default async function AdminListingsPage() {
 
   return (
     <div>
-      <h1 className="font-display text-4xl uppercase text-ink">Listings Moderation</h1>
+      <h1 className="font-display text-3xl text-ink">Listings Moderation</h1>
 
       <section className="mt-10">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-ink/50">
           Services ({services?.length ?? 0})
         </h2>
         <div className="mt-4 space-y-4">
@@ -30,7 +31,7 @@ export default async function AdminListingsPage() {
             const approve = moderateService.bind(null, s.id, "published");
             const reject = moderateService.bind(null, s.id, "rejected");
             return (
-              <div key={s.id} className="rounded-2xl border border-line p-5">
+              <div key={s.id} className="rounded-2xl border border-line bg-paper p-5 shadow-sm">
                 <p className="font-semibold text-ink">{s.title}</p>
                 {s.creative && (
                   <p className="mt-1 text-xs text-ink/50">
@@ -42,16 +43,18 @@ export default async function AdminListingsPage() {
                   <form action={approve}>
                     <button
                       type="submit"
-                      className="rounded-full bg-volt px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-ink"
+                      className="flex items-center gap-1.5 rounded-full bg-green px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-paper transition hover:opacity-90"
                     >
+                      <Check className="h-3.5 w-3.5" />
                       Approve
                     </button>
                   </form>
                   <form action={reject}>
                     <button
                       type="submit"
-                      className="rounded-full border border-magenta/40 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-magenta"
+                      className="flex items-center gap-1.5 rounded-full border border-magenta/40 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-magenta transition hover:bg-magenta/5"
                     >
+                      <X className="h-3.5 w-3.5" />
                       Reject
                     </button>
                   </form>
@@ -64,7 +67,7 @@ export default async function AdminListingsPage() {
       </section>
 
       <section className="mt-14">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-ink/50">
           Projects ({projects?.length ?? 0})
         </h2>
         <div className="mt-4 space-y-4">
@@ -72,7 +75,7 @@ export default async function AdminListingsPage() {
             const approve = moderateProject.bind(null, p.id, "published");
             const reject = moderateProject.bind(null, p.id, "rejected");
             return (
-              <div key={p.id} className="rounded-2xl border border-line p-5">
+              <div key={p.id} className="rounded-2xl border border-line bg-paper p-5 shadow-sm">
                 <p className="font-semibold text-ink">{p.title}</p>
                 {p.brand && (
                   <p className="mt-1 text-xs text-ink/50">
@@ -84,16 +87,18 @@ export default async function AdminListingsPage() {
                   <form action={approve}>
                     <button
                       type="submit"
-                      className="rounded-full bg-volt px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-ink"
+                      className="flex items-center gap-1.5 rounded-full bg-green px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-paper transition hover:opacity-90"
                     >
+                      <Check className="h-3.5 w-3.5" />
                       Approve
                     </button>
                   </form>
                   <form action={reject}>
                     <button
                       type="submit"
-                      className="rounded-full border border-magenta/40 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-magenta"
+                      className="flex items-center gap-1.5 rounded-full border border-magenta/40 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-magenta transition hover:bg-magenta/5"
                     >
+                      <X className="h-3.5 w-3.5" />
                       Reject
                     </button>
                   </form>

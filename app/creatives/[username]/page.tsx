@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Globe, MapPin, Star } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/current-user";
 import { startConversation } from "@/app/messages/actions";
+import { ProfileTabs } from "@/components/profile-tabs";
 
 const SOCIAL_LABELS: Record<string, string> = {
   instagram: "Instagram",
@@ -62,146 +64,171 @@ export default async function CreativeProfilePage({
   const socialLinks = Object.entries((profile.social_links as Record<string, string>) ?? {}).filter(
     ([, url]) => Boolean(url)
   );
+  const initials = `${profile.first_name?.[0] ?? ""}${profile.last_name?.[0] ?? ""}`.toUpperCase();
+
+  const aboutContent = (
+    <div className="max-w-2xl space-y-6">
+      {profile.bio ? (
+        <p className="leading-relaxed text-ink/70">{profile.bio}</p>
+      ) : (
+        <p className="text-sm text-ink/40">This creative hasn&apos;t written a bio yet.</p>
+      )}
+      {socialLinks.length > 0 && (
+        <div className="flex flex-wrap gap-4 border-t border-line pt-6">
+          {socialLinks.map(([key, url]) => (
+            <a
+              key={key}
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs font-semibold uppercase tracking-wide text-ink/60 hover:text-brand"
+            >
+              {SOCIAL_LABELS[key] ?? key} ↗
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  const portfolioContent =
+    portfolio && portfolio.length > 0 ? (
+      <div className="grid gap-4 sm:grid-cols-3">
+        {portfolio.map((item) => {
+          const Wrapper = item.link_url ? "a" : "div";
+          return (
+            <Wrapper
+              key={item.id}
+              {...(item.link_url
+                ? { href: item.link_url, target: "_blank", rel: "noreferrer" }
+                : {})}
+              className="group block overflow-hidden rounded-xl border border-line transition hover:shadow-md"
+            >
+              {item.file_type === "pdf" ? (
+                <div className="flex h-36 items-center justify-center bg-bg text-xs uppercase text-ink/60">
+                  PDF Document
+                </div>
+              ) : (
+                <div
+                  className="h-36 bg-cover bg-center transition group-hover:scale-[1.02]"
+                  style={{ backgroundImage: `url(${item.file_url})` }}
+                />
+              )}
+              {item.title && (
+                <p className="truncate p-2 text-xs text-ink/70">{item.title}</p>
+              )}
+            </Wrapper>
+          );
+        })}
+      </div>
+    ) : (
+      <p className="text-sm text-ink/40">No portfolio pieces added yet.</p>
+    );
+
+  const servicesContent = services?.length ? (
+    <div className="grid gap-4 sm:grid-cols-2">
+      {services.map((s) => (
+        <Link
+          key={s.id}
+          href={`/services/${s.slug}`}
+          className="rounded-2xl border border-line p-5 transition hover:-translate-y-0.5 hover:border-brand hover:shadow-md"
+        >
+          <p className="font-semibold text-ink">{s.title}</p>
+          <p className="mt-1 line-clamp-2 text-sm text-ink/60">{s.description}</p>
+        </Link>
+      ))}
+    </div>
+  ) : (
+    <p className="text-sm text-ink/40">No published services yet.</p>
+  );
+
+  const reviewsContent = reviews?.length ? (
+    <div className="space-y-4">
+      {reviews.map((r, i) => (
+        <div key={i} className="rounded-2xl border border-line p-5">
+          <p className="flex items-center gap-1 text-sm font-semibold text-volt">
+            <Star className="h-4 w-4 fill-volt" /> {r.overall_rating}
+          </p>
+          {r.comment && <p className="mt-2 text-sm text-ink/70">{r.comment}</p>}
+        </div>
+      ))}
+    </div>
+  ) : (
+    <p className="text-sm text-ink/40">No reviews yet.</p>
+  );
 
   return (
     <div>
-      {profile.cover_url && (
-        <div
-          className="h-40 w-full bg-cover bg-center sm:h-56"
-          style={{ backgroundImage: `url(${profile.cover_url})` }}
-        />
-      )}
+      <div
+        className="h-40 w-full bg-cover bg-center sm:h-56 bg-grad-brand"
+        style={profile.cover_url ? { backgroundImage: `url(${profile.cover_url})` } : undefined}
+      />
 
-      <div className="mx-auto max-w-4xl px-6 py-16 lg:px-10">
-        <div className="flex items-start gap-6">
-          <div
-            className="h-20 w-20 shrink-0 rounded-full bg-paper/10 bg-cover bg-center"
-            style={profile.avatar_url ? { backgroundImage: `url(${profile.avatar_url})` } : undefined}
-          />
-          <div>
-            <h1 className="font-display text-4xl uppercase text-ink">
+      <div className="mx-auto max-w-4xl px-6 lg:px-10">
+        <div className="-mt-14 flex flex-col items-start gap-6 rounded-2xl border border-line bg-paper p-6 shadow-lg sm:flex-row sm:items-end">
+          {profile.avatar_url ? (
+            <div
+              className="h-24 w-24 shrink-0 rounded-full border-4 border-paper bg-cover bg-center shadow-sm"
+              style={{ backgroundImage: `url(${profile.avatar_url})` }}
+            />
+          ) : (
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full border-4 border-paper bg-grad-volt font-display text-2xl text-ink shadow-sm">
+              {initials || "?"}
+            </div>
+          )}
+          <div className="flex-1">
+            <h1 className="font-display text-2xl text-ink sm:text-3xl">
               {profile.first_name} {profile.last_name}
             </h1>
-            <p className="mt-1 text-sm text-ink/50">
-              @{profile.username}
-              {(profile.city || profile.country) &&
-                ` · ${[profile.city, profile.country].filter(Boolean).join(", ")}`}
+            <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink/50">
+              <span>@{profile.username}</span>
+              {(profile.city || profile.country) && (
+                <span className="flex items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5" />
+                  {[profile.city, profile.country].filter(Boolean).join(", ")}
+                </span>
+              )}
+              {avgRating && (
+                <span className="flex items-center gap-1 text-volt">
+                  <Star className="h-3.5 w-3.5 fill-volt" />
+                  {avgRating} ({reviews!.length} review{reviews!.length === 1 ? "" : "s"})
+                </span>
+              )}
             </p>
-            {avgRating && (
-              <p className="mt-1 text-sm text-volt">
-                {avgRating} ★ ({reviews!.length} review{reviews!.length === 1 ? "" : "s"})
-              </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            {profile.website_url && (
+              <a
+                href={profile.website_url}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-ink/60 hover:text-brand"
+              >
+                <Globe className="h-3.5 w-3.5" />
+                Website
+              </a>
             )}
-
-            <div className="mt-4 flex flex-wrap items-center gap-4">
-              {messageAction && (
-                <form action={messageAction}>
-                  <button
-                    type="submit"
-                    className="rounded-full border border-line px-5 py-2 text-xs font-semibold uppercase tracking-wide text-ink hover:border-volt hover:text-volt"
-                  >
-                    Send Message
-                  </button>
-                </form>
-              )}
-              {profile.website_url && (
-                <a
-                  href={profile.website_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-xs uppercase tracking-wide text-ink/60 hover:text-volt"
+            {messageAction && (
+              <form action={messageAction}>
+                <button
+                  type="submit"
+                  className="rounded-full bg-grad-brand px-5 py-2.5 text-xs font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
                 >
-                  Website ↗
-                </a>
-              )}
-              {socialLinks.map(([key, url]) => (
-                <a
-                  key={key}
-                  href={url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-xs uppercase tracking-wide text-ink/60 hover:text-volt"
-                >
-                  {SOCIAL_LABELS[key] ?? key} ↗
-                </a>
-              ))}
-            </div>
+                  Send Message
+                </button>
+              </form>
+            )}
           </div>
         </div>
 
-        {profile.bio && <p className="mt-8 max-w-2xl text-ink/70">{profile.bio}</p>}
-
-        {portfolio && portfolio.length > 0 && (
-          <section className="mt-14">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">
-              Portfolio
-            </h2>
-            <div className="mt-4 grid gap-4 sm:grid-cols-3">
-              {portfolio.map((item) => {
-                const Wrapper = item.link_url ? "a" : "div";
-                return (
-                  <Wrapper
-                    key={item.id}
-                    {...(item.link_url
-                      ? { href: item.link_url, target: "_blank", rel: "noreferrer" }
-                      : {})}
-                    className="block overflow-hidden rounded-xl border border-line"
-                  >
-                    {item.file_type === "pdf" ? (
-                      <div className="flex h-36 items-center justify-center bg-paper/5 text-xs uppercase text-ink/60">
-                        PDF Document
-                      </div>
-                    ) : (
-                      <div
-                        className="h-36 bg-cover bg-center"
-                        style={{ backgroundImage: `url(${item.file_url})` }}
-                      />
-                    )}
-                    {item.title && (
-                      <p className="p-2 truncate text-xs text-ink/70">{item.title}</p>
-                    )}
-                  </Wrapper>
-                );
-              })}
-            </div>
-          </section>
-        )}
-
-        <section className="mt-14">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">Services</h2>
-          {services?.length ? (
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              {services.map((s) => (
-                <Link
-                  key={s.id}
-                  href={`/services/${s.slug}`}
-                  className="rounded-2xl border border-line p-5 transition hover:border-volt"
-                >
-                  <p className="font-semibold text-ink">{s.title}</p>
-                  <p className="mt-1 line-clamp-2 text-sm text-ink/60">{s.description}</p>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <p className="mt-4 text-sm text-ink/40">No published services yet.</p>
-          )}
-        </section>
-
-        <section className="mt-14">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">Reviews</h2>
-          {reviews?.length ? (
-            <div className="mt-4 space-y-4">
-              {reviews.map((r, i) => (
-                <div key={i} className="rounded-2xl border border-line p-5">
-                  <p className="text-sm text-volt">{r.overall_rating} ★</p>
-                  {r.comment && <p className="mt-2 text-sm text-ink/70">{r.comment}</p>}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="mt-4 text-sm text-ink/40">No reviews yet.</p>
-          )}
-        </section>
+        <div className="py-12">
+          <ProfileTabs
+            about={aboutContent}
+            portfolio={portfolioContent}
+            services={servicesContent}
+            reviews={reviewsContent}
+          />
+        </div>
       </div>
     </div>
   );

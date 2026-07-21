@@ -6,9 +6,9 @@ import { ListingHero } from "@/components/listing-hero";
 export default async function CreativesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; country?: string; city?: string }>;
+  searchParams: Promise<{ category?: string; country?: string; city?: string; q?: string }>;
 }) {
-  const { category, country, city } = await searchParams;
+  const { category, country, city, q } = await searchParams;
   const supabase = await createClient();
 
   const [{ data: categories }, { data: services }] = await Promise.all([
@@ -35,7 +35,18 @@ export default async function CreativesPage({
     query = query.in("id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"]);
   }
 
-  const { data: creatives } = await query;
+  const { data: allCreatives } = await query;
+
+  const needle = q?.trim().toLowerCase();
+  const creatives = needle
+    ? allCreatives?.filter((c) =>
+        [c.first_name, c.last_name, c.username, c.bio, c.city, c.country]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+          .includes(needle)
+      )
+    : allCreatives;
 
   return (
     <div>
@@ -43,6 +54,11 @@ export default async function CreativesPage({
         eyebrow="Talent Directory"
         title="Creatives"
         subtitle="Vetted African creative talent, ready to hire."
+        searchAction="/creatives"
+        searchParamName="q"
+        searchDefaultValue={q}
+        searchPlaceholder="Search creatives by name, skill, or city..."
+        preserveParams={{ category, country, city }}
       />
 
       <div className="mx-auto max-w-7xl px-6 py-12 lg:px-10">
@@ -77,29 +93,33 @@ export default async function CreativesPage({
               <Link
                 key={c.id}
                 href={`/creatives/${c.username}`}
-                className="group rounded-2xl border border-line bg-paper p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-volt hover:shadow-md"
+                className="group overflow-hidden rounded-2xl border border-line bg-paper shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
-                {c.avatar_url ? (
-                  <div
-                    className="h-14 w-14 rounded-full bg-cover bg-center"
-                    style={{ backgroundImage: `url(${c.avatar_url})` }}
-                  />
-                ) : (
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand font-display text-lg text-paper">
-                    {initials || "?"}
-                  </div>
-                )}
-                <h2 className="mt-4 font-semibold text-ink transition group-hover:text-brand">
-                  {c.first_name} {c.last_name}
-                </h2>
-                <p className="text-xs text-ink/40">@{c.username}</p>
-                {(c.city || c.country) && (
-                  <p className="mt-1 flex items-center gap-1 text-xs text-ink/50">
-                    <MapPin className="h-3.5 w-3.5" />
-                    {[c.city, c.country].filter(Boolean).join(", ")}
-                  </p>
-                )}
-                {c.bio && <p className="mt-3 line-clamp-2 text-sm text-ink/60">{c.bio}</p>}
+                <div className="relative h-24 bg-grad-brand">
+                  {c.avatar_url ? (
+                    <div
+                      className="absolute -bottom-7 left-6 h-16 w-16 rounded-full border-4 border-paper bg-cover bg-center shadow-sm"
+                      style={{ backgroundImage: `url(${c.avatar_url})` }}
+                    />
+                  ) : (
+                    <div className="absolute -bottom-7 left-6 flex h-16 w-16 items-center justify-center rounded-full border-4 border-paper bg-grad-volt font-display text-lg text-ink shadow-sm">
+                      {initials || "?"}
+                    </div>
+                  )}
+                </div>
+                <div className="p-6 pt-10">
+                  <h2 className="font-semibold text-ink transition group-hover:text-brand">
+                    {c.first_name} {c.last_name}
+                  </h2>
+                  <p className="text-xs text-ink/40">@{c.username}</p>
+                  {(c.city || c.country) && (
+                    <p className="mt-1.5 flex items-center gap-1 text-xs text-ink/50">
+                      <MapPin className="h-3.5 w-3.5" />
+                      {[c.city, c.country].filter(Boolean).join(", ")}
+                    </p>
+                  )}
+                  {c.bio && <p className="mt-3 line-clamp-2 text-sm text-ink/60">{c.bio}</p>}
+                </div>
               </Link>
             );
           })}

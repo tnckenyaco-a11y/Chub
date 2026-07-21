@@ -20,7 +20,7 @@ export default async function NewBlogPostPage({
         <PostFields />
         <button
           type="submit"
-          className="rounded-full bg-volt px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink"
+          className="rounded-full bg-grad-brand px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
         >
           Create Draft
         </button>

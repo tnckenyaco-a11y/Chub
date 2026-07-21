@@ -55,12 +55,12 @@ export default async function EditServicePage({
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-4xl uppercase text-ink">Edit Service</h1>
+        <h1 className="font-display text-3xl text-ink">Edit Service</h1>
         <span className="text-xs uppercase text-ink/50">{service.status.replace("_", " ")}</span>
       </div>
 
       {saved && (
-        <p className="mt-6 rounded-lg border border-volt/40 bg-volt/10 px-4 py-3 text-sm text-volt">
+        <p className="mt-6 rounded-lg border border-green/40 bg-green/10 px-4 py-3 text-sm text-green">
           Saved. Changes to a published service go back through review.
         </p>
       )}
@@ -74,7 +74,7 @@ export default async function EditServicePage({
             name="title"
             defaultValue={service.title}
             required
-            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-brand"
           />
         </label>
         <label className="block">
@@ -85,7 +85,7 @@ export default async function EditServicePage({
             name="description"
             defaultValue={service.description}
             rows={5}
-            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-3 text-ink outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-3 text-ink outline-none focus:border-brand"
           />
         </label>
         <label className="block">
@@ -95,7 +95,7 @@ export default async function EditServicePage({
           <select
             name="category_id"
             defaultValue={service.category_id ?? ""}
-            className="mt-1.5 w-full rounded-lg border border-line bg-paper px-4 py-2.5 text-ink outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-paper px-4 py-2.5 text-ink outline-none focus:border-brand"
           >
             <option value="">Select a category</option>
             {categories?.map((c) => (
@@ -107,7 +107,7 @@ export default async function EditServicePage({
         </label>
         <button
           type="submit"
-          className="rounded-full bg-volt px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink"
+          className="rounded-full bg-grad-brand px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
         >
           Save
         </button>
@@ -180,7 +180,7 @@ export default async function EditServicePage({
             <input
               name="title"
               required
-              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
+              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-brand"
             />
           </label>
           <label className="block">
@@ -190,7 +190,7 @@ export default async function EditServicePage({
               type="number"
               min={0}
               required
-              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
+              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-brand"
             />
           </label>
           <label className="block">
@@ -200,7 +200,7 @@ export default async function EditServicePage({
               type="number"
               min={1}
               required
-              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
+              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-brand"
             />
           </label>
           <label className="block">
@@ -210,12 +210,12 @@ export default async function EditServicePage({
               type="number"
               min={0}
               defaultValue={1}
-              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
+              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-brand"
             />
           </label>
           <button
             type="submit"
-            className="col-span-full rounded-full border border-line px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink hover:border-volt"
+            className="col-span-full rounded-full border border-line px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink hover:border-brand hover:text-brand"
           >
             Add Package
           </button>

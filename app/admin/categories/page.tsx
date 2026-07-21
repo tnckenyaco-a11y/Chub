@@ -15,7 +15,7 @@ export default async function AdminCategoriesPage() {
 
   return (
     <div>
-      <h1 className="font-display text-4xl uppercase text-ink">Categories</h1>
+      <h1 className="font-display text-3xl text-ink">Categories</h1>
 
       <div className="mt-8 grid gap-12 lg:grid-cols-2">
         <TaxonomyList
@@ -48,14 +48,14 @@ function TaxonomyList({
 }) {
   return (
     <div>
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">{title}</h2>
+      <h2 className="text-xs font-semibold uppercase tracking-wide text-ink/50">{title}</h2>
       <ul className="mt-4 space-y-2">
         {items.map((item) => (
           <li
             key={item.id}
-            className="flex items-center justify-between rounded-lg border border-line px-4 py-2.5"
+            className="flex items-center justify-between rounded-xl border border-line bg-paper px-4 py-2.5 shadow-sm"
           >
-            <span className="text-ink">{item.name}</span>
+            <span className="font-medium text-ink">{item.name}</span>
             <form
               action={async () => {
                 "use server";
@@ -79,11 +79,11 @@ function TaxonomyList({
           name="name"
           placeholder="New name…"
           required
-          className="flex-1 rounded-lg border border-line bg-transparent px-4 py-2.5 text-sm text-ink outline-none focus:border-volt"
+          className="flex-1 rounded-lg border border-line bg-paper px-4 py-2.5 text-sm text-ink outline-none focus:border-brand"
         />
         <button
           type="submit"
-          className="rounded-lg bg-volt px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-ink"
+          className="rounded-lg bg-grad-brand px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
         >
           Add
         </button>

@@ -20,7 +20,7 @@ export default async function NewServicePage({
 
   return (
     <div>
-      <h1 className="font-display text-4xl uppercase text-ink">New Service</h1>
+      <h1 className="font-display text-3xl text-ink">New Service</h1>
       <p className="mt-2 text-sm text-ink/50">
         Your service goes live once an admin reviews and approves it.
       </p>
@@ -40,7 +40,7 @@ export default async function NewServicePage({
             name="title"
             required
             placeholder="e.g. I will produce a 30-second product commercial"
-            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-brand"
           />
         </label>
 
@@ -51,7 +51,7 @@ export default async function NewServicePage({
           <textarea
             name="description"
             rows={5}
-            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-3 text-ink outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-3 text-ink outline-none focus:border-brand"
           />
         </label>
 
@@ -61,7 +61,7 @@ export default async function NewServicePage({
           </span>
           <select
             name="category_id"
-            className="mt-1.5 w-full rounded-lg border border-line bg-paper px-4 py-2.5 text-ink outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-paper px-4 py-2.5 text-ink outline-none focus:border-brand"
           >
             <option value="">Select a category</option>
             {categories?.map((c) => (
@@ -80,7 +80,7 @@ export default async function NewServicePage({
             {focusAreas?.map((f) => (
               <label
                 key={f.id}
-                className="flex items-center gap-2 rounded-full border border-line px-3 py-1.5 text-xs text-ink/70 has-[:checked]:border-volt has-[:checked]:text-volt"
+                className="flex items-center gap-2 rounded-full border border-line px-3 py-1.5 text-xs text-ink/70 has-[:checked]:border-brand has-[:checked]:text-brand"
               >
                 <input type="checkbox" name="focus_area_ids" value={f.id} className="sr-only" />
                 {f.name}
@@ -99,7 +99,7 @@ export default async function NewServicePage({
               <input
                 name="package_title"
                 defaultValue="Standard"
-                className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
+                className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-brand"
               />
             </label>
             <label className="block">
@@ -109,7 +109,7 @@ export default async function NewServicePage({
                 type="number"
                 min={0}
                 required
-                className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
+                className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-brand"
               />
             </label>
             <label className="block">
@@ -119,7 +119,7 @@ export default async function NewServicePage({
                 type="number"
                 min={1}
                 required
-                className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
+                className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-brand"
               />
             </label>
             <label className="block">
@@ -129,7 +129,7 @@ export default async function NewServicePage({
                 type="number"
                 min={0}
                 defaultValue={1}
-                className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
+                className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-brand"
               />
             </label>
           </div>
@@ -137,7 +137,7 @@ export default async function NewServicePage({
 
         <button
           type="submit"
-          className="rounded-full bg-volt px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink"
+          className="rounded-full bg-grad-brand px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
         >
           Submit for Review
         </button>

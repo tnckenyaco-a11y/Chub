@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Clock, RefreshCw, Tag } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/current-user";
 import { initiateServiceCheckout } from "@/app/checkout/actions";
@@ -35,28 +36,31 @@ export default async function ServiceDetailPage({
     .sort((a, b) => a.sort_order - b.sort_order)
     .map((img) => img.file_url);
 
+  const featuredIndex = packages && packages.length > 1 ? 1 : 0;
+
   return (
     <div className="mx-auto grid max-w-6xl gap-12 px-6 py-16 lg:grid-cols-[1.4fr_1fr] lg:px-10">
       <div>
-        {images.length > 0 && (
+        {images.length > 0 ? (
           <div className="mb-8">
             <ImageGallery images={images} />
           </div>
+        ) : (
+          <div className="mb-8 aspect-video rounded-2xl bg-grad-brand" />
         )}
         {service.categories && (
-          <p className="text-xs font-semibold uppercase tracking-wide text-volt">
+          <span className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-brand">
+            <Tag className="h-3 w-3" />
             {service.categories.name}
-          </p>
+          </span>
         )}
-        <h1 className="font-display mt-2 text-4xl uppercase text-ink sm:text-5xl">
-          {service.title}
-        </h1>
+        <h1 className="font-display mt-3 text-3xl text-ink sm:text-4xl">{service.title}</h1>
         {service.creative && (
           <Link
             href={`/creatives/${service.creative.username}`}
-            className="mt-4 inline-block text-sm text-ink/60 hover:text-volt"
+            className="mt-3 inline-block text-sm text-ink/60 hover:text-brand"
           >
-            by {service.creative.first_name} {service.creative.last_name}
+            by <span className="font-semibold">{service.creative.first_name} {service.creative.last_name}</span>
             {service.creative.city ? ` · ${service.creative.city}` : ""}
           </Link>
         )}
@@ -65,21 +69,35 @@ export default async function ServiceDetailPage({
         </p>
       </div>
 
-      <div className="space-y-4">
-        {packages?.map((p) => {
+      <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+        {packages?.map((p, i) => {
           const checkout = initiateServiceCheckout.bind(null, p.id);
+          const featured = i === featuredIndex;
           return (
-            <div key={p.id} className="rounded-2xl border border-line p-6">
+            <div
+              key={p.id}
+              className={`rounded-2xl border p-6 transition ${
+                featured
+                  ? "border-brand bg-brand/[0.03] shadow-md ring-1 ring-brand/20"
+                  : "border-line"
+              }`}
+            >
               <div className="flex items-center justify-between">
                 <p className="font-semibold text-ink">{p.title}</p>
-                <p className="font-display text-2xl text-volt">
+                <p className="font-display text-2xl text-brand">
                   Ksh {p.price_kes.toLocaleString()}
                 </p>
               </div>
               {p.description && <p className="mt-2 text-sm text-ink/60">{p.description}</p>}
-              <p className="mt-3 text-xs text-ink/40">
-                {p.delivery_days} day delivery · {p.revisions} revision
-                {p.revisions === 1 ? "" : "s"}
+              <p className="mt-3 flex items-center gap-3 text-xs text-ink/40">
+                <span className="flex items-center gap-1">
+                  <Clock className="h-3.5 w-3.5" />
+                  {p.delivery_days} day delivery
+                </span>
+                <span className="flex items-center gap-1">
+                  <RefreshCw className="h-3.5 w-3.5" />
+                  {p.revisions} revision{p.revisions === 1 ? "" : "s"}
+                </span>
               </p>
 
               {viewer?.role === "brand" ? (
@@ -88,11 +106,11 @@ export default async function ServiceDetailPage({
                     name="phone_number"
                     required
                     placeholder="M-Pesa phone (07XXXXXXXX)"
-                    className="w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-sm text-ink outline-none focus:border-volt"
+                    className="w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-sm text-ink outline-none focus:border-brand"
                   />
                   <button
                     type="submit"
-                    className="w-full rounded-full bg-volt px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-ink"
+                    className="w-full rounded-full bg-grad-brand px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
                   >
                     Continue (Ksh {p.price_kes.toLocaleString()})
                   </button>

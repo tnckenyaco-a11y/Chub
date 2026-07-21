@@ -15,60 +15,66 @@ export default async function AdminDisputesPage() {
 
   return (
     <div>
-      <h1 className="font-display text-4xl uppercase text-ink">Disputes</h1>
+      <h1 className="font-display text-3xl text-ink">Disputes</h1>
 
       <section className="mt-10">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-ink/50">
           Open ({open.length})
         </h2>
         <div className="mt-4 space-y-4">
           {open.map((d) => {
             const resolve = resolveDispute.bind(null, d.id);
             return (
-              <div key={d.id} className="rounded-2xl border border-magenta/40 p-5">
-                <p className="text-sm text-ink">
-                  {d.orders?.brand?.first_name} {d.orders?.brand?.last_name} ↔{" "}
-                  {d.orders?.creative?.first_name} {d.orders?.creative?.last_name} · Ksh{" "}
-                  {d.orders?.amount_kes.toLocaleString()}
-                </p>
-                <p className="mt-1 text-xs text-ink/40">
-                  Raised by {d.raised_by?.first_name} {d.raised_by?.last_name}
-                </p>
-                <p className="mt-3 text-sm text-ink/70">{d.reason}</p>
-                <form action={resolve} className="mt-4 space-y-3">
-                  <textarea
-                    name="notes"
-                    rows={2}
-                    placeholder="Resolution notes…"
-                    className="w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-sm text-ink outline-none focus:border-volt"
-                  />
-                  <div className="flex flex-wrap gap-3">
-                    <button
-                      type="submit"
-                      name="resolution"
-                      value="resolved_released"
-                      className="rounded-full bg-volt px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-ink"
-                    >
-                      Release to Creative
-                    </button>
-                    <button
-                      type="submit"
-                      name="resolution"
-                      value="resolved_refunded"
-                      className="rounded-full border border-magenta/40 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-magenta"
-                    >
-                      Refund Brand
-                    </button>
-                    <button
-                      type="submit"
-                      name="resolution"
-                      value="resolved_split"
-                      className="rounded-full border border-line px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-ink/70"
-                    >
-                      Mark as Split (manual)
-                    </button>
-                  </div>
-                </form>
+              <div key={d.id} className="overflow-hidden rounded-2xl border border-magenta/30 bg-paper shadow-sm">
+                <div className="flex items-center justify-between bg-magenta/5 px-5 py-3">
+                  <p className="text-sm font-semibold text-ink">
+                    {d.orders?.brand?.first_name} {d.orders?.brand?.last_name} ↔{" "}
+                    {d.orders?.creative?.first_name} {d.orders?.creative?.last_name}
+                  </p>
+                  <span className="rounded-full bg-magenta/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-magenta">
+                    Ksh {d.orders?.amount_kes.toLocaleString()}
+                  </span>
+                </div>
+                <div className="p-5">
+                  <p className="text-xs text-ink/40">
+                    Raised by {d.raised_by?.first_name} {d.raised_by?.last_name}
+                  </p>
+                  <p className="mt-3 text-sm leading-relaxed text-ink/70">{d.reason}</p>
+                  <form action={resolve} className="mt-5 space-y-3">
+                    <textarea
+                      name="notes"
+                      rows={2}
+                      placeholder="Resolution notes…"
+                      className="w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-sm text-ink outline-none focus:border-brand"
+                    />
+                    <div className="flex flex-wrap gap-3">
+                      <button
+                        type="submit"
+                        name="resolution"
+                        value="resolved_released"
+                        className="rounded-full bg-grad-brand px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
+                      >
+                        Release to Creative
+                      </button>
+                      <button
+                        type="submit"
+                        name="resolution"
+                        value="resolved_refunded"
+                        className="rounded-full border border-magenta/40 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-magenta transition hover:bg-magenta/5"
+                      >
+                        Refund Brand
+                      </button>
+                      <button
+                        type="submit"
+                        name="resolution"
+                        value="resolved_split"
+                        className="rounded-full border border-line px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-ink/70 transition hover:border-ink"
+                      >
+                        Mark as Split (manual)
+                      </button>
+                    </div>
+                  </form>
+                </div>
               </div>
             );
           })}
@@ -77,14 +83,14 @@ export default async function AdminDisputesPage() {
       </section>
 
       <section className="mt-14">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-ink/50">
           Resolved ({resolved.length})
         </h2>
         <div className="mt-4 space-y-2">
           {resolved.map((d) => (
-            <div key={d.id} className="rounded-lg border border-line px-4 py-3 text-sm">
+            <div key={d.id} className="flex items-center justify-between rounded-xl border border-line bg-paper px-4 py-3 text-sm shadow-sm">
               <span className="text-ink/70">{d.reason}</span>
-              <span className="ml-3 text-xs uppercase text-volt">
+              <span className="rounded-full bg-green/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-green">
                 {d.status.replace("_", " ")}
               </span>
             </div>

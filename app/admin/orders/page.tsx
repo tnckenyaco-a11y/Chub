@@ -1,14 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 
-const statusColor: Record<string, string> = {
-  pending_payment: "text-ink/50",
-  paid: "text-volt",
-  in_progress: "text-volt",
-  delivered: "text-volt",
-  completed: "text-volt",
-  disputed: "text-magenta",
-  refunded: "text-ink/30",
-  cancelled: "text-ink/30",
+const statusStyle: Record<string, string> = {
+  pending_payment: "bg-ink/8 text-ink/55",
+  paid: "bg-brand/10 text-brand",
+  in_progress: "bg-brand/10 text-brand",
+  delivered: "bg-brand/10 text-brand",
+  completed: "bg-green/10 text-green",
+  disputed: "bg-magenta/10 text-magenta",
+  refunded: "bg-ink/5 text-ink/35",
+  cancelled: "bg-ink/5 text-ink/35",
 };
 
 export default async function AdminOrdersPage() {
@@ -22,33 +22,37 @@ export default async function AdminOrdersPage() {
 
   return (
     <div>
-      <h1 className="font-display text-4xl uppercase text-ink">Orders &amp; Payments</h1>
+      <h1 className="font-display text-3xl text-ink">Orders &amp; Payments</h1>
 
       <div className="mt-8 space-y-3">
         {orders?.map((o) => (
-          <div key={o.id} className="rounded-2xl border border-line p-5">
+          <div key={o.id} className="rounded-2xl border border-line bg-paper p-5 shadow-sm">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-ink">
+              <p className="text-sm font-medium text-ink">
                 {o.brand?.first_name} {o.brand?.last_name} → {o.creative?.first_name}{" "}
                 {o.creative?.last_name}
               </p>
-              <span className={`text-xs uppercase ${statusColor[o.status] ?? "text-ink/50"}`}>
+              <span
+                className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${
+                  statusStyle[o.status] ?? "bg-ink/5 text-ink/50"
+                }`}
+              >
                 {o.status.replace("_", " ")}
               </span>
             </div>
-            <p className="mt-1 text-xs text-ink/40">Ksh {o.amount_kes.toLocaleString()}</p>
+            <p className="mt-1.5 text-xs text-ink/40">Ksh {o.amount_kes.toLocaleString()}</p>
             {o.payments && o.payments.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-3 text-xs">
+              <div className="mt-3 flex flex-wrap gap-2 text-xs">
                 {o.payments.map((p, i) => (
                   <span
                     key={i}
-                    className={
+                    className={`rounded-full px-2.5 py-1 font-semibold ${
                       p.status === "successful"
-                        ? "text-volt"
+                        ? "bg-green/10 text-green"
                         : p.status === "failed"
-                          ? "text-magenta"
-                          : "text-ink/40"
-                    }
+                          ? "bg-magenta/10 text-magenta"
+                          : "bg-ink/5 text-ink/40"
+                    }`}
                   >
                     {p.kind}: {p.status}
                   </span>

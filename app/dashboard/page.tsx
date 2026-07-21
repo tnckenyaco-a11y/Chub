@@ -9,10 +9,10 @@ import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 
 const ICON_STYLES = [
-  { icon: Briefcase, bg: "bg-brand" },
-  { icon: ClipboardList, bg: "bg-volt" },
-  { icon: CheckCircle2, bg: "bg-emerald-600" },
-  { icon: Banknote, bg: "bg-amber-500" },
+  { icon: Briefcase, bg: "bg-grad-brand" },
+  { icon: ClipboardList, bg: "bg-grad-volt" },
+  { icon: CheckCircle2, bg: "bg-linear-to-br from-green to-green/70" },
+  { icon: Banknote, bg: "bg-linear-to-br from-amber-400 to-amber-600" },
 ];
 
 export default async function DashboardPage() {
@@ -23,10 +23,10 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.3em] text-volt">
+      <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
         {profile.role}
       </p>
-      <h1 className="font-display mt-4 text-4xl uppercase text-ink">
+      <h1 className="font-display mt-3 text-3xl text-ink sm:text-4xl">
         Welcome back, {profile.first_name || profile.username}
       </h1>
 
@@ -37,13 +37,13 @@ export default async function DashboardPage() {
           return (
             <div
               key={s.label}
-              className="rounded-2xl border border-line bg-paper p-6 shadow-sm"
+              className="rounded-2xl border border-line bg-paper p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
               <div className="flex items-center justify-between">
                 <p className="text-xs font-semibold uppercase tracking-wide text-ink/50">
                   {s.label}
                 </p>
-                <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${style.bg}`}>
+                <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${style.bg}`}>
                   <Icon className="h-5 w-5 text-paper" />
                 </span>
               </div>

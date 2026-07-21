@@ -2,15 +2,15 @@ import Link from "next/link";
 import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 
-const statusColor: Record<string, string> = {
-  pending_payment: "text-ink/50",
-  paid: "text-volt",
-  in_progress: "text-volt",
-  delivered: "text-volt",
-  completed: "text-volt",
-  disputed: "text-magenta",
-  refunded: "text-ink/30",
-  cancelled: "text-ink/30",
+const statusStyle: Record<string, string> = {
+  pending_payment: "bg-ink/8 text-ink/55",
+  paid: "bg-brand/10 text-brand",
+  in_progress: "bg-brand/10 text-brand",
+  delivered: "bg-brand/10 text-brand",
+  completed: "bg-green/10 text-green",
+  disputed: "bg-magenta/10 text-magenta",
+  refunded: "bg-ink/5 text-ink/35",
+  cancelled: "bg-ink/5 text-ink/35",
 };
 
 export default async function OrdersPage() {
@@ -27,7 +27,7 @@ export default async function OrdersPage() {
 
   return (
     <div>
-      <h1 className="font-display text-4xl uppercase text-ink">Orders</h1>
+      <h1 className="font-display text-3xl text-ink">Orders</h1>
 
       <ul className="mt-8 space-y-2">
         {orders?.map((o) => {
@@ -36,13 +36,17 @@ export default async function OrdersPage() {
             <li key={o.id}>
               <Link
                 href={`/dashboard/orders/${o.id}`}
-                className="flex items-center justify-between rounded-lg border border-line px-4 py-3 transition hover:border-volt"
+                className="flex items-center justify-between rounded-xl border border-line bg-paper px-5 py-3.5 transition hover:-translate-y-0.5 hover:border-brand hover:shadow-sm"
               >
-                <span className="text-ink">
+                <span className="font-medium text-ink">
                   {counterpart ? `${counterpart.first_name} ${counterpart.last_name}` : "Order"} · Ksh{" "}
                   {o.amount_kes.toLocaleString()}
                 </span>
-                <span className={`text-xs uppercase ${statusColor[o.status] ?? "text-ink/50"}`}>
+                <span
+                  className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${
+                    statusStyle[o.status] ?? "bg-ink/5 text-ink/50"
+                  }`}
+                >
                   {o.status.replace("_", " ")}
                 </span>
               </Link>

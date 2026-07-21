@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { FileText, Paperclip } from "lucide-react";
 import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 import { signMessageAttachment } from "@/lib/storage";
@@ -53,7 +54,7 @@ export default async function MessageThreadPage({
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="font-display text-3xl uppercase text-ink">
+      <h1 className="font-display text-2xl text-ink">
         {other ? `${other.first_name} ${other.last_name}` : "Conversation"}
       </h1>
 
@@ -63,8 +64,8 @@ export default async function MessageThreadPage({
             key={m.id}
             className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${
               m.sender_id === profile.id
-                ? "ml-auto bg-volt text-ink"
-                : "border border-line text-ink/80"
+                ? "ml-auto bg-grad-brand text-paper"
+                : "border border-line bg-paper text-ink/80"
             }`}
           >
             {m.signedUrl && m.attachment_type === "image" && (
@@ -76,9 +77,9 @@ export default async function MessageThreadPage({
                 href={m.signedUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="mb-2 block underline"
+                className="mb-2 flex items-center gap-1.5 underline"
               >
-                📄 View PDF
+                <FileText className="h-3.5 w-3.5" /> View PDF
               </a>
             )}
             {m.body && <p>{m.body}</p>}
@@ -94,17 +95,17 @@ export default async function MessageThreadPage({
           <input
             name="body"
             placeholder="Write a message…"
-            className="flex-1 rounded-full border border-line bg-transparent px-4 py-2.5 text-sm text-ink outline-none focus:border-volt"
+            className="flex-1 rounded-full border border-line bg-transparent px-4 py-2.5 text-sm text-ink outline-none focus:border-brand"
           />
           <button
             type="submit"
-            className="rounded-full bg-volt px-5 py-2.5 text-xs font-semibold uppercase tracking-wide text-ink"
+            className="rounded-full bg-grad-brand px-5 py-2.5 text-xs font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
           >
             Send
           </button>
         </div>
-        <label className="flex w-fit cursor-pointer items-center gap-2 text-xs text-ink/50 hover:text-ink">
-          📎 Attach image or PDF
+        <label className="flex w-fit cursor-pointer items-center gap-1.5 text-xs text-ink/50 hover:text-brand">
+          <Paperclip className="h-3.5 w-3.5" /> Attach image or PDF
           <input
             type="file"
             name="attachment"

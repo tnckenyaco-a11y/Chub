@@ -55,10 +55,10 @@ export default async function OrderDetailPage({
 
   return (
     <div className="mx-auto max-w-2xl">
-      <p className="text-xs font-semibold uppercase tracking-[0.3em] text-volt">
+      <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
         {order.status.replace("_", " ")}
       </p>
-      <h1 className="font-display mt-2 text-3xl uppercase text-ink">
+      <h1 className="font-display mt-2 text-3xl text-ink">
         {context ?? "Order"}
       </h1>
       <p className="mt-2 text-sm text-ink/60">
@@ -70,7 +70,7 @@ export default async function OrderDetailPage({
       </p>
 
       {checkout && (
-        <p className="mt-6 rounded-lg border border-volt/40 bg-volt/10 px-4 py-3 text-sm text-volt">
+        <p className="mt-6 rounded-lg border border-brand/40 bg-brand/10 px-4 py-3 text-sm text-brand">
           M-Pesa prompt sent — check your phone to complete payment. This page updates once IntaSend
           confirms it.
         </p>
@@ -89,7 +89,7 @@ export default async function OrderDetailPage({
         <form action={startWork} className="mt-8">
           <button
             type="submit"
-            className="rounded-full bg-volt px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink"
+            className="rounded-full bg-grad-brand px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
           >
             Start Work
           </button>
@@ -100,7 +100,7 @@ export default async function OrderDetailPage({
         <form action={deliver} className="mt-8">
           <button
             type="submit"
-            className="rounded-full bg-volt px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink"
+            className="rounded-full bg-grad-brand px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
           >
             Mark Delivered
           </button>
@@ -111,7 +111,7 @@ export default async function OrderDetailPage({
         <form action={release} className="mt-8">
           <button
             type="submit"
-            className="rounded-full bg-volt px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink"
+            className="rounded-full bg-grad-brand px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
           >
             Approve &amp; Release Payment
           </button>
@@ -129,7 +129,7 @@ export default async function OrderDetailPage({
                 <span
                   className={
                     p.status === "successful"
-                      ? "text-volt"
+                      ? "text-green"
                       : p.status === "failed"
                         ? "text-magenta"
                         : "text-ink/40"
@@ -192,11 +192,11 @@ export default async function OrderDetailPage({
             name="comment"
             rows={3}
             placeholder="Share details of your experience…"
-            className="w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-sm text-ink outline-none focus:border-volt"
+            className="w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-sm text-ink outline-none focus:border-brand"
           />
           <button
             type="submit"
-            className="rounded-full bg-volt px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink"
+            className="rounded-full bg-grad-brand px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
           >
             Submit Review
           </button>

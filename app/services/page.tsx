@@ -6,9 +6,9 @@ import { ListingHero } from "@/components/listing-hero";
 export default async function ServicesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; q?: string }>;
 }) {
-  const { category } = await searchParams;
+  const { category, q } = await searchParams;
   const supabase = await createClient();
 
   const [{ data: categories }, { data: services }] = await Promise.all([
@@ -22,9 +22,20 @@ export default async function ServicesPage({
       .order("created_at", { ascending: false }),
   ]);
 
-  const filtered = category
+  let filtered = category
     ? services?.filter((s) => s.categories?.slug === category)
     : services;
+
+  const needle = q?.trim().toLowerCase();
+  if (needle) {
+    filtered = filtered?.filter((s) =>
+      [s.title, s.categories?.name, s.creative?.first_name, s.creative?.last_name, s.creative?.city]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(needle)
+    );
+  }
 
   return (
     <div>
@@ -32,6 +43,11 @@ export default async function ServicesPage({
         eyebrow="Marketplace"
         title="Services"
         subtitle="Ready-to-book creative gigs from vetted talent."
+        searchAction="/services"
+        searchParamName="q"
+        searchDefaultValue={q}
+        searchPlaceholder="Search services by title, category, or creative..."
+        preserveParams={{ category }}
       />
 
       <div className="mx-auto max-w-7xl px-6 py-12 lg:px-10">
@@ -71,10 +87,10 @@ export default async function ServicesPage({
               <Link
                 key={s.id}
                 href={`/services/${s.slug}`}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-paper shadow-sm transition hover:-translate-y-0.5 hover:border-volt hover:shadow-md"
+                className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-paper shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
                 <div
-                  className="h-40 bg-cover bg-center bg-brand/10"
+                  className="h-40 bg-cover bg-center bg-grad-brand"
                   style={cover ? { backgroundImage: `url(${cover})` } : undefined}
                 />
                 <div className="flex flex-1 flex-col p-6">

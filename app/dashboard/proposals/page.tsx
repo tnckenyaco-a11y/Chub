@@ -4,11 +4,11 @@ import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 import { withdrawProposal } from "@/app/proposals/actions";
 
-const statusColor: Record<string, string> = {
-  pending: "text-ink/50",
-  accepted: "text-volt",
-  rejected: "text-magenta",
-  withdrawn: "text-ink/30",
+const statusStyle: Record<string, string> = {
+  pending: "bg-ink/8 text-ink/55",
+  accepted: "bg-green/10 text-green",
+  rejected: "bg-magenta/10 text-magenta",
+  withdrawn: "bg-ink/5 text-ink/35",
 };
 
 export default async function MyProposalsPage() {
@@ -24,7 +24,7 @@ export default async function MyProposalsPage() {
 
   return (
     <div>
-      <h1 className="font-display text-4xl uppercase text-ink">My Proposals</h1>
+      <h1 className="font-display text-3xl text-ink">My Proposals</h1>
 
       <ul className="mt-8 space-y-2">
         {proposals?.map((p) => {
@@ -32,18 +32,22 @@ export default async function MyProposalsPage() {
           return (
             <li
               key={p.id}
-              className="flex items-center justify-between rounded-lg border border-line px-4 py-3"
+              className="flex items-center justify-between rounded-xl border border-line bg-paper px-5 py-3.5"
             >
               <div>
                 {p.project && (
-                  <Link href={`/projects/${p.project.slug}`} className="text-ink hover:text-volt">
+                  <Link href={`/projects/${p.project.slug}`} className="font-medium text-ink hover:text-brand">
                     {p.project.title}
                   </Link>
                 )}
-                <p className="text-xs text-ink/40">Ksh {p.rate.toLocaleString()}</p>
+                <p className="mt-0.5 text-xs text-ink/40">Ksh {p.rate.toLocaleString()}</p>
               </div>
               <div className="flex items-center gap-4">
-                <span className={`text-xs uppercase ${statusColor[p.status] ?? "text-ink/50"}`}>
+                <span
+                  className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${
+                    statusStyle[p.status] ?? "bg-ink/5 text-ink/50"
+                  }`}
+                >
                   {p.status}
                 </span>
                 {p.status === "pending" && (

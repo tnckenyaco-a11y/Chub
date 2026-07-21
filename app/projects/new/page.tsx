@@ -20,7 +20,7 @@ export default async function NewProjectPage({
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-16 lg:px-10">
-      <h1 className="font-display text-4xl uppercase text-ink">Post a Project</h1>
+      <h1 className="font-display text-3xl text-ink">Post a Project</h1>
       <p className="mt-2 text-sm text-ink/50">
         Your project goes live once an admin reviews and approves it.
       </p>
@@ -40,7 +40,7 @@ export default async function NewProjectPage({
             name="title"
             required
             placeholder="e.g. Videographer needed for product launch"
-            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-brand"
           />
         </label>
 
@@ -51,7 +51,7 @@ export default async function NewProjectPage({
           <textarea
             name="description"
             rows={5}
-            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-3 text-ink outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-3 text-ink outline-none focus:border-brand"
           />
         </label>
 
@@ -61,7 +61,7 @@ export default async function NewProjectPage({
           </span>
           <select
             name="category_id"
-            className="mt-1.5 w-full rounded-lg border border-line bg-paper px-4 py-2.5 text-ink outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-paper px-4 py-2.5 text-ink outline-none focus:border-brand"
           >
             <option value="">Select a category</option>
             {categories?.map((c) => (
@@ -80,7 +80,7 @@ export default async function NewProjectPage({
             {focusAreas?.map((f) => (
               <label
                 key={f.id}
-                className="flex items-center gap-2 rounded-full border border-line px-3 py-1.5 text-xs text-ink/70 has-[:checked]:border-volt has-[:checked]:text-volt"
+                className="flex items-center gap-2 rounded-full border border-line px-3 py-1.5 text-xs text-ink/70 has-[:checked]:border-brand has-[:checked]:text-brand"
               >
                 <input type="checkbox" name="focus_area_ids" value={f.id} className="sr-only" />
                 {f.name}
@@ -94,7 +94,7 @@ export default async function NewProjectPage({
           {(["fixed", "hourly"] as const).map((value) => (
             <label
               key={value}
-              className="cursor-pointer rounded-full px-4 py-2 text-center text-xs font-semibold uppercase tracking-wide has-[:checked]:bg-volt has-[:checked]:text-ink"
+              className="cursor-pointer rounded-full px-4 py-2 text-center text-xs font-semibold uppercase tracking-wide transition has-[:checked]:bg-grad-brand has-[:checked]:text-paper has-[:checked]:shadow-sm"
             >
               <input
                 type="radio"
@@ -116,7 +116,7 @@ export default async function NewProjectPage({
               type="number"
               min={0}
               required
-              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
+              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-brand"
             />
           </label>
           <label className="block">
@@ -126,14 +126,14 @@ export default async function NewProjectPage({
               type="number"
               min={0}
               required
-              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
+              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-brand"
             />
           </label>
         </div>
 
         <button
           type="submit"
-          className="rounded-full bg-volt px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink"
+          className="rounded-full bg-grad-brand px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
         >
           Submit for Review
         </button>

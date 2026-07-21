@@ -1,27 +1,48 @@
-import Image from "next/image";
+import { Search } from "lucide-react";
 
 export function ListingHero({
   eyebrow,
   title,
   subtitle,
+  searchAction,
+  searchParamName = "q",
+  searchDefaultValue,
+  searchPlaceholder = "Search...",
+  preserveParams,
 }: {
   eyebrow: string;
   title: string;
   subtitle: string;
+  searchAction?: string;
+  searchParamName?: string;
+  searchDefaultValue?: string;
+  searchPlaceholder?: string;
+  preserveParams?: Record<string, string | undefined>;
 }) {
   return (
-    <section className="relative overflow-hidden bg-brand">
-      <Image
-        src="/logo-icon-white.png"
-        alt=""
-        width={400}
-        height={280}
-        className="pointer-events-none absolute -right-8 -top-12 h-56 w-auto opacity-10 sm:h-72"
-      />
-      <div className="relative mx-auto max-w-7xl px-6 py-14 lg:px-10 lg:py-18">
+    <section className="bg-grad-brand">
+      <div className="mx-auto max-w-7xl px-6 py-10 text-center lg:px-10 lg:py-12">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-volt">{eyebrow}</p>
-        <h1 className="font-display mt-3 text-5xl uppercase text-paper sm:text-6xl">{title}</h1>
-        <p className="mt-3 max-w-lg text-sm text-paper/70">{subtitle}</p>
+        <h1 className="font-display mt-2 text-3xl text-paper sm:text-4xl">{title}</h1>
+        <p className="mt-2 text-sm text-paper/65">{subtitle}</p>
+
+        {searchAction && (
+          <form action={searchAction} className="mx-auto mt-6 flex max-w-xl items-center gap-3 rounded-2xl bg-paper px-5 py-3.5 shadow-lg">
+            {preserveParams &&
+              Object.entries(preserveParams).map(
+                ([key, value]) =>
+                  value && <input key={key} type="hidden" name={key} value={value} />
+              )}
+            <Search className="h-[18px] w-[18px] shrink-0 text-brand" />
+            <input
+              type="text"
+              name={searchParamName}
+              defaultValue={searchDefaultValue}
+              placeholder={searchPlaceholder}
+              className="w-full bg-transparent text-sm text-ink placeholder:text-ink/40 focus:outline-none"
+            />
+          </form>
+        )}
       </div>
     </section>
   );

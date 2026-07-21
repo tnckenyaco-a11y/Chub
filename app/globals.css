@@ -5,18 +5,28 @@
   --color-ink: #1b120b; /* Depth Black */
   --color-paper: #ffffff; /* Canvas White */
   --color-brand: #851490; /* Nyx Vision Purple (primary) */
+  --color-brand-dark: #5e0e66;
   --color-volt: #ff7b10; /* Doer Orange (accent — CTAs, highlights) */
   --color-magenta: #e5484d; /* error/destructive only, not a brand color */
+  --color-green: #1a9c5c; /* success/positive states */
   --color-line: rgba(27, 18, 11, 0.12);
+  --color-bg: #faf8f9; /* off-white section background */
+
+  --grad-brand: linear-gradient(160deg, #851490 0%, #5e0e66 100%);
+  --grad-volt: linear-gradient(135deg, #ff8c1a 0%, #ff7b10 60%, #e8690a 100%);
+  --grad-text: linear-gradient(100deg, #851490, #ff7b10);
 }
 
 @theme inline {
   --color-ink: var(--color-ink);
   --color-paper: var(--color-paper);
   --color-brand: var(--color-brand);
+  --color-brand-dark: var(--color-brand-dark);
   --color-volt: var(--color-volt);
   --color-magenta: var(--color-magenta);
+  --color-green: var(--color-green);
   --color-line: var(--color-line);
+  --color-bg: var(--color-bg);
   --font-display: var(--font-dm-sans);
   --font-accent: var(--font-playfair);
   --font-sans: var(--font-montserrat);
@@ -54,6 +64,21 @@ body {
   font-style: italic;
 }
 
+.bg-grad-brand {
+  background-image: var(--grad-brand);
+}
+
+.bg-grad-volt {
+  background-image: var(--grad-volt);
+}
+
+.text-grad {
+  background-image: var(--grad-text);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
 @keyframes marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
@@ -61,4 +86,23 @@ body {
 
 .animate-marquee {
   animation: marquee 28s linear infinite;
+}
+
+@keyframes hero-gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.bg-hero-gradient {
+  background-image: linear-gradient(120deg, #0f0a08, #1e0a24, #0f0a08, #2a0a30, #0f0a08);
+  background-size: 300% 300%;
+  animation: hero-gradient 22s ease infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-hero-gradient {
+    animation: none;
+    background-position: 50% 50%;
+  }
 }

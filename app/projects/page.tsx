@@ -7,9 +7,9 @@ import { timeAgo } from "@/lib/format";
 export default async function ProjectsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; q?: string }>;
 }) {
-  const { category } = await searchParams;
+  const { category, q } = await searchParams;
   const supabase = await createClient();
 
   const [{ data: categories }, { data: projects }] = await Promise.all([
@@ -23,9 +23,20 @@ export default async function ProjectsPage({
       .order("created_at", { ascending: false }),
   ]);
 
-  const filtered = category
+  let filtered = category
     ? projects?.filter((p) => p.categories?.slug === category)
     : projects;
+
+  const needle = q?.trim().toLowerCase();
+  if (needle) {
+    filtered = filtered?.filter((p) =>
+      [p.title, p.categories?.name]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(needle)
+    );
+  }
 
   return (
     <div>
@@ -33,6 +44,11 @@ export default async function ProjectsPage({
         eyebrow="Open Work"
         title="Projects"
         subtitle="Brand-posted jobs, open for proposals."
+        searchAction="/projects"
+        searchParamName="q"
+        searchDefaultValue={q}
+        searchPlaceholder="Search projects by title or category..."
+        preserveParams={{ category }}
       />
 
       <div className="mx-auto max-w-7xl px-6 py-12 lg:px-10">
@@ -69,10 +85,10 @@ export default async function ProjectsPage({
               <Link
                 key={p.id}
                 href={`/projects/${p.slug}`}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-paper shadow-sm transition hover:-translate-y-0.5 hover:border-volt hover:shadow-md"
+                className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-paper shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
                 <div
-                  className="h-40 bg-cover bg-center bg-brand/10"
+                  className="h-40 bg-cover bg-center bg-grad-brand"
                   style={cover ? { backgroundImage: `url(${cover})` } : undefined}
                 />
                 <div className="flex flex-1 flex-col p-6">

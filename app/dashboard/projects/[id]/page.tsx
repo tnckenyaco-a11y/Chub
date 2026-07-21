@@ -67,12 +67,12 @@ export default async function EditProjectPage({
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-4xl uppercase text-ink">Edit Project</h1>
+        <h1 className="font-display text-3xl text-ink">Edit Project</h1>
         <span className="text-xs uppercase text-ink/50">{project.status.replace("_", " ")}</span>
       </div>
 
       {saved && (
-        <p className="mt-6 rounded-lg border border-volt/40 bg-volt/10 px-4 py-3 text-sm text-volt">
+        <p className="mt-6 rounded-lg border border-green/40 bg-green/10 px-4 py-3 text-sm text-green">
           Saved. Changes to a published project go back through review.
         </p>
       )}
@@ -86,7 +86,7 @@ export default async function EditProjectPage({
             name="title"
             defaultValue={project.title}
             required
-            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-brand"
           />
         </label>
         <label className="block">
@@ -97,7 +97,7 @@ export default async function EditProjectPage({
             name="description"
             defaultValue={project.description}
             rows={5}
-            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-3 text-ink outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-3 text-ink outline-none focus:border-brand"
           />
         </label>
         <label className="block">
@@ -107,7 +107,7 @@ export default async function EditProjectPage({
           <select
             name="category_id"
             defaultValue={project.category_id ?? ""}
-            className="mt-1.5 w-full rounded-lg border border-line bg-paper px-4 py-2.5 text-ink outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-paper px-4 py-2.5 text-ink outline-none focus:border-brand"
           >
             <option value="">Select a category</option>
             {categories?.map((c) => (
@@ -119,7 +119,7 @@ export default async function EditProjectPage({
         </label>
         <button
           type="submit"
-          className="rounded-full bg-volt px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink"
+          className="rounded-full bg-grad-brand px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
         >
           Save
         </button>
@@ -168,7 +168,7 @@ export default async function EditProjectPage({
                   <p className="font-semibold text-ink">
                     {p.creative?.first_name} {p.creative?.last_name}
                   </p>
-                  <p className="text-sm text-volt">Ksh {p.rate.toLocaleString()}</p>
+                  <p className="text-sm font-semibold text-brand">Ksh {p.rate.toLocaleString()}</p>
                 </div>
                 {p.message && <p className="mt-2 text-sm text-ink/60">{p.message}</p>}
                 <p className="mt-3 text-xs uppercase text-ink/40">{p.status}</p>
@@ -177,7 +177,7 @@ export default async function EditProjectPage({
                     <form action={accept}>
                       <button
                         type="submit"
-                        className="rounded-full bg-volt px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-ink"
+                        className="rounded-full bg-grad-brand px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
                       >
                         Accept
                       </button>
@@ -197,7 +197,7 @@ export default async function EditProjectPage({
                     {orderByProposal.has(p.id) ? (
                       <Link
                         href={`/dashboard/orders/${orderByProposal.get(p.id)}`}
-                        className="text-xs font-semibold uppercase tracking-wide text-volt hover:underline"
+                        className="text-xs font-semibold uppercase tracking-wide text-brand hover:underline"
                       >
                         View Order →
                       </Link>
@@ -207,11 +207,11 @@ export default async function EditProjectPage({
                           name="phone_number"
                           required
                           placeholder="M-Pesa phone (07XXXXXXXX)"
-                          className="w-full rounded-lg border border-line bg-transparent px-4 py-2 text-sm text-ink outline-none focus:border-volt"
+                          className="w-full rounded-lg border border-line bg-transparent px-4 py-2 text-sm text-ink outline-none focus:border-brand"
                         />
                         <button
                           type="submit"
-                          className="rounded-full bg-volt px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-ink"
+                          className="rounded-full bg-grad-brand px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
                         >
                           Pay &amp; Start (Ksh {p.rate.toLocaleString()})
                         </button>

@@ -38,7 +38,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="max-w-3xl">
-      <h1 className="font-display text-4xl uppercase text-ink">Profile</h1>
+      <h1 className="font-display text-3xl text-ink">Profile</h1>
 
       {/* Avatar + cover uploads */}
       <div className="mt-8 grid gap-6 sm:grid-cols-2">
@@ -48,7 +48,7 @@ export default async function ProfilePage() {
           </p>
           <div className="mt-2 flex items-center gap-4">
             <div
-              className="h-20 w-20 shrink-0 rounded-full bg-paper/10 bg-cover bg-center"
+              className="h-20 w-20 shrink-0 rounded-full bg-grad-brand bg-cover bg-center"
               style={full?.avatar_url ? { backgroundImage: `url(${full.avatar_url})` } : undefined}
             />
             <form action={uploadAvatar}>
@@ -63,7 +63,7 @@ export default async function ProfilePage() {
             Cover Image
           </p>
           <div
-            className="mt-2 h-20 w-full rounded-xl bg-paper/10 bg-cover bg-center"
+            className="mt-2 h-20 w-full rounded-xl bg-grad-brand bg-cover bg-center"
             style={full?.cover_url ? { backgroundImage: `url(${full.cover_url})` } : undefined}
           />
           <form action={uploadCover} className="mt-2">
@@ -93,7 +93,7 @@ export default async function ProfilePage() {
             rows={5}
             defaultValue={full?.bio ?? ""}
             placeholder="Tell brands and creatives about yourself…"
-            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
+            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-brand"
           />
         </label>
 
@@ -112,7 +112,7 @@ export default async function ProfilePage() {
 
         <button
           type="submit"
-          className="rounded-full bg-volt px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink"
+          className="rounded-full bg-grad-brand px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
         >
           Save
         </button>
@@ -169,7 +169,7 @@ export default async function ProfilePage() {
             <span className="text-xs text-ink/50">Title (optional)</span>
             <input
               name="title"
-              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2 text-sm text-ink outline-none focus:border-volt"
+              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2 text-sm text-ink outline-none focus:border-brand"
             />
           </label>
           <label className="block">
@@ -178,7 +178,7 @@ export default async function ProfilePage() {
               name="link_url"
               type="url"
               placeholder="https://…"
-              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2 text-sm text-ink outline-none focus:border-volt"
+              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2 text-sm text-ink outline-none focus:border-brand"
             />
           </label>
           <button
@@ -214,7 +214,7 @@ function Field({
         type={type}
         defaultValue={defaultValue}
         placeholder={placeholder}
-        className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-volt"
+        className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-brand"
       />
     </label>
   );

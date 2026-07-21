@@ -1,12 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { CheckCircle2, Lock, Search, Sparkles } from "lucide-react";
 import { getSitePage } from "@/lib/site-pages";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { Reveal } from "@/components/motion/reveal";
 import { StaggerGroup, StaggerItem } from "@/components/motion/stagger-group";
 import { RotatingWord } from "@/components/motion/rotating-word";
-import { FloatingCard } from "@/components/motion/floating-card";
+import { HeroParallaxContainer, ParallaxLayer } from "@/components/motion/hero-parallax";
+import { CountUp } from "@/components/motion/count-up";
 
 type HomeContent = {
   hero: {
@@ -28,6 +30,8 @@ const PORTFOLIO_SHOWCASE = [
   { src: "/hero/overhead-collage.jpg", role: "Prop & Set Design" },
 ];
 
+const STEP_ICONS = [Search, Lock, CheckCircle2];
+
 export default async function Home() {
   const page = await getSitePage<HomeContent>("home");
   const supabase = await createClient();
@@ -44,90 +48,79 @@ export default async function Home() {
       .maybeSingle(),
   ]);
 
+  // Public aggregate only (no PII) — orders RLS restricts SELECT to the
+  // order's own parties, so the service client is needed for this sitewide sum.
+  const serviceClient = createServiceClient();
+  const { data: completedOrders } = await serviceClient
+    .from("orders")
+    .select("amount_kes")
+    .eq("status", "completed");
+  const totalPaidOut = (completedOrders ?? []).reduce((sum, o) => sum + Number(o.amount_kes), 0);
+
   const content = page?.content;
-  const tickerItems = categories?.length
-    ? [...categories, ...categories]
-    : [];
+  const tickerItems = categories?.length ? [...categories, ...categories] : [];
   const rotatingRoles = categories?.length
     ? categories.map((c) => c.name)
     : ["Photographer", "Videographer", "Graphic Designer"];
+  const headlineLines = content?.hero.headline ?? ["The Future", "of African Creativity."];
+  const [headlineLine1, ...rest] = headlineLines;
+  const headlineLine2 = rest.join(" ");
 
   return (
     <div>
-      {/* Hero — dark, floating photo collage */}
-      <section className="relative overflow-hidden bg-ink py-28 lg:py-40">
-        <FloatingCard
-          src="/hero/photographer-studio.jpg"
-          alt=""
-          caption="Photographer"
-          sub="Nairobi"
-          rotate={-6}
-          delay={0.1}
-          className="left-[3%] top-[10%] w-36 xl:w-40"
-        />
-        {featuredProject && (
-          <FloatingCard
-            src="/hero/videographer-set.png"
-            alt=""
-            caption={featuredProject.title}
-            sub={`Ksh ${Number(featuredProject.budget_min).toLocaleString()}–${Number(featuredProject.budget_max).toLocaleString()} · ${featuredProject.brand?.city ?? "Kenya"}`}
-            rotate={5}
-            delay={0.2}
-            className="right-[4%] top-[8%] w-40 xl:w-44"
-          />
-        )}
-        <FloatingCard
-          src="/hero/music-studio.png"
-          alt=""
-          caption="Music Producer"
-          sub="Accra"
-          rotate={4}
-          delay={0.3}
-          className="left-[7%] top-[62%] w-36 xl:w-40"
-        />
-        <FloatingCard
-          src="/hero/ugc-creator.png"
-          alt=""
-          caption="Content Creator"
-          sub="Lagos"
-          rotate={-4}
-          delay={0.15}
-          className="right-[7%] top-[58%] w-36 xl:w-40"
-        />
-        <FloatingCard
-          src="/hero/designer-desk.png"
-          alt=""
-          caption="Graphic Designer"
-          sub="Nairobi"
-          rotate={-3}
-          delay={0.4}
-          className="bottom-[6%] left-[18%] w-32 xl:w-36"
-        />
-        <FloatingCard
-          src="/hero/director-clapperboard.jpg"
-          alt=""
-          caption="Director"
-          sub="Kigali"
-          rotate={6}
-          delay={0.35}
-          className="bottom-[8%] right-[17%] w-32 xl:w-36"
-        />
+      {/* Hero — animated gradient, mouse-parallax floating collage */}
+      <section className="bg-hero-gradient relative -mx-3 -mt-3 overflow-hidden py-32 sm:-mx-6 lg:py-44">
+        <HeroParallaxContainer className="pointer-events-none absolute inset-0">
+          <ParallaxLayer depth={18} className="absolute left-[3%] top-[10%] hidden lg:block">
+            <HeroFloatImage src="/hero/photographer-studio.jpg" caption="Photographer" sub="Nairobi" rotate={-6} />
+          </ParallaxLayer>
+          <ParallaxLayer depth={28} className="absolute bottom-[8%] left-[8%] hidden lg:block">
+            <HeroFloatImage src="/hero/music-studio.png" caption="Music Producer" sub="Accra" rotate={4} />
+          </ParallaxLayer>
+          <ParallaxLayer depth={22} className="absolute right-[4%] top-[8%] hidden lg:block">
+            <HeroFloatImage src="/hero/ugc-creator.png" caption="Content Creator" sub="Lagos" rotate={-4} />
+          </ParallaxLayer>
+          <ParallaxLayer depth={32} className="absolute bottom-[6%] right-[9%] hidden lg:block">
+            <HeroFloatImage src="/hero/director-clapperboard.jpg" caption="Director" sub="Kigali" rotate={6} />
+          </ParallaxLayer>
+          {featuredProject && (
+            <ParallaxLayer depth={14} className="pointer-events-auto absolute left-[18%] top-[16%] hidden xl:block">
+              <div className="flex max-w-[190px] items-center gap-2.5 rounded-2xl bg-paper/95 p-3.5 shadow-2xl backdrop-blur">
+                <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full">
+                  <Image src="/hero/finger-frame-portrait.jpg" alt="" fill sizes="36px" className="object-cover" />
+                </div>
+                <div>
+                  <p className="text-[11.5px] font-semibold leading-tight text-ink">{featuredProject.title}</p>
+                  <p className="mt-0.5 text-[10px] text-ink/50">Posted recently</p>
+                </div>
+              </div>
+            </ParallaxLayer>
+          )}
+          <ParallaxLayer depth={20} className="pointer-events-auto absolute bottom-[12%] right-[16%] hidden xl:block">
+            <div className="flex items-center gap-2.5 rounded-full bg-paper/95 py-2 pl-2 pr-4 shadow-2xl backdrop-blur">
+              <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full">
+                <Image src="/hero/camera-reveal.jpg" alt="" fill sizes="36px" className="object-cover" />
+              </div>
+              <div>
+                <p className="text-[11.5px] font-semibold leading-tight text-ink">Kwame Boateng</p>
+                <p className="text-[10px] text-ink/50">Photographer, Director</p>
+              </div>
+            </div>
+          </ParallaxLayer>
+        </HeroParallaxContainer>
 
         <div className="relative mx-auto max-w-3xl px-6 text-center lg:px-10">
           <Reveal mode="load">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-volt">
+            <p className="font-accent text-lg text-[#ffb87a] sm:text-xl">
               {content?.hero.eyebrow ?? "Create. Connect. Thrive."}
             </p>
           </Reveal>
           <Reveal mode="load" delay={0.12}>
-            <h1 className="font-display mt-6 text-5xl uppercase leading-[0.95] text-paper sm:text-6xl lg:text-7xl">
-              {(content?.hero.headline ?? ["The Future", "of African", "Creativity."]).map(
-                (line, i) => (
-                  <span key={i} className="block">
-                    {i === 1 ? <span className="text-volt">{line}</span> : line}
-                  </span>
-                )
-              )}
+            <h1 className="font-display mt-5 text-5xl leading-[1.05] text-paper sm:text-6xl lg:text-7xl">
+              {headlineLine1}
+              <span className="block bg-gradient-to-r from-[#ffb87a] to-volt bg-clip-text text-transparent">
+                {headlineLine2}
+              </span>
             </h1>
           </Reveal>
 
@@ -139,7 +132,6 @@ export default async function Home() {
               Hire the perfect
               <RotatingWord words={rotatingRoles} />
               here
-              <ArrowRight className="h-4 w-4" />
             </Link>
           </Reveal>
 
@@ -147,13 +139,13 @@ export default async function Home() {
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <Link
                 href={content?.hero.cta_primary.href ?? "/creatives"}
-                className="rounded-full bg-volt px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-ink transition hover:bg-paper"
+                className="rounded-full bg-grad-brand px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-paper shadow-[0_14px_30px_rgba(133,20,144,0.3)] transition hover:opacity-90"
               >
                 {content?.hero.cta_primary.label ?? "Find Creatives"}
               </Link>
               <Link
                 href={content?.hero.cta_secondary.href ?? "/projects/new"}
-                className="rounded-full border border-paper/20 px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-paper transition hover:border-paper/50"
+                className="rounded-full border border-paper/25 px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-paper transition hover:border-paper/50"
               >
                 {content?.hero.cta_secondary.label ?? "Post a Project"}
               </Link>
@@ -162,39 +154,48 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Stats strip */}
-      <section className="border-b border-line bg-paper py-16">
-        <div className="mx-auto grid max-w-5xl gap-10 px-6 text-center sm:grid-cols-3 lg:px-10">
-          <Reveal mode="load" delay={0.05}>
-            <p className="font-accent text-5xl text-volt">{content?.hero.stat_value ?? "$4.2B"}</p>
-            <p className="mt-2 text-xs uppercase tracking-widest text-ink/50">
-              African creative economy
-            </p>
-          </Reveal>
-          <Reveal mode="load" delay={0.15}>
-            <p className="font-accent text-5xl text-volt">{categories?.length ?? 11}+</p>
-            <p className="mt-2 text-xs uppercase tracking-widest text-ink/50">
-              Creative disciplines
-            </p>
-          </Reveal>
-          <Reveal mode="load" delay={0.25}>
-            <p className="font-accent text-5xl text-volt">M-Pesa</p>
-            <p className="mt-2 text-xs uppercase tracking-widest text-ink/50">
-              Secured escrow payments
-            </p>
+      {/* Stats block */}
+      <section className="bg-paper py-14">
+        <div className="mx-auto max-w-3xl px-6 lg:px-10">
+          <Reveal>
+            <div className="grid divide-y divide-line overflow-hidden rounded-2xl border border-line sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+              <div className="p-8 text-center">
+                <p className="font-accent text-3xl text-brand">{content?.hero.stat_value ?? "$4.2B"}</p>
+                <p className="mt-2 text-xs uppercase tracking-widest text-ink/50">
+                  African creative economy
+                </p>
+              </div>
+              <div className="p-8 text-center">
+                <CountUp
+                  target={categories?.length ?? 11}
+                  suffix="+"
+                  className="font-display block text-3xl font-bold text-brand"
+                />
+                <p className="mt-2 text-xs uppercase tracking-widest text-ink/50">
+                  Creative disciplines
+                </p>
+              </div>
+              <div className="p-8 text-center">
+                <CountUp
+                  target={totalPaidOut}
+                  prefix="Ksh "
+                  className="font-display block text-3xl font-bold text-brand"
+                />
+                <p className="mt-2 text-xs uppercase tracking-widest text-ink/50">
+                  Paid to creatives
+                </p>
+              </div>
+            </div>
           </Reveal>
         </div>
       </section>
 
       {/* Category ticker */}
       {tickerItems.length > 0 && (
-        <div className="overflow-hidden border-b border-line bg-paper py-4">
+        <div className="overflow-hidden border-y border-line bg-paper py-4">
           <div className="animate-marquee flex w-max gap-10 whitespace-nowrap">
             {tickerItems.map((c, i) => (
-              <span
-                key={i}
-                className="font-display text-2xl uppercase text-ink/80"
-              >
+              <span key={i} className="font-display text-2xl uppercase text-ink/80">
                 {c.name} <span className="text-magenta">·</span>
               </span>
             ))}
@@ -206,23 +207,87 @@ export default async function Home() {
       {content?.how_it_works && (
         <section className="mx-auto max-w-7xl px-6 py-24 lg:px-10">
           <Reveal>
-            <h2 className="font-display text-4xl uppercase text-ink sm:text-5xl">
-              How It Works
-            </h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
+              Made on Nyx Creators Hub
+            </p>
+            <h2 className="font-display mt-3 text-4xl text-ink sm:text-5xl">How It Works</h2>
           </Reveal>
-          <StaggerGroup className="mt-12 grid gap-10 sm:grid-cols-3">
-            {content.how_it_works.map((item) => (
-              <StaggerItem key={item.step}>
-                <p className="font-display text-5xl text-magenta">{item.step}</p>
-                <h3 className="mt-4 text-lg font-semibold uppercase tracking-wide text-ink">
-                  {item.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-ink/60">{item.body}</p>
-              </StaggerItem>
-            ))}
+          <StaggerGroup className="relative mt-14 grid gap-10 sm:grid-cols-3">
+            <div className="pointer-events-none absolute inset-x-[16%] top-[23px] hidden h-0.5 sm:block [background:repeating-linear-gradient(90deg,var(--color-line)_0_10px,transparent_10px_18px)]" />
+            {content.how_it_works.map((item, i) => {
+              const Icon = STEP_ICONS[i % STEP_ICONS.length];
+              return (
+                <StaggerItem key={item.step}>
+                  <div className="relative text-center">
+                    <div className="bg-grad-brand relative z-10 mx-auto flex h-[46px] w-[46px] items-center justify-center rounded-full text-base font-bold text-paper shadow-[0_10px_22px_rgba(133,20,144,0.3)]">
+                      {item.step}
+                    </div>
+                    <div className="mx-auto mt-3.5 flex h-8 w-8 items-center justify-center rounded-[10px] bg-brand/8 text-brand">
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <h3 className="font-display mt-3.5 text-xl text-ink">{item.title}</h3>
+                    <p className="mx-auto mt-2.5 max-w-[260px] text-sm leading-relaxed text-ink/60">
+                      {item.body}
+                    </p>
+                  </div>
+                </StaggerItem>
+              );
+            })}
           </StaggerGroup>
         </section>
       )}
+
+      {/* Built for how you work */}
+      <section className="border-t border-line py-24">
+        <div className="mx-auto max-w-7xl px-6 lg:px-10">
+          <Reveal>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
+              See it in action
+            </p>
+            <h2 className="font-display mt-3 text-4xl text-ink sm:text-5xl">
+              Built for how you work
+            </h2>
+          </Reveal>
+
+          <StaggerGroup className="mt-12 grid gap-6 lg:grid-cols-3">
+            {["Creative Dashboard", "Creative Profile", "Platform Settings"].map((label) => (
+              <StaggerItem key={label}>
+                <div className="overflow-hidden rounded-2xl border border-line bg-paper shadow-sm">
+                  <div className="flex gap-1.5 bg-bg px-3.5 py-2.5">
+                    <span className="h-2 w-2 rounded-full bg-ink/15" />
+                    <span className="h-2 w-2 rounded-full bg-ink/15" />
+                    <span className="h-2 w-2 rounded-full bg-ink/15" />
+                  </div>
+                  <div className="flex aspect-video items-center justify-center bg-[repeating-linear-gradient(135deg,var(--color-bg)_0_10px,#ebe7e8_10px_20px)] px-4 text-center text-xs text-ink/35">
+                    {label} preview
+                  </div>
+                </div>
+                <p className="mt-3.5 text-center text-sm font-semibold text-ink">{label}</p>
+              </StaggerItem>
+            ))}
+          </StaggerGroup>
+
+          <Reveal delay={0.1}>
+            <div className="bg-grad-brand mt-8 flex flex-col items-center gap-5 rounded-[20px] p-7 text-center sm:flex-row sm:text-left">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-paper/15 text-paper">
+                <Sparkles className="h-6 w-6" />
+              </div>
+              <div>
+                <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                  <h3 className="font-display text-lg text-paper">Nyx, your AI assistant</h3>
+                  <span className="rounded-full bg-paper/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-paper">
+                    Coming soon
+                  </span>
+                </div>
+                <p className="mt-1 max-w-lg text-sm text-paper/70">
+                  We&apos;re building an AI assistant into every dashboard to help with payouts,
+                  proposals, and order status. It&apos;s on the roadmap — not live yet.
+                </p>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
 
       {/* Portfolio showcase */}
       <section className="border-t border-line bg-ink py-24">
@@ -231,7 +296,7 @@ export default async function Home() {
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-volt">
               Made on Nyx Creators Hub
             </p>
-            <h2 className="font-display mt-3 text-4xl uppercase text-paper sm:text-5xl">
+            <h2 className="font-display mt-3 text-4xl text-paper sm:text-5xl">
               Work from the community
             </h2>
           </Reveal>
@@ -261,7 +326,10 @@ export default async function Home() {
         <section className="border-t border-line bg-paper py-24 text-ink">
           <div className="mx-auto max-w-7xl px-6 lg:px-10">
             <Reveal>
-              <h2 className="font-display text-4xl uppercase sm:text-5xl">What Brands Say</h2>
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
+                Testimonials
+              </p>
+              <h2 className="font-display mt-3 text-4xl sm:text-5xl">What Brands Say</h2>
             </Reveal>
             <StaggerGroup className="mt-12 grid gap-8 lg:grid-cols-3">
               {content.testimonials.map((t) => (
@@ -283,30 +351,55 @@ export default async function Home() {
       )}
 
       {/* Final CTA */}
-      <Reveal>
-        <section className="mx-auto max-w-7xl px-6 py-24 text-center lg:px-10">
-          <h2 className="font-display text-4xl uppercase text-ink sm:text-5xl">
-            Join the movement.
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-ink/60">
-            Let&apos;s build the future of African creativity, together.
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <Link
-              href="/sign-up?role=creative"
-              className="rounded-full bg-volt px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-ink transition hover:bg-ink hover:text-paper"
-            >
-              Join as a Creative
-            </Link>
-            <Link
-              href="/sign-up?role=brand"
-              className="rounded-full border border-line px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-ink transition hover:border-ink"
-            >
-              Join as a Brand
-            </Link>
+      <section className="mx-auto max-w-7xl px-6 py-24 lg:px-10">
+        <Reveal>
+          <div className="rounded-[28px] bg-ink px-8 py-16 text-center sm:px-16">
+            <h2 className="font-display text-4xl text-paper sm:text-5xl">Join the movement.</h2>
+            <p className="mx-auto mt-4 max-w-xl text-paper/65">
+              Let&apos;s build the future of African creativity, together.
+            </p>
+            <div className="mt-8 flex flex-wrap justify-center gap-4">
+              <Link
+                href="/sign-up?role=creative"
+                className="bg-grad-volt rounded-full px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-ink transition hover:opacity-90"
+              >
+                Join as a Creative
+              </Link>
+              <Link
+                href="/sign-up?role=brand"
+                className="rounded-full border border-paper/25 px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-paper transition hover:border-paper/50"
+              >
+                Join as a Brand
+              </Link>
+            </div>
           </div>
-        </section>
-      </Reveal>
+        </Reveal>
+      </section>
+    </div>
+  );
+}
+
+function HeroFloatImage({
+  src,
+  caption,
+  sub,
+  rotate,
+}: {
+  src: string;
+  caption: string;
+  sub: string;
+  rotate: number;
+}) {
+  return (
+    <div
+      className="relative h-44 w-36 overflow-hidden rounded-2xl border border-paper/10 shadow-2xl xl:h-48 xl:w-40"
+      style={{ transform: `rotate(${rotate}deg)` }}
+    >
+      <Image src={src} alt="" fill sizes="160px" className="object-cover" />
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/90 via-ink/20 to-transparent p-3 pt-8">
+        <p className="text-xs font-semibold leading-tight text-paper">{caption}</p>
+        <p className="mt-0.5 text-[11px] leading-tight text-paper/70">{sub}</p>
+      </div>
     </div>
   );
 }

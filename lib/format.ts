@@ -1,3 +1,11 @@
+export function formatDate(dateString: string): string {
+  return new Date(dateString).toLocaleDateString("en", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
 export function timeAgo(dateString: string): string {
   const seconds = Math.floor((Date.now() - new Date(dateString).getTime()) / 1000);
   const units: [Intl.RelativeTimeFormatUnit, number][] = [
