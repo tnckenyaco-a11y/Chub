@@ -24,14 +24,14 @@ export default async function OrderDetailPage({
   const { data: order } = await supabase
     .from("orders")
     .select(
-      "id, amount_kes, status, created_at, brand_id, creative_id, brand:profiles!orders_brand_id_fkey(first_name, last_name), creative:profiles!orders_creative_id_fkey(first_name, last_name), service_packages(title, services(title)), proposals(project_id, projects(title))"
+      "id, amount_kes, status, created_at, brand_id, creative_id, service_packages(title, services(title)), proposals(project_id, projects(title))"
     )
     .eq("id", id)
     .maybeSingle();
 
   if (!order || (order.brand_id !== profile.id && order.creative_id !== profile.id)) notFound();
 
-  const [{ data: payments }, { data: dispute }, { data: reviews }] = await Promise.all([
+  const [{ data: payments }, { data: dispute }, { data: reviews }, { data: parties }] = await Promise.all([
     supabase
       .from("payments")
       .select("kind, status, amount_kes, created_at")
@@ -39,7 +39,17 @@ export default async function OrderDetailPage({
       .order("created_at"),
     supabase.from("disputes").select("reason, status, admin_notes").eq("order_id", id).maybeSingle(),
     supabase.from("reviews").select("reviewer_id").eq("order_id", id),
+    // Joining orders -> profiles directly hits RLS ("owner or admin only"), so
+    // counterparty names come from public_profiles instead — same as everywhere else.
+    supabase
+      .from("public_profiles")
+      .select("id, first_name, last_name")
+      .in("id", [order.brand_id, order.creative_id]),
   ]);
+
+  const partyById = new Map((parties ?? []).map((p) => [p.id, p]));
+  const brandProfile = partyById.get(order.brand_id);
+  const creativeProfile = partyById.get(order.creative_id);
 
   const isBrand = order.brand_id === profile.id;
   const context = order.service_packages
@@ -64,8 +74,8 @@ export default async function OrderDetailPage({
       <p className="mt-2 text-sm text-ink/60">
         {isBrand ? "Creative" : "Brand"}:{" "}
         {isBrand
-          ? `${order.creative?.first_name} ${order.creative?.last_name}`
-          : `${order.brand?.first_name} ${order.brand?.last_name}`}{" "}
+          ? `${creativeProfile?.first_name ?? ""} ${creativeProfile?.last_name ?? ""}`
+          : `${brandProfile?.first_name ?? ""} ${brandProfile?.last_name ?? ""}`}{" "}
         · Ksh {order.amount_kes.toLocaleString()}
       </p>
 

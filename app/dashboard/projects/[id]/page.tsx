@@ -37,9 +37,7 @@ export default async function EditProjectPage({
       supabase.from("categories").select("id, name").order("sort_order"),
       supabase
         .from("proposals")
-        .select(
-          "id, message, rate, status, created_at, creative:profiles!proposals_creative_id_fkey(username, first_name, last_name)"
-        )
+        .select("id, message, rate, status, created_at, creative_id")
         .eq("project_id", id)
         .order("created_at", { ascending: false }),
       supabase
@@ -58,6 +56,14 @@ export default async function EditProjectPage({
     ? await supabase.from("orders").select("id, proposal_id").in("proposal_id", acceptedProposalIds)
     : { data: [] };
   const orderByProposal = new Map((existingOrders ?? []).map((o) => [o.proposal_id, o.id]));
+
+  const { data: proposalCreatives } = proposals?.length
+    ? await supabase
+        .from("public_profiles")
+        .select("id, username, first_name, last_name")
+        .in("id", proposals.map((p) => p.creative_id))
+    : { data: [] };
+  const creativeByProposalCreativeId = new Map((proposalCreatives ?? []).map((c) => [c.id, c]));
 
   const update = updateProject.bind(null, id);
   const close = closeProject.bind(null, id);
@@ -162,11 +168,12 @@ export default async function EditProjectPage({
           {proposals?.map((p) => {
             const accept = decideProposal.bind(null, p.id, "accepted");
             const reject = decideProposal.bind(null, p.id, "rejected");
+            const creative = creativeByProposalCreativeId.get(p.creative_id);
             return (
               <div key={p.id} className="rounded-2xl border border-line p-5">
                 <div className="flex items-center justify-between">
                   <p className="font-semibold text-ink">
-                    {p.creative?.first_name} {p.creative?.last_name}
+                    {creative?.first_name} {creative?.last_name}
                   </p>
                   <p className="text-sm font-semibold text-brand">Ksh {p.rate.toLocaleString()}</p>
                 </div>

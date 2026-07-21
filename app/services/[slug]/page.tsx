@@ -18,13 +18,19 @@ export default async function ServiceDetailPage({
   const { data: service } = await supabase
     .from("services")
     .select(
-      "id, title, description, status, categories(name), creative:profiles!services_creative_id_fkey(username, first_name, last_name, city, country), service_images(file_url, sort_order)"
+      "id, title, description, status, creative_id, categories(name), service_images(file_url, sort_order)"
     )
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();
 
   if (!service) notFound();
+
+  const { data: creative } = await supabase
+    .from("public_profiles")
+    .select("username, first_name, last_name, city, country")
+    .eq("id", service.creative_id)
+    .maybeSingle();
 
   const { data: packages } = await supabase
     .from("service_packages")
@@ -55,13 +61,13 @@ export default async function ServiceDetailPage({
           </span>
         )}
         <h1 className="font-display mt-3 text-3xl text-ink sm:text-4xl">{service.title}</h1>
-        {service.creative && (
+        {creative && (
           <Link
-            href={`/creatives/${service.creative.username}`}
+            href={`/creatives/${creative.username}`}
             className="mt-3 inline-block text-sm text-ink/60 hover:text-brand"
           >
-            by <span className="font-semibold">{service.creative.first_name} {service.creative.last_name}</span>
-            {service.creative.city ? ` · ${service.creative.city}` : ""}
+            by <span className="font-semibold">{creative.first_name} {creative.last_name}</span>
+            {creative.city ? ` · ${creative.city}` : ""}
           </Link>
         )}
         <p className="mt-8 whitespace-pre-wrap leading-relaxed text-ink/70">

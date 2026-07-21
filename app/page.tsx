@@ -38,9 +38,7 @@ export default async function Home() {
     supabase.from("categories").select("name").order("sort_order"),
     supabase
       .from("projects")
-      .select(
-        "title, budget_min, budget_max, categories(name), brand:profiles!projects_brand_id_fkey(city)"
-      )
+      .select("title")
       .eq("status", "published")
       .order("created_at", { ascending: false })
       .limit(1)

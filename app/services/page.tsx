@@ -16,11 +16,21 @@ export default async function ServicesPage({
     supabase
       .from("services")
       .select(
-        "id, title, slug, views, creative:profiles!services_creative_id_fkey(first_name, last_name, city, country), categories(slug, name), service_packages(price_kes), service_images(file_url, sort_order)"
+        "id, title, slug, views, creative_id, categories(slug, name), service_packages(price_kes), service_images(file_url, sort_order)"
       )
       .eq("status", "published")
       .order("created_at", { ascending: false }),
   ]);
+
+  // creative:profiles!fkey would hit RLS ("owner or admin only") for anyone
+  // else viewing the listing, so creative names come from public_profiles instead.
+  const { data: creatives } = services?.length
+    ? await supabase
+        .from("public_profiles")
+        .select("id, first_name, last_name, city, country")
+        .in("id", services.map((s) => s.creative_id))
+    : { data: [] };
+  const creativeById = new Map((creatives ?? []).map((c) => [c.id, c]));
 
   let filtered = category
     ? services?.filter((s) => s.categories?.slug === category)
@@ -28,13 +38,14 @@ export default async function ServicesPage({
 
   const needle = q?.trim().toLowerCase();
   if (needle) {
-    filtered = filtered?.filter((s) =>
-      [s.title, s.categories?.name, s.creative?.first_name, s.creative?.last_name, s.creative?.city]
+    filtered = filtered?.filter((s) => {
+      const creative = creativeById.get(s.creative_id);
+      return [s.title, s.categories?.name, creative?.first_name, creative?.last_name, creative?.city]
         .filter(Boolean)
         .join(" ")
         .toLowerCase()
-        .includes(needle)
-    );
+        .includes(needle);
+    });
   }
 
   return (
@@ -83,6 +94,7 @@ export default async function ServicesPage({
             const cover = [...(s.service_images ?? [])].sort(
               (a, b) => a.sort_order - b.sort_order
             )[0]?.file_url;
+            const creative = creativeById.get(s.creative_id);
             return (
               <Link
                 key={s.id}
@@ -103,13 +115,13 @@ export default async function ServicesPage({
                   <h2 className="mt-3 font-semibold text-ink transition group-hover:text-brand">
                     {s.title}
                   </h2>
-                  {s.creative && (
+                  {creative && (
                     <p className="mt-2 flex items-center gap-1 text-xs text-ink/50">
-                      {s.creative.first_name} {s.creative.last_name}
-                      {s.creative.city && (
+                      {creative.first_name} {creative.last_name}
+                      {creative.city && (
                         <span className="ml-1 flex items-center gap-0.5">
                           <MapPin className="h-3 w-3" />
-                          {s.creative.city}
+                          {creative.city}
                         </span>
                       )}
                     </p>

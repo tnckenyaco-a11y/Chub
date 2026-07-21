@@ -20,13 +20,19 @@ export default async function ProjectDetailPage({
   const { data: project } = await supabase
     .from("projects")
     .select(
-      "id, title, description, pricing_type, budget_min, budget_max, categories(name), brand:profiles!projects_brand_id_fkey(first_name, last_name, city), project_images(file_url, sort_order)"
+      "id, title, description, pricing_type, budget_min, budget_max, brand_id, categories(name), project_images(file_url, sort_order)"
     )
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();
 
   if (!project) notFound();
+
+  const { data: brand } = await supabase
+    .from("public_profiles")
+    .select("first_name, last_name, city")
+    .eq("id", project.brand_id)
+    .maybeSingle();
 
   const images = [...(project.project_images ?? [])]
     .sort((a, b) => a.sort_order - b.sort_order)
@@ -62,10 +68,10 @@ export default async function ProjectDetailPage({
           </span>
         )}
         <h1 className="font-display mt-3 text-3xl text-ink sm:text-4xl">{project.title}</h1>
-        {project.brand && (
+        {brand && (
           <p className="mt-3 text-sm text-ink/60">
-            Posted by <span className="font-semibold">{project.brand.first_name} {project.brand.last_name}</span>
-            {project.brand.city ? ` · ${project.brand.city}` : ""}
+            Posted by <span className="font-semibold">{brand.first_name} {brand.last_name}</span>
+            {brand.city ? ` · ${brand.city}` : ""}
           </p>
         )}
         <p className="mt-8 whitespace-pre-wrap leading-relaxed text-ink/70">

@@ -19,11 +19,17 @@ export default async function OrdersPage() {
 
   const { data: orders } = await supabase
     .from("orders")
-    .select(
-      "id, amount_kes, status, created_at, brand:profiles!orders_brand_id_fkey(first_name, last_name), creative:profiles!orders_creative_id_fkey(first_name, last_name)"
-    )
+    .select("id, amount_kes, status, created_at, brand_id, creative_id")
     .or(`brand_id.eq.${profile.id},creative_id.eq.${profile.id}`)
     .order("created_at", { ascending: false });
+
+  const counterpartIds = (orders ?? []).map((o) =>
+    profile.role === "creative" ? o.brand_id : o.creative_id
+  );
+  const { data: counterparts } = counterpartIds.length
+    ? await supabase.from("public_profiles").select("id, first_name, last_name").in("id", counterpartIds)
+    : { data: [] };
+  const counterpartById = new Map((counterparts ?? []).map((c) => [c.id, c]));
 
   return (
     <div>
@@ -31,7 +37,9 @@ export default async function OrdersPage() {
 
       <ul className="mt-8 space-y-2">
         {orders?.map((o) => {
-          const counterpart = profile.role === "creative" ? o.brand : o.creative;
+          const counterpart = counterpartById.get(
+            profile.role === "creative" ? o.brand_id : o.creative_id
+          );
           return (
             <li key={o.id}>
               <Link
