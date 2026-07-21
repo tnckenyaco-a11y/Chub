@@ -1075,6 +1075,7 @@ export type Database = {
     }
     Functions: {
       is_admin: { Args: never; Returns: boolean }
+      total_paid_to_creatives: { Args: never; Returns: number }
     }
     Enums: {
       dispute_status:

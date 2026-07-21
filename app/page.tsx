@@ -3,7 +3,6 @@ import Link from "next/link";
 import { CheckCircle2, Lock, Search, Sparkles } from "lucide-react";
 import { getSitePage } from "@/lib/site-pages";
 import { createClient } from "@/lib/supabase/server";
-import { createServiceClient } from "@/lib/supabase/service";
 import { Reveal } from "@/components/motion/reveal";
 import { StaggerGroup, StaggerItem } from "@/components/motion/stagger-group";
 import { RotatingWord } from "@/components/motion/rotating-word";
@@ -49,13 +48,10 @@ export default async function Home() {
   ]);
 
   // Public aggregate only (no PII) — orders RLS restricts SELECT to the
-  // order's own parties, so the service client is needed for this sitewide sum.
-  const serviceClient = createServiceClient();
-  const { data: completedOrders } = await serviceClient
-    .from("orders")
-    .select("amount_kes")
-    .eq("status", "completed");
-  const totalPaidOut = (completedOrders ?? []).reduce((sum, o) => sum + Number(o.amount_kes), 0);
+  // order's own parties, so this reads through a SECURITY DEFINER function
+  // instead of the service-role client (which needs a key not set in every env).
+  const { data: totalPaidOutRaw } = await supabase.rpc("total_paid_to_creatives");
+  const totalPaidOut = Number(totalPaidOutRaw ?? 0);
 
   const content = page?.content;
   const tickerItems = categories?.length ? [...categories, ...categories] : [];
