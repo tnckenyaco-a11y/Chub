@@ -1,13 +1,14 @@
 import Image from "next/image";
 import { Lock } from "lucide-react";
 import { updatePassword } from "@/app/(auth)/actions";
+import { getBranding } from "@/lib/branding";
 
 export default async function ResetPasswordPage({
   searchParams,
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
-  const params = await searchParams;
+  const [params, branding] = await Promise.all([searchParams, getBranding()]);
 
   return (
     <div className="grid min-h-[calc(100vh-73px)] lg:grid-cols-2">
@@ -16,11 +17,12 @@ export default async function ResetPasswordPage({
         <div className="absolute inset-0 bg-linear-to-t from-ink via-ink/40 to-ink/10" />
         <div className="relative flex h-full flex-col justify-between p-12">
           <Image
-            src="/logo-lockup-white.png"
+            src={branding.logo_light_url || "/logo-lockup-white.png"}
             alt="Creators Hub"
             width={2782}
             height={708}
             className="h-8 w-auto self-start"
+            unoptimized={Boolean(branding.logo_light_url)}
           />
           <p className="font-accent max-w-md text-3xl leading-snug text-paper">
             Almost there — one last step

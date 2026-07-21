@@ -7,11 +7,14 @@ import { sendMessage } from "@/app/dashboard/messages/actions";
 
 export default async function MessageThreadPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const profile = await requireProfile();
   const { id } = await params;
+  const { error } = await searchParams;
   const supabase = await createClient();
 
   const { data: conversation } = await supabase
@@ -89,6 +92,12 @@ export default async function MessageThreadPage({
           <p className="text-sm text-ink/40">Say hello to start the conversation.</p>
         )}
       </div>
+
+      {error && (
+        <p className="mt-6 rounded-lg border border-magenta/40 bg-magenta/10 px-4 py-3 text-sm text-magenta">
+          {error}
+        </p>
+      )}
 
       <form action={send} className="mt-8 space-y-2">
         <div className="flex gap-2">

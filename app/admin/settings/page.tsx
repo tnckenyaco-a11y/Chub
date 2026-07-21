@@ -1,7 +1,15 @@
-import { ImageIcon, Palette } from "lucide-react";
+import { FileText, Trash2 } from "lucide-react";
 import { getSitePage } from "@/lib/site-pages";
+import { getBranding } from "@/lib/branding";
+import { createClient } from "@/lib/supabase/server";
+import { listPublicMedia } from "@/lib/storage";
 import { SettingsTabs } from "@/components/settings-tabs";
-import { updateContactInfo, updateSocialLinks } from "@/app/admin/settings/actions";
+import {
+  updateContactInfo,
+  updateSocialLinks,
+  updateBranding,
+  deleteMediaAsset,
+} from "@/app/admin/settings/actions";
 import { InstagramIcon, TikTokIcon, LinkedInIcon, WhatsAppIcon, YouTubeIcon } from "@/components/social-icons";
 
 type ContactContent = {
@@ -26,12 +34,15 @@ const SOCIAL_PLATFORMS = [
 export default async function AdminSettingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ saved?: string }>;
+  searchParams: Promise<{ saved?: string; error?: string }>;
 }) {
-  const { saved } = await searchParams;
-  const [contactPage, socialPage] = await Promise.all([
+  const { saved, error } = await searchParams;
+  const supabase = await createClient();
+  const [contactPage, socialPage, branding, media] = await Promise.all([
     getSitePage<ContactContent>("contact"),
     getSitePage<SocialContent>("social_links"),
+    getBranding(),
+    listPublicMedia(supabase),
   ]);
   const contact = contactPage?.content ?? {};
   const social = socialPage?.content ?? {};
@@ -126,18 +137,107 @@ export default async function AdminSettingsPage({
           </div>
         }
         media={
-          <ComingSoonPanel
-            icon={ImageIcon}
-            title="Media Library"
-            body="A site-wide image manager — browse, replace, and delete every uploaded asset from one place — is planned but not built yet."
-          />
+          <div>
+            <p className="text-xs text-ink/50">
+              {media.length} file{media.length === 1 ? "" : "s"} — avatars, cover photos,
+              portfolio pieces, and service/project images uploaded by everyone on the platform.
+            </p>
+            <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+              {media.map((asset) => {
+                const del = deleteMediaAsset.bind(null, asset.path);
+                return (
+                  <div
+                    key={asset.path}
+                    className="group relative aspect-square overflow-hidden rounded-xl border border-line bg-bg"
+                  >
+                    {asset.kind === "image" ? (
+                      <div
+                        className="h-full w-full bg-cover bg-center"
+                        style={{ backgroundImage: `url(${asset.url})` }}
+                      />
+                    ) : (
+                      <a
+                        href={asset.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex h-full w-full flex-col items-center justify-center gap-2 text-ink/40 hover:text-brand"
+                      >
+                        <FileText className="h-6 w-6" />
+                        <span className="text-[10px] font-semibold uppercase">PDF</span>
+                      </a>
+                    )}
+                    <form
+                      action={del}
+                      className="absolute inset-x-0 bottom-0 flex justify-center bg-ink/75 py-1.5 opacity-0 transition group-hover:opacity-100"
+                    >
+                      <button
+                        type="submit"
+                        className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-paper hover:text-magenta"
+                      >
+                        <Trash2 className="h-3 w-3" /> Delete
+                      </button>
+                    </form>
+                  </div>
+                );
+              })}
+              {!media.length && (
+                <p className="col-span-full text-sm text-ink/40">No uploads yet.</p>
+              )}
+            </div>
+          </div>
         }
         branding={
-          <ComingSoonPanel
-            icon={Palette}
-            title="Branding"
-            body="Live-editable accent colors, typography pairing, and logo replacement are planned but not built yet. For now, brand changes are made directly in code."
-          />
+          <div className="max-w-2xl space-y-6">
+            {saved === "branding" && (
+              <p className="rounded-lg border border-green/40 bg-green/10 px-4 py-3 text-sm text-green">
+                Branding saved — changes are live across the site.
+              </p>
+            )}
+            {error === "branding" && (
+              <p className="rounded-lg border border-magenta/40 bg-magenta/10 px-4 py-3 text-sm text-magenta">
+                Colors must be valid hex codes (e.g. #851490).
+              </p>
+            )}
+
+            <form action={updateBranding} className="rounded-2xl border border-line bg-paper p-6 shadow-sm">
+              <h2 className="text-sm font-semibold text-ink">Accent Colors</h2>
+              <p className="mt-1 text-xs text-ink/50">
+                Changes the primary and accent color across the entire live site, including
+                gradients, buttons, and links.
+              </p>
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                <ColorField label="Primary (Nyx Vision Purple)" name="color_brand" defaultValue={branding.color_brand} />
+                <ColorField label="Accent (Doer Orange)" name="color_volt" defaultValue={branding.color_volt} />
+              </div>
+
+              <h2 className="mt-7 text-sm font-semibold text-ink">Logo</h2>
+              <p className="mt-1 text-xs text-ink/50">
+                Two variants are used across the site — a dark mark for light backgrounds (the
+                main nav) and a light mark for dark backgrounds (footer, auth screens).
+              </p>
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                <LogoField
+                  label="Dark mark (light backgrounds)"
+                  name="logo_dark"
+                  currentUrl={branding.logo_dark_url}
+                  previewBg="bg-paper"
+                />
+                <LogoField
+                  label="Light mark (dark backgrounds)"
+                  name="logo_light"
+                  currentUrl={branding.logo_light_url}
+                  previewBg="bg-ink"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="mt-6 rounded-full bg-grad-volt px-6 py-3 text-xs font-bold uppercase tracking-wide text-ink shadow-sm transition hover:opacity-90"
+              >
+                Save Branding
+              </button>
+            </form>
+          </div>
         }
       />
     </div>
@@ -165,25 +265,61 @@ function Field({
   );
 }
 
-function ComingSoonPanel({
-  icon: Icon,
-  title,
-  body,
+function ColorField({
+  label,
+  name,
+  defaultValue,
 }: {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  body: string;
+  label: string;
+  name: string;
+  defaultValue: string;
 }) {
   return (
-    <div className="max-w-xl rounded-2xl border border-line bg-paper p-8 text-center shadow-sm">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-brand/10 text-brand">
-        <Icon className="h-5 w-5" />
+    <label className="block">
+      <span className="text-[11px] font-bold uppercase tracking-wide text-ink/50">{label}</span>
+      <div className="mt-1.5 flex items-center gap-2.5 rounded-lg border border-line px-3 py-2">
+        <input
+          type="color"
+          name={name}
+          defaultValue={defaultValue}
+          className="h-7 w-7 shrink-0 cursor-pointer rounded border-0 bg-transparent p-0"
+        />
+        <span className="font-mono text-sm text-ink/70">{defaultValue}</span>
       </div>
-      <h2 className="font-display mt-4 text-lg text-ink">{title}</h2>
-      <span className="mt-2 inline-block rounded-full bg-ink/8 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink/55">
-        Coming soon
-      </span>
-      <p className="mt-3 text-sm leading-relaxed text-ink/55">{body}</p>
-    </div>
+    </label>
+  );
+}
+
+function LogoField({
+  label,
+  name,
+  currentUrl,
+  previewBg,
+}: {
+  label: string;
+  name: string;
+  currentUrl: string | null;
+  previewBg: string;
+}) {
+  return (
+    <label className="block">
+      <span className="text-[11px] font-bold uppercase tracking-wide text-ink/50">{label}</span>
+      <div
+        className={`mt-1.5 flex h-16 items-center justify-center rounded-lg border border-line px-4 ${previewBg}`}
+      >
+        {currentUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={currentUrl} alt="" className="h-8 w-auto" />
+        ) : (
+          <span className="text-[11px] text-ink/30">Using default logo</span>
+        )}
+      </div>
+      <input
+        type="file"
+        name={name}
+        accept="image/png,image/jpeg,image/webp,image/gif"
+        className="mt-1.5 w-full text-xs text-ink/60 file:mr-3 file:rounded-full file:border-0 file:bg-bg file:px-3 file:py-1.5 file:text-[11px] file:font-bold file:uppercase file:tracking-wide file:text-ink"
+      />
+    </label>
   );
 }

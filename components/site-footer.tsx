@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getSitePage } from "@/lib/site-pages";
+import { getBranding } from "@/lib/branding";
 import { InstagramIcon, TikTokIcon, LinkedInIcon, WhatsAppIcon, YouTubeIcon } from "@/components/social-icons";
 
 const columns = [
@@ -35,7 +36,10 @@ const SOCIAL_ICONS: Record<string, React.ComponentType<{ className?: string }>> 
 };
 
 export async function SiteFooter() {
-  const socialPage = await getSitePage<SocialContent>("social_links");
+  const [socialPage, branding] = await Promise.all([
+    getSitePage<SocialContent>("social_links"),
+    getBranding(),
+  ]);
   const socialLinks = Object.entries(socialPage?.content ?? {}).filter(
     ([, entry]) => entry.enabled && entry.url
   );
@@ -46,11 +50,12 @@ export async function SiteFooter() {
         <div className="grid gap-12 lg:grid-cols-[2fr_1fr_1fr]">
           <div>
             <Image
-              src="/logo-lockup-white.png"
+              src={branding.logo_light_url || "/logo-lockup-white.png"}
               alt="Creators Hub"
               width={2782}
               height={708}
               className="h-9 w-auto self-start"
+              unoptimized={Boolean(branding.logo_light_url)}
             />
             <p className="mt-4 max-w-sm text-sm text-paper/70">
               The trusted marketplace connecting Africa&apos;s creative talent with brands

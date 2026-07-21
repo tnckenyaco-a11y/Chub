@@ -12,7 +12,13 @@ const links = [
   { href: "/about", label: "About" },
 ];
 
-export function SiteNav({ isSignedIn }: { isSignedIn: boolean }) {
+export function SiteNav({
+  isSignedIn,
+  logoUrl,
+}: {
+  isSignedIn: boolean;
+  logoUrl?: string | null;
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -21,12 +27,13 @@ export function SiteNav({ isSignedIn }: { isSignedIn: boolean }) {
         <div className="flex items-center justify-between px-5 py-3.5 lg:px-8">
           <Link href="/" className="flex items-center">
             <Image
-              src="/logo-lockup-dark.png"
+              src={logoUrl || "/logo-lockup-dark.png"}
               alt="Creators Hub"
               width={1844}
               height={494}
               priority
               className="h-7 w-auto sm:h-8"
+              unoptimized={Boolean(logoUrl)}
             />
           </Link>
 

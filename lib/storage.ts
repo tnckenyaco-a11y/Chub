@@ -25,7 +25,7 @@ function extensionFor(file: File) {
 export async function uploadPublicMedia(
   supabase: SupabaseClient<Database>,
   userId: string,
-  folder: "avatar" | "cover" | "portfolio" | "service" | "project",
+  folder: "avatar" | "cover" | "portfolio" | "service" | "project" | "branding",
   file: File
 ) {
   const error = validateUpload(file);
@@ -75,4 +75,53 @@ export async function signMessageAttachment(
 
 export function fileKind(mimeType: string): "image" | "pdf" {
   return mimeType === "application/pdf" ? "pdf" : "image";
+}
+
+export type MediaAsset = {
+  path: string;
+  url: string;
+  updatedAt: string;
+  sizeBytes: number;
+  kind: "image" | "pdf";
+};
+
+// public-media is laid out as {userId}/{folder}/{file}, so this walks exactly
+// those two levels rather than a generic recursive crawl.
+export async function listPublicMedia(supabase: SupabaseClient<Database>): Promise<MediaAsset[]> {
+  const bucket = supabase.storage.from("public-media");
+  const assets: MediaAsset[] = [];
+
+  const { data: userFolders } = await bucket.list("", { limit: 1000 });
+  for (const userFolder of userFolders ?? []) {
+    if (userFolder.id) continue; // a real file at root, not a user folder — skip
+
+    const { data: typeFolders } = await bucket.list(userFolder.name, { limit: 100 });
+    for (const typeFolder of typeFolders ?? []) {
+      if (typeFolder.id) continue;
+
+      const dir = `${userFolder.name}/${typeFolder.name}`;
+      const { data: files } = await bucket.list(dir, { limit: 500 });
+      for (const file of files ?? []) {
+        if (!file.id) continue;
+        const path = `${dir}/${file.name}`;
+        const {
+          data: { publicUrl },
+        } = bucket.getPublicUrl(path);
+        const metadata = file.metadata as { size?: number; mimetype?: string } | null;
+        assets.push({
+          path,
+          url: publicUrl,
+          updatedAt: file.updated_at ?? file.created_at ?? "",
+          sizeBytes: metadata?.size ?? 0,
+          kind: metadata?.mimetype === "application/pdf" ? "pdf" : "image",
+        });
+      }
+    }
+  }
+
+  return assets.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+}
+
+export async function deletePublicMedia(supabase: SupabaseClient<Database>, path: string) {
+  await supabase.storage.from("public-media").remove([path]);
 }

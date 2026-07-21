@@ -1,9 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 import { uploadMessageAttachment, fileKind } from "@/lib/storage";
+import { containsContactInfo, CONTACT_INFO_BLOCKED_MESSAGE } from "@/lib/contact-filter";
 
 export async function sendMessage(conversationId: string, formData: FormData) {
   const profile = await requireProfile();
@@ -11,6 +13,12 @@ export async function sendMessage(conversationId: string, formData: FormData) {
   const file = formData.get("attachment") as File | null;
 
   if (!body && (!file || file.size === 0)) return;
+
+  if (body && containsContactInfo(body)) {
+    redirect(
+      `/dashboard/messages/${conversationId}?error=${encodeURIComponent(CONTACT_INFO_BLOCKED_MESSAGE)}`
+    );
+  }
 
   const supabase = await createClient();
 
