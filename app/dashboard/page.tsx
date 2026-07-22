@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
+import { OnboardingChecklist, type OnboardingStep } from "@/components/onboarding-checklist";
 
 const ICON_STYLES = [
   { icon: Briefcase, bg: "bg-grad-brand" },
@@ -19,7 +20,10 @@ export default async function DashboardPage() {
   const profile = await requireProfile();
   const supabase = await createClient();
 
-  const stats = await getStats(supabase, profile.id, profile.role);
+  const [stats, onboarding] = await Promise.all([
+    getStats(supabase, profile.id, profile.role),
+    getOnboardingSteps(supabase, profile.id, profile.role),
+  ]);
 
   return (
     <div>
@@ -29,6 +33,8 @@ export default async function DashboardPage() {
       <h1 className="font-display mt-3 text-3xl text-ink sm:text-4xl">
         Welcome back, {profile.first_name || profile.username}
       </h1>
+
+      {onboarding && <OnboardingChecklist steps={onboarding} />}
 
       <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((s, i) => {
@@ -92,4 +98,82 @@ async function getStats(
   }
 
   return [];
+}
+
+async function getOnboardingSteps(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  role: "creative" | "brand" | "admin"
+): Promise<OnboardingStep[] | null> {
+  if (role !== "creative" && role !== "brand") return null;
+
+  const { data: full } = await supabase
+    .from("profiles")
+    .select("avatar_url, bio, phone, onboarding_dismissed")
+    .eq("id", userId)
+    .single();
+
+  if (full?.onboarding_dismissed) return null;
+
+  const profileComplete = Boolean(full?.avatar_url && full?.bio);
+
+  if (role === "creative") {
+    const { count: services } = await supabase
+      .from("services")
+      .select("*", { count: "exact", head: true })
+      .eq("creative_id", userId);
+
+    return [
+      {
+        label: "Complete your profile",
+        description: "Add a photo and a short bio so brands know who they're hiring.",
+        done: profileComplete,
+        href: "/dashboard/profile",
+        cta: "Edit profile",
+      },
+      {
+        label: "Add your M-Pesa payout number",
+        description: "Required to actually receive payment once an order completes.",
+        done: Boolean(full?.phone),
+        href: "/dashboard/profile",
+        cta: "Add number",
+      },
+      {
+        label: "List your first service",
+        description: "Publish a gig so brands can find and book you.",
+        done: (services ?? 0) > 0,
+        href: "/dashboard/services/new",
+        cta: "Create service",
+      },
+    ];
+  }
+
+  const [{ count: projects }, { count: orders }] = await Promise.all([
+    supabase.from("projects").select("*", { count: "exact", head: true }).eq("brand_id", userId),
+    supabase.from("orders").select("*", { count: "exact", head: true }).eq("brand_id", userId),
+  ]);
+
+  return [
+    {
+      label: "Complete your profile",
+      description: "Add a photo and a short bio so creatives know who they're working with.",
+      done: profileComplete,
+      href: "/dashboard/profile",
+      cta: "Edit profile",
+    },
+    {
+      label: "Post your first project",
+      description: "Describe what you need and let creatives send you proposals.",
+      done: (projects ?? 0) > 0,
+      href: "/projects/new",
+      cta: "Post a project",
+    },
+    {
+      label: "Hire your first creative",
+      description: "Book a service or accept a proposal to get your first order moving.",
+      done: (orders ?? 0) > 0,
+      href: "/creatives",
+      cta: "Browse creatives",
+    },
+  ];
 }

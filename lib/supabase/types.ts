@@ -509,6 +509,7 @@ export type Database = {
           id: string
           is_suspended: boolean
           last_name: string
+          onboarding_dismissed: boolean
           phone: string | null
           role: Database["public"]["Enums"]["user_role"]
           social_links: Json
@@ -527,6 +528,7 @@ export type Database = {
           id: string
           is_suspended?: boolean
           last_name?: string
+          onboarding_dismissed?: boolean
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           social_links?: Json
@@ -545,6 +547,7 @@ export type Database = {
           id?: string
           is_suspended?: boolean
           last_name?: string
+          onboarding_dismissed?: boolean
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           social_links?: Json
