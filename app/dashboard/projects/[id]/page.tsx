@@ -8,9 +8,11 @@ import {
   decideProposal,
   deleteProject,
   deleteProjectImage,
+  inviteToSquad,
   updateProject,
+  withdrawSquadInvite,
 } from "@/app/dashboard/projects/actions";
-import { initiateProposalCheckout } from "@/app/checkout/actions";
+import { initiateProposalCheckout, initiateSquadCheckout } from "@/app/checkout/actions";
 import { AutoSubmitFileInput } from "@/components/auto-submit-file-input";
 
 export default async function EditProjectPage({
@@ -18,57 +20,88 @@ export default async function EditProjectPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ saved?: string }>;
+  searchParams: Promise<{ saved?: string; error?: string }>;
 }) {
   const profile = await requireProfile();
   if (profile.role !== "brand") forbidden();
 
   const { id } = await params;
-  const { saved } = await searchParams;
+  const { saved, error } = await searchParams;
   const supabase = await createClient();
 
-  const [{ data: project }, { data: categories }, { data: proposals }, { data: images }] =
-    await Promise.all([
-      supabase
-        .from("projects")
-        .select("id, title, description, category_id, status, brand_id")
-        .eq("id", id)
-        .maybeSingle(),
-      supabase.from("categories").select("id, name").order("sort_order"),
-      supabase
-        .from("proposals")
-        .select("id, message, rate, status, created_at, creative_id")
-        .eq("project_id", id)
-        .order("created_at", { ascending: false }),
-      supabase
-        .from("project_images")
-        .select("id, file_url")
-        .eq("project_id", id)
-        .order("sort_order"),
-    ]);
+  const [
+    { data: project },
+    { data: categories },
+    { data: proposals },
+    { data: images },
+    { data: squadInvites },
+    { data: creatives },
+  ] = await Promise.all([
+    supabase
+      .from("projects")
+      .select("id, title, description, category_id, status, brand_id")
+      .eq("id", id)
+      .maybeSingle(),
+    supabase.from("categories").select("id, name").order("sort_order"),
+    supabase
+      .from("proposals")
+      .select("id, message, rate, status, created_at, creative_id")
+      .eq("project_id", id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("project_images")
+      .select("id, file_url")
+      .eq("project_id", id)
+      .order("sort_order"),
+    supabase
+      .from("project_squad_invites")
+      .select("id, role, rate_kes, status, created_at, creative_id")
+      .eq("project_id", id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("public_profiles")
+      .select("id, username, first_name, last_name")
+      .eq("role", "creative")
+      .order("first_name"),
+  ]);
 
   if (!project || project.brand_id !== profile.id) notFound();
 
   const acceptedProposalIds = (proposals ?? [])
     .filter((p) => p.status === "accepted")
     .map((p) => p.id);
-  const { data: existingOrders } = acceptedProposalIds.length
-    ? await supabase.from("orders").select("id, proposal_id").in("proposal_id", acceptedProposalIds)
-    : { data: [] };
-  const orderByProposal = new Map((existingOrders ?? []).map((o) => [o.proposal_id, o.id]));
+  const acceptedSquadInviteIds = (squadInvites ?? [])
+    .filter((s) => s.status === "accepted")
+    .map((s) => s.id);
 
-  const { data: proposalCreatives } = proposals?.length
+  const [{ data: proposalOrders }, { data: squadOrders }] = await Promise.all([
+    acceptedProposalIds.length
+      ? supabase.from("orders").select("id, proposal_id").in("proposal_id", acceptedProposalIds)
+      : Promise.resolve({ data: [] }),
+    acceptedSquadInviteIds.length
+      ? supabase.from("orders").select("id, squad_invite_id").in("squad_invite_id", acceptedSquadInviteIds)
+      : Promise.resolve({ data: [] }),
+  ]);
+  const orderByProposal = new Map((proposalOrders ?? []).map((o) => [o.proposal_id, o.id]));
+  const orderBySquadInvite = new Map((squadOrders ?? []).map((o) => [o.squad_invite_id, o.id]));
+
+  const involvedCreativeIds = [
+    ...(proposals ?? []).map((p) => p.creative_id),
+    ...(squadInvites ?? []).map((s) => s.creative_id),
+  ];
+  const { data: involvedCreatives } = involvedCreativeIds.length
     ? await supabase
         .from("public_profiles")
         .select("id, username, first_name, last_name")
-        .in("id", proposals.map((p) => p.creative_id))
+        .in("id", involvedCreativeIds)
     : { data: [] };
-  const creativeByProposalCreativeId = new Map((proposalCreatives ?? []).map((c) => [c.id, c]));
+  const creativeById = new Map((involvedCreatives ?? []).map((c) => [c.id, c]));
 
   const update = updateProject.bind(null, id);
   const close = closeProject.bind(null, id);
   const remove = deleteProject.bind(null, id);
   const addImage = addProjectImage.bind(null, id);
+  const invite = inviteToSquad.bind(null, id);
 
   return (
     <div>
@@ -79,7 +112,12 @@ export default async function EditProjectPage({
 
       {saved && (
         <p className="mt-6 rounded-lg border border-green/40 bg-green/10 px-4 py-3 text-sm text-green">
-          Saved. Changes to a published project go back through review.
+          {saved === "squad" ? "Invite sent." : "Saved. Changes to a published project go back through review."}
+        </p>
+      )}
+      {error && (
+        <p className="mt-6 rounded-lg border border-magenta/40 bg-magenta/10 px-4 py-3 text-sm text-magenta">
+          {error}
         </p>
       )}
 
@@ -168,7 +206,7 @@ export default async function EditProjectPage({
           {proposals?.map((p) => {
             const accept = decideProposal.bind(null, p.id, "accepted");
             const reject = decideProposal.bind(null, p.id, "rejected");
-            const creative = creativeByProposalCreativeId.get(p.creative_id);
+            const creative = creativeById.get(p.creative_id);
             return (
               <div key={p.id} className="rounded-2xl border border-line p-5">
                 <div className="flex items-center justify-between">
@@ -230,6 +268,128 @@ export default async function EditProjectPage({
             );
           })}
           {!proposals?.length && <p className="text-sm text-ink/40">No proposals yet.</p>}
+        </div>
+      </section>
+
+      <section className="mt-14">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">
+          Squad ({squadInvites?.length ?? 0})
+        </h2>
+        <p className="mt-1 text-xs text-ink/40">
+          Invite specific creatives onto this project, each with their own role and rate.
+        </p>
+
+        <form
+          action={invite}
+          className="mt-4 flex flex-wrap items-end gap-3 rounded-2xl border border-line p-4"
+        >
+          <label className="min-w-[180px] flex-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-ink/50">
+              Creative
+            </span>
+            <select
+              name="creative_id"
+              required
+              defaultValue=""
+              className="mt-1.5 w-full rounded-lg border border-line bg-paper px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand"
+            >
+              <option value="" disabled>
+                Select a creative
+              </option>
+              {creatives?.map((c) => (
+                <option key={c.id} value={c.id ?? ""}>
+                  {c.first_name} {c.last_name} (@{c.username})
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="min-w-[140px] flex-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-ink/50">
+              Role
+            </span>
+            <input
+              name="role"
+              required
+              placeholder="e.g. Video Editor"
+              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand"
+            />
+          </label>
+          <label className="w-32">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-ink/50">
+              Rate (KES)
+            </span>
+            <input
+              name="rate_kes"
+              type="number"
+              min={0}
+              required
+              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand"
+            />
+          </label>
+          <button
+            type="submit"
+            className="rounded-full bg-grad-volt px-5 py-2.5 text-xs font-bold uppercase tracking-wide text-ink shadow-sm transition hover:opacity-90"
+          >
+            Invite
+          </button>
+        </form>
+
+        <div className="mt-4 space-y-4">
+          {squadInvites?.map((s) => {
+            const creative = creativeById.get(s.creative_id);
+            const withdraw = withdrawSquadInvite.bind(null, s.id);
+            return (
+              <div key={s.id} className="rounded-2xl border border-line p-5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold text-ink">
+                      {creative?.first_name} {creative?.last_name}
+                    </p>
+                    <p className="mt-0.5 text-xs text-ink/40">{s.role}</p>
+                  </div>
+                  <p className="text-sm font-semibold text-brand">Ksh {s.rate_kes.toLocaleString()}</p>
+                </div>
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="text-xs uppercase text-ink/40">{s.status}</span>
+                  {s.status !== "withdrawn" && !orderBySquadInvite.has(s.id) && (
+                    <form action={withdraw}>
+                      <button type="submit" className="text-xs text-ink/40 hover:text-magenta">
+                        Withdraw
+                      </button>
+                    </form>
+                  )}
+                </div>
+                {s.status === "accepted" && (
+                  <div className="mt-4">
+                    {orderBySquadInvite.has(s.id) ? (
+                      <Link
+                        href={`/dashboard/orders/${orderBySquadInvite.get(s.id)}`}
+                        className="text-xs font-semibold uppercase tracking-wide text-brand hover:underline"
+                      >
+                        View Order →
+                      </Link>
+                    ) : (
+                      <form action={initiateSquadCheckout.bind(null, s.id)} className="space-y-2">
+                        <input
+                          name="phone_number"
+                          required
+                          placeholder="M-Pesa phone (07XXXXXXXX)"
+                          className="w-full rounded-lg border border-line bg-transparent px-4 py-2 text-sm text-ink outline-none focus:border-brand"
+                        />
+                        <button
+                          type="submit"
+                          className="rounded-full bg-grad-brand px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
+                        >
+                          Pay &amp; Start (Ksh {s.rate_kes.toLocaleString()})
+                        </button>
+                      </form>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          {!squadInvites?.length && <p className="text-sm text-ink/40">No squad invites yet.</p>}
         </div>
       </section>
 

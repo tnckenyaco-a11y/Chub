@@ -335,6 +335,7 @@ export type Database = {
           id: string
           package_id: string | null
           proposal_id: string | null
+          squad_invite_id: string | null
           status: Database["public"]["Enums"]["order_status"]
           updated_at: string
         }
@@ -346,6 +347,7 @@ export type Database = {
           id?: string
           package_id?: string | null
           proposal_id?: string | null
+          squad_invite_id?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           updated_at?: string
         }
@@ -357,6 +359,7 @@ export type Database = {
           id?: string
           package_id?: string | null
           proposal_id?: string | null
+          squad_invite_id?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           updated_at?: string
         }
@@ -401,6 +404,13 @@ export type Database = {
             columns: ["proposal_id"]
             isOneToOne: false
             referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_squad_invite_id_fkey"
+            columns: ["squad_invite_id"]
+            isOneToOne: false
+            referencedRelation: "project_squad_invites"
             referencedColumns: ["id"]
           },
         ]
@@ -612,6 +622,61 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "project_images_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_squad_invites: {
+        Row: {
+          created_at: string
+          creative_id: string
+          id: string
+          project_id: string
+          rate_kes: number
+          role: string
+          status: Database["public"]["Enums"]["squad_invite_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          creative_id: string
+          id?: string
+          project_id: string
+          rate_kes: number
+          role: string
+          status?: Database["public"]["Enums"]["squad_invite_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          creative_id?: string
+          id?: string
+          project_id?: string
+          rate_kes?: number
+          role?: string
+          status?: Database["public"]["Enums"]["squad_invite_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_squad_invites_creative_id_fkey"
+            columns: ["creative_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_squad_invites_creative_id_fkey"
+            columns: ["creative_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_squad_invites_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
@@ -1101,6 +1166,7 @@ export type Database = {
       post_status: "draft" | "published"
       pricing_type: "fixed" | "hourly"
       proposal_status: "pending" | "accepted" | "rejected" | "withdrawn"
+      squad_invite_status: "invited" | "accepted" | "declined" | "withdrawn"
       user_role: "creative" | "brand" | "admin"
     }
     CompositeTypes: {
@@ -1251,6 +1317,7 @@ export const Constants = {
       post_status: ["draft", "published"],
       pricing_type: ["fixed", "hourly"],
       proposal_status: ["pending", "accepted", "rejected", "withdrawn"],
+      squad_invite_status: ["invited", "accepted", "declined", "withdrawn"],
       user_role: ["creative", "brand", "admin"],
     },
   },

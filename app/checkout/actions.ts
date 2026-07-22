@@ -18,7 +18,12 @@ async function startCheckout({
   redirectBackTo,
 }: {
   amountKes: number;
-  orderInsert: { package_id?: string; proposal_id?: string; creative_id: string };
+  orderInsert: {
+    package_id?: string;
+    proposal_id?: string;
+    squad_invite_id?: string;
+    creative_id: string;
+  };
   phoneNumber: string;
   redirectBackTo: string;
 }) {
@@ -36,6 +41,7 @@ async function startCheckout({
       creative_id: orderInsert.creative_id,
       package_id: orderInsert.package_id ?? null,
       proposal_id: orderInsert.proposal_id ?? null,
+      squad_invite_id: orderInsert.squad_invite_id ?? null,
       amount_kes: amountKes,
     })
     .select("id")
@@ -108,5 +114,27 @@ export async function initiateProposalCheckout(proposalId: string, formData: For
     orderInsert: { proposal_id: proposalId, creative_id: proposal!.creative_id },
     phoneNumber,
     redirectBackTo: `/dashboard/projects/${proposal!.project_id}`,
+  });
+}
+
+export async function initiateSquadCheckout(squadInviteId: string, formData: FormData) {
+  const supabase = await createClient();
+  const phoneNumber = String(formData.get("phone_number") ?? "");
+
+  const { data: invite } = await supabase
+    .from("project_squad_invites")
+    .select("rate_kes, creative_id, project_id, status")
+    .eq("id", squadInviteId)
+    .maybeSingle();
+
+  if (!invite || invite.status !== "accepted") {
+    redirect("/dashboard/projects?error=Squad+member+not+ready+for+checkout.");
+  }
+
+  await startCheckout({
+    amountKes: invite!.rate_kes,
+    orderInsert: { squad_invite_id: squadInviteId, creative_id: invite!.creative_id },
+    phoneNumber,
+    redirectBackTo: `/dashboard/projects/${invite!.project_id}`,
   });
 }

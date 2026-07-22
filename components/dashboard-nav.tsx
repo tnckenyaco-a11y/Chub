@@ -23,7 +23,7 @@ export function DashboardNav({ role }: { role: "creative" | "brand" | "admin" })
     ...(role === "creative"
       ? [
           { href: "/dashboard/services", label: "My Services", icon: Briefcase },
-          { href: "/dashboard/proposals", label: "My Proposals", icon: FileText },
+          { href: "/dashboard/proposals", label: "Proposals & Invites", icon: FileText },
         ]
       : []),
     ...(role === "brand"

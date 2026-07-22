@@ -134,3 +134,82 @@ export async function decideProposal(id: string, status: "accepted" | "rejected"
 
   if (proposal) revalidatePath(`/dashboard/projects/${proposal.project_id}`);
 }
+
+async function createSquadInvite({
+  projectId,
+  creativeId,
+  role,
+  rateKes,
+  redirectTo,
+}: {
+  projectId: string;
+  creativeId: string;
+  role: string;
+  rateKes: number;
+  redirectTo: string;
+}) {
+  const supabase = await createClient();
+
+  if (!creativeId || !role || !rateKes || rateKes <= 0) {
+    redirect(`${redirectTo}?error=${encodeURIComponent("Pick a creative, a role, and a positive rate.")}`);
+  }
+
+  const { error } = await supabase
+    .from("project_squad_invites")
+    .insert({ project_id: projectId, creative_id: creativeId, role, rate_kes: rateKes });
+
+  if (error) {
+    const message = error.code === "23505" ? "That creative already has an invite on this project." : error.message;
+    redirect(`${redirectTo}?error=${encodeURIComponent(message)}`);
+  }
+
+  revalidatePath(`/dashboard/projects/${projectId}`);
+  redirect(`/dashboard/projects/${projectId}?saved=squad`);
+}
+
+export async function inviteToSquad(projectId: string, formData: FormData) {
+  await requireBrand();
+  const creativeId = String(formData.get("creative_id") ?? "").trim();
+  const role = String(formData.get("role") ?? "").trim();
+  const rateKes = Number(formData.get("rate_kes"));
+
+  await createSquadInvite({
+    projectId,
+    creativeId,
+    role,
+    rateKes,
+    redirectTo: `/dashboard/projects/${projectId}`,
+  });
+}
+
+export async function inviteCreativeToProject(creativeId: string, formData: FormData) {
+  await requireBrand();
+  const projectId = String(formData.get("project_id") ?? "").trim();
+  const role = String(formData.get("role") ?? "").trim();
+  const rateKes = Number(formData.get("rate_kes"));
+
+  if (!projectId) {
+    redirect(`/creatives?error=${encodeURIComponent("Pick a project to invite this creative to.")}`);
+  }
+
+  await createSquadInvite({
+    projectId,
+    creativeId,
+    role,
+    rateKes,
+    redirectTo: `/dashboard/projects/${projectId}`,
+  });
+}
+
+export async function withdrawSquadInvite(id: string) {
+  await requireBrand();
+  const supabase = await createClient();
+  const { data: invite } = await supabase
+    .from("project_squad_invites")
+    .update({ status: "withdrawn" })
+    .eq("id", id)
+    .select("project_id")
+    .single();
+
+  if (invite) revalidatePath(`/dashboard/projects/${invite.project_id}`);
+}

@@ -4,6 +4,7 @@ import { Globe, MapPin, Star } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/current-user";
 import { startConversation } from "@/app/messages/actions";
+import { inviteCreativeToProject } from "@/app/dashboard/projects/actions";
 import { ProfileTabs } from "@/components/profile-tabs";
 
 const SOCIAL_LABELS: Record<string, string> = {
@@ -37,8 +38,10 @@ export default async function CreativeProfilePage({
   const messageAction = viewer && viewer.id !== creativeId
     ? startConversation.bind(null, creativeId)
     : null;
+  const invite = viewer?.role === "brand" ? inviteCreativeToProject.bind(null, creativeId) : null;
 
-  const [{ data: services }, { data: reviews }, { data: portfolio }] = await Promise.all([
+  const [{ data: services }, { data: reviews }, { data: portfolio }, { data: brandProjects }] =
+    await Promise.all([
     supabase
       .from("services")
       .select("id, title, slug, description")
@@ -54,6 +57,9 @@ export default async function CreativeProfilePage({
       .select("id, title, file_url, file_type, link_url")
       .eq("profile_id", creativeId)
       .order("sort_order"),
+    viewer?.role === "brand"
+      ? supabase.from("projects").select("id, title").eq("brand_id", viewer.id).order("created_at", { ascending: false })
+      : Promise.resolve({ data: null }),
   ]);
 
   const avgRating =
@@ -220,6 +226,69 @@ export default async function CreativeProfilePage({
             )}
           </div>
         </div>
+
+        {invite && (
+          <div className="mt-6 rounded-2xl border border-line bg-paper p-5 shadow-sm">
+            <h2 className="text-sm font-semibold text-ink">Invite to a Project</h2>
+            {brandProjects?.length ? (
+              <form action={invite} className="mt-3 flex flex-wrap items-end gap-3">
+                <label className="min-w-[180px] flex-1">
+                  <span className="text-[11px] font-semibold uppercase tracking-wide text-ink/50">
+                    Project
+                  </span>
+                  <select
+                    name="project_id"
+                    required
+                    defaultValue=""
+                    className="mt-1.5 w-full rounded-lg border border-line bg-paper px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand"
+                  >
+                    <option value="" disabled>
+                      Select a project
+                    </option>
+                    {brandProjects.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.title}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="min-w-[140px] flex-1">
+                  <span className="text-[11px] font-semibold uppercase tracking-wide text-ink/50">
+                    Role
+                  </span>
+                  <input
+                    name="role"
+                    required
+                    placeholder="e.g. Video Editor"
+                    className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand"
+                  />
+                </label>
+                <label className="w-32">
+                  <span className="text-[11px] font-semibold uppercase tracking-wide text-ink/50">
+                    Rate (KES)
+                  </span>
+                  <input
+                    name="rate_kes"
+                    type="number"
+                    min={0}
+                    required
+                    className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand"
+                  />
+                </label>
+                <button
+                  type="submit"
+                  className="rounded-full bg-grad-volt px-5 py-2.5 text-xs font-bold uppercase tracking-wide text-ink shadow-sm transition hover:opacity-90"
+                >
+                  Invite
+                </button>
+              </form>
+            ) : (
+              <p className="mt-2 text-sm text-ink/40">
+                Post a project first, then come back here to invite {profile.first_name} onto it.
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="py-12">
           <ProfileTabs
