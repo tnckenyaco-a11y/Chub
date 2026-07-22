@@ -64,15 +64,18 @@ body {
   font-style: italic;
 }
 
-.bg-grad-brand {
+/* @utility (not a plain class) so variants like has-[:checked]: and
+   peer-checked: can compose with these — Tailwind only generates variant
+   combinations for utilities it recognizes, not hand-authored CSS classes. */
+@utility bg-grad-brand {
   background-image: var(--grad-brand);
 }
 
-.bg-grad-volt {
+@utility bg-grad-volt {
   background-image: var(--grad-volt);
 }
 
-.text-grad {
+@utility text-grad {
   background-image: var(--grad-text);
   background-clip: text;
   -webkit-background-clip: text;
