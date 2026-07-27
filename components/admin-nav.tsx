@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import {
   LayoutDashboard,
   Users,
@@ -31,9 +32,10 @@ const links = [
 
 export function AdminNav() {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
 
-  return (
-    <aside className="flex w-64 shrink-0 flex-col justify-between rounded-2xl bg-grad-brand p-5">
+  const navContent = (
+    <>
       <div>
         <div className="flex items-center gap-2 px-2">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-paper/50">
@@ -51,6 +53,7 @@ export function AdminNav() {
               <Link
                 key={link.href}
                 href={link.href}
+                onClick={() => setOpen(false)}
                 className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
                   active ? "bg-paper text-brand shadow-sm" : "text-paper/80 hover:bg-paper/10 hover:text-paper"
                 }`}
@@ -71,6 +74,27 @@ export function AdminNav() {
           Logout
         </button>
       </form>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      <div className="rounded-2xl bg-grad-brand p-4 lg:hidden">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          className="flex w-full items-center justify-between text-sm font-semibold text-paper"
+        >
+          Admin Menu
+          <span className="text-xs uppercase tracking-wide text-paper/70">{open ? "Close" : "Menu"}</span>
+        </button>
+        {open && <div className="mt-4 flex flex-col justify-between gap-4">{navContent}</div>}
+      </div>
+
+      <aside className="hidden w-64 shrink-0 flex-col justify-between rounded-2xl bg-grad-brand p-5 lg:flex">
+        {navContent}
+      </aside>
+    </>
   );
 }

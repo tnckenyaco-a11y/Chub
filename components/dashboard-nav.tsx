@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import {
   LayoutDashboard,
   Briefcase,
@@ -17,6 +18,7 @@ import { signOut } from "@/app/(auth)/actions";
 
 export function DashboardNav({ role }: { role: "creative" | "brand" | "admin" }) {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
 
   const links = [
     { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
@@ -41,15 +43,15 @@ export function DashboardNav({ role }: { role: "creative" | "brand" | "admin" })
     { href: "/dashboard/disputes", label: "Disputes", icon: Flag },
   ];
 
-  return (
-    <aside className="flex w-64 shrink-0 flex-col justify-between rounded-2xl bg-grad-brand p-5">
+  const navContent = (
+    <>
       <div>
         <p className="px-2 text-xs font-semibold uppercase tracking-[0.3em] text-paper/50">
           Dashboard
         </p>
         <nav className="mt-4 flex flex-col gap-1">
           {links.map((link) => (
-            <NavItem key={link.href} {...link} active={pathname === link.href} />
+            <NavItem key={link.href} {...link} active={pathname === link.href} onClick={() => setOpen(false)} />
           ))}
         </nav>
 
@@ -57,9 +59,15 @@ export function DashboardNav({ role }: { role: "creative" | "brand" | "admin" })
 
         <nav className="flex flex-col gap-1">
           {bottomLinks.map((link) => (
-            <NavItem key={link.href} {...link} active={pathname === link.href} />
+            <NavItem key={link.href} {...link} active={pathname === link.href} onClick={() => setOpen(false)} />
           ))}
-          <NavItem href="/dashboard/settings" label="Settings" icon={Settings} active={pathname === "/dashboard/settings"} />
+          <NavItem
+            href="/dashboard/settings"
+            label="Settings"
+            icon={Settings}
+            active={pathname === "/dashboard/settings"}
+            onClick={() => setOpen(false)}
+          />
         </nav>
       </div>
 
@@ -71,7 +79,28 @@ export function DashboardNav({ role }: { role: "creative" | "brand" | "admin" })
           Logout
         </button>
       </form>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      <div className="rounded-2xl bg-grad-brand p-4 lg:hidden">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          className="flex w-full items-center justify-between text-sm font-semibold text-paper"
+        >
+          Dashboard Menu
+          <span className="text-xs uppercase tracking-wide text-paper/70">{open ? "Close" : "Menu"}</span>
+        </button>
+        {open && <div className="mt-4 flex flex-col justify-between gap-4">{navContent}</div>}
+      </div>
+
+      <aside className="hidden w-64 shrink-0 flex-col justify-between rounded-2xl bg-grad-brand p-5 lg:flex">
+        {navContent}
+      </aside>
+    </>
   );
 }
 
@@ -80,15 +109,18 @@ function NavItem({
   label,
   icon: Icon,
   active,
+  onClick,
 }: {
   href: string;
   label: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
   active: boolean;
+  onClick?: () => void;
 }) {
   return (
     <Link
       href={href}
+      onClick={onClick}
       className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
         active ? "bg-paper text-brand shadow-sm" : "text-paper/80 hover:bg-paper/10 hover:text-paper"
       }`}

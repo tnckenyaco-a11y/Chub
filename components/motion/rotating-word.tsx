@@ -21,7 +21,7 @@ export function RotatingWord({ words }: { words: string[] }) {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -16, opacity: 0 }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute inset-0 flex items-center justify-center whitespace-nowrap font-semibold text-volt"
+          className="flex items-center justify-center whitespace-nowrap font-semibold text-volt"
         >
           {words[i]}
         </motion.span>
