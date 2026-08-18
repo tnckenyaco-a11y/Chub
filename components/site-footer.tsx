@@ -10,6 +10,7 @@ const columns = [
     title: "About",
     links: [
       { href: "/about", label: "About Us" },
+      { href: "/financial-products", label: "Financial Products" },
       { href: "/blog", label: "Blog" },
       { href: "/faq", label: "FAQ" },
       { href: "/contact", label: "Contact Us" },

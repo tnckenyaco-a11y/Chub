@@ -1,6 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CheckCircle2, Lock, Search, Sparkles } from "lucide-react";
+import {
+  CheckCircle2,
+  FileText,
+  Landmark,
+  Lock,
+  MessageCircle,
+  Package,
+  Repeat,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Users,
+} from "lucide-react";
 import { getSitePage } from "@/lib/site-pages";
 import { createClient } from "@/lib/supabase/server";
 import { Reveal } from "@/components/motion/reveal";
@@ -8,6 +21,9 @@ import { StaggerGroup, StaggerItem } from "@/components/motion/stagger-group";
 import { RotatingWord } from "@/components/motion/rotating-word";
 import { HeroParallaxContainer, ParallaxLayer } from "@/components/motion/hero-parallax";
 import { CountUp } from "@/components/motion/count-up";
+import { LottieIcon } from "@/components/motion/lottie-icon";
+import { EarningsChart, type MonthlyPoint } from "@/components/earnings-chart";
+import { ActivityFeed, type ActivityItem } from "@/components/activity-feed";
 
 type HomeContent = {
   hero: {
@@ -30,9 +46,116 @@ const PORTFOLIO_SHOWCASE = [
 ];
 
 const STEP_ICONS = [Search, Lock, CheckCircle2];
+const TEASER_ICONS = [ShieldCheck, Landmark, Repeat];
+
+const hoursAgo = (h: number) => new Date(Date.now() - h * 3600_000).toISOString();
+
+const CREATIVE_PREVIEW_EARNINGS: MonthlyPoint[] = [
+  { label: "Mar", value: 8000 },
+  { label: "Apr", value: 15000 },
+  { label: "May", value: 12000 },
+  { label: "Jun", value: 22000 },
+  { label: "Jul", value: 18000 },
+  { label: "Aug", value: 31000 },
+];
+
+const CREATIVE_PREVIEW_ACTIVITY: ActivityItem[] = [
+  {
+    id: "1",
+    icon: CheckCircle2,
+    iconClass: "bg-green/10 text-green",
+    text: "Payment released — order completed",
+    time: hoursAgo(4),
+  },
+  {
+    id: "2",
+    icon: Star,
+    iconClass: "bg-volt/10 text-volt",
+    text: "New 5★ review received",
+    time: hoursAgo(26),
+  },
+  {
+    id: "3",
+    icon: Users,
+    iconClass: "bg-brand/10 text-brand",
+    text: 'New squad invite for "Product Launch"',
+    time: hoursAgo(48),
+  },
+];
+
+const BRAND_PREVIEW_SPEND: MonthlyPoint[] = [
+  { label: "Mar", value: 18000 },
+  { label: "Apr", value: 12000 },
+  { label: "May", value: 20000 },
+  { label: "Jun", value: 25000 },
+  { label: "Jul", value: 30000 },
+  { label: "Aug", value: 50000 },
+];
+
+const ESCROW_PREVIEW_ROWS: {
+  title: string;
+  date: string;
+  amount: number;
+  status: string;
+  statusClass: string;
+}[] = [
+  {
+    title: "Brand Identity & Logo Design",
+    date: "Aug 12",
+    amount: 30000,
+    status: "Successful",
+    statusClass: "bg-green/10 text-green",
+  },
+  {
+    title: "Video Editing — Social Media",
+    date: "Aug 5",
+    amount: 50000,
+    status: "In Escrow",
+    statusClass: "bg-brand/10 text-brand",
+  },
+];
+
+const BRAND_PREVIEW_ACTIVITY: ActivityItem[] = [
+  {
+    id: "1",
+    icon: FileText,
+    iconClass: "bg-brand/10 text-brand",
+    text: 'New proposal on "Graphic designer needed"',
+    time: hoursAgo(6),
+  },
+  {
+    id: "2",
+    icon: Package,
+    iconClass: "bg-green/10 text-green",
+    text: "Order marked completed",
+    time: hoursAgo(30),
+  },
+  {
+    id: "3",
+    icon: MessageCircle,
+    iconClass: "bg-brand/10 text-brand",
+    text: "New message received",
+    time: hoursAgo(52),
+  },
+];
+
+type FinancialProductsTeaser = {
+  teaser: {
+    eyebrow: string;
+    title: string;
+    body: string;
+    bullets: string[];
+    cta_label: string;
+    cta_href: string;
+  };
+};
 
 export default async function Home() {
-  const page = await getSitePage<HomeContent>("home");
+  const [page, financialProductsPage] = await Promise.all([
+    getSitePage<HomeContent>("home"),
+    getSitePage<FinancialProductsTeaser>("financial_products"),
+  ]);
+  const teaser = financialProductsPage?.content.teaser;
   const supabase = await createClient();
   const [{ data: categories }, { data: featuredProject }] = await Promise.all([
     supabase.from("categories").select("name").order("sort_order"),
@@ -243,22 +366,87 @@ export default async function Home() {
             </h2>
           </Reveal>
 
-          <StaggerGroup className="mt-12 grid gap-6 lg:grid-cols-3">
-            {["Creative Dashboard", "Creative Profile", "Platform Settings"].map((label) => (
-              <StaggerItem key={label}>
+          <StaggerGroup className="mt-12">
+            <div className="grid gap-6 lg:grid-cols-2">
+              <StaggerItem>
                 <div className="overflow-hidden rounded-2xl border border-line bg-paper shadow-sm">
-                  <div className="flex gap-1.5 bg-bg px-3.5 py-2.5">
-                    <span className="h-2 w-2 rounded-full bg-ink/15" />
-                    <span className="h-2 w-2 rounded-full bg-ink/15" />
-                    <span className="h-2 w-2 rounded-full bg-ink/15" />
+                  <div className="flex items-center justify-between bg-bg px-4 py-2.5">
+                    <div className="flex gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-ink/15" />
+                      <span className="h-2 w-2 rounded-full bg-ink/15" />
+                      <span className="h-2 w-2 rounded-full bg-ink/15" />
+                    </div>
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-ink/40">
+                      Creative Dashboard
+                    </p>
                   </div>
-                  <div className="flex aspect-video items-center justify-center bg-[repeating-linear-gradient(135deg,var(--color-bg)_0_10px,#ebe7e8_10px_20px)] px-4 text-center text-xs text-ink/35">
-                    {label} preview
+                  <div className="grid gap-4 p-4 sm:p-5 lg:grid-cols-3">
+                    <div className="lg:col-span-2">
+                      <EarningsChart title="Earnings" emptyLabel="" data={CREATIVE_PREVIEW_EARNINGS} />
+                    </div>
+                    <ActivityFeed items={CREATIVE_PREVIEW_ACTIVITY} />
                   </div>
                 </div>
-                <p className="mt-3.5 text-center text-sm font-semibold text-ink">{label}</p>
               </StaggerItem>
-            ))}
+
+              <StaggerItem>
+                <div className="overflow-hidden rounded-2xl border border-line bg-paper shadow-sm">
+                  <div className="flex items-center justify-between bg-bg px-4 py-2.5">
+                    <div className="flex gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-ink/15" />
+                      <span className="h-2 w-2 rounded-full bg-ink/15" />
+                      <span className="h-2 w-2 rounded-full bg-ink/15" />
+                    </div>
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-ink/40">
+                      Brand Dashboard
+                    </p>
+                  </div>
+                  <div className="grid gap-4 p-4 sm:p-5 lg:grid-cols-3">
+                    <div className="lg:col-span-2">
+                      <EarningsChart title="Spend" emptyLabel="" data={BRAND_PREVIEW_SPEND} />
+                    </div>
+                    <ActivityFeed items={BRAND_PREVIEW_ACTIVITY} />
+                  </div>
+                </div>
+              </StaggerItem>
+            </div>
+
+            <StaggerItem>
+              <div className="mx-auto mt-6 w-full max-w-xl overflow-hidden rounded-2xl border border-line bg-paper shadow-sm">
+                <div className="flex items-center gap-2.5 bg-bg px-5 py-3">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-green/10 text-green">
+                    <Lock className="h-3.5 w-3.5" />
+                  </span>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-ink/50">
+                      Escrow &amp; Payments
+                    </p>
+                    <p className="text-[11px] text-ink/40">Released the moment work is approved</p>
+                  </div>
+                </div>
+                <div className="space-y-2 p-4">
+                  {ESCROW_PREVIEW_ROWS.map((row) => (
+                    <div
+                      key={row.title}
+                      className="flex items-center justify-between rounded-xl border border-line px-4 py-3"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-ink">{row.title}</p>
+                        <p className="mt-0.5 text-xs text-ink/40">{row.date}</p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="font-display text-sm text-ink">Ksh {row.amount.toLocaleString()}</p>
+                        <span
+                          className={`mt-1 inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${row.statusClass}`}
+                        >
+                          {row.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </StaggerItem>
           </StaggerGroup>
 
           <Reveal delay={0.1}>
@@ -282,6 +470,90 @@ export default async function Home() {
           </Reveal>
         </div>
       </section>
+
+      {/* Financial products teaser */}
+      {teaser && (
+        <section className="border-t border-line bg-bg py-24">
+          <div className="mx-auto max-w-7xl px-6 lg:px-10">
+            <div className="grid items-center gap-12 lg:grid-cols-2">
+              <Reveal>
+                <LottieIcon src="/lottie/coins.json" className="-ml-3 h-24 w-24" />
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
+                  {teaser.eyebrow}
+                </p>
+                <h2 className="font-display mt-3 text-4xl text-ink sm:text-5xl">{teaser.title}</h2>
+                <p className="mt-5 max-w-lg leading-relaxed text-ink/70">{teaser.body}</p>
+
+                <ul className="mt-7 space-y-3">
+                  {teaser.bullets.map((bullet, i) => {
+                    const Icon = TEASER_ICONS[i % TEASER_ICONS.length];
+                    return (
+                      <li key={bullet} className="flex items-center gap-3">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-brand">
+                          <Icon className="h-4 w-4" />
+                        </span>
+                        <span className="text-sm font-medium text-ink">{bullet}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+
+                <Link
+                  href={teaser.cta_href}
+                  className="mt-8 inline-flex items-center gap-2 rounded-full bg-grad-brand px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
+                >
+                  {teaser.cta_label}
+                </Link>
+              </Reveal>
+
+              <Reveal delay={0.1}>
+                <div className="mx-auto w-full max-w-sm overflow-hidden rounded-2xl border border-line bg-paper shadow-xl">
+                  <div className="flex items-center justify-between bg-bg px-4 py-2.5">
+                    <div className="flex gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-ink/15" />
+                      <span className="h-2 w-2 rounded-full bg-ink/15" />
+                      <span className="h-2 w-2 rounded-full bg-ink/15" />
+                    </div>
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-ink/40">
+                      Nyx Advance
+                    </p>
+                  </div>
+                  <div className="p-5">
+                    <div className="flex items-center gap-2.5">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green/10 text-green">
+                        <Lock className="h-4 w-4" />
+                      </span>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-ink/45">
+                          Advance Request
+                        </p>
+                        <p className="text-[11px] text-ink/40">Product Photography — Standard</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 flex items-center justify-between rounded-xl border border-line px-4 py-3">
+                      <div>
+                        <p className="text-xs text-ink/45">Requested</p>
+                        <p className="font-display mt-0.5 text-lg text-ink">Ksh 12,000</p>
+                      </div>
+                      <span className="rounded-full bg-green/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-green">
+                        Approved
+                      </span>
+                    </div>
+
+                    <div className="mt-3 flex items-center gap-2 rounded-xl bg-bg px-4 py-3">
+                      <Repeat className="h-3.5 w-3.5 shrink-0 text-brand" />
+                      <p className="text-[11px] leading-relaxed text-ink/50">
+                        Repays automatically when the client approves and escrow releases.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Portfolio showcase */}
       <section className="border-t border-line bg-ink py-24">
