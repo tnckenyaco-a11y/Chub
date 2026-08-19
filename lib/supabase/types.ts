@@ -14,6 +14,100 @@ export type Database = {
   }
   public: {
     Tables: {
+      advance_requests: {
+        Row: {
+          approved_amount_kes: number | null
+          created_at: string
+          creative_id: string
+          disbursed_at: string | null
+          disbursed_reference: string | null
+          id: string
+          order_id: string
+          reason_code: Database["public"]["Enums"]["advance_reason_code"] | null
+          reason_note: string | null
+          repaid_at: string | null
+          requested_amount_kes: number
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["advance_status"]
+          updated_at: string
+        }
+        Insert: {
+          approved_amount_kes?: number | null
+          created_at?: string
+          creative_id: string
+          disbursed_at?: string | null
+          disbursed_reference?: string | null
+          id?: string
+          order_id: string
+          reason_code?:
+            | Database["public"]["Enums"]["advance_reason_code"]
+            | null
+          reason_note?: string | null
+          repaid_at?: string | null
+          requested_amount_kes: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["advance_status"]
+          updated_at?: string
+        }
+        Update: {
+          approved_amount_kes?: number | null
+          created_at?: string
+          creative_id?: string
+          disbursed_at?: string | null
+          disbursed_reference?: string | null
+          id?: string
+          order_id?: string
+          reason_code?:
+            | Database["public"]["Enums"]["advance_reason_code"]
+            | null
+          reason_note?: string | null
+          repaid_at?: string | null
+          requested_amount_kes?: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["advance_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advance_requests_creative_id_fkey"
+            columns: ["creative_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advance_requests_creative_id_fkey"
+            columns: ["creative_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advance_requests_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advance_requests_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advance_requests_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_posts: {
         Row: {
           author_id: string | null
@@ -1146,6 +1240,18 @@ export type Database = {
       total_paid_to_creatives: { Args: never; Returns: number }
     }
     Enums: {
+      advance_reason_code:
+        | "below_eligibility_threshold"
+        | "requested_amount_too_high"
+        | "gig_risk_concern"
+        | "other"
+      advance_status:
+        | "requested"
+        | "approved"
+        | "partial"
+        | "declined"
+        | "disbursed"
+        | "repaid"
       dispute_status:
         | "open"
         | "resolved_refunded"
@@ -1295,6 +1401,20 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      advance_reason_code: [
+        "below_eligibility_threshold",
+        "requested_amount_too_high",
+        "gig_risk_concern",
+        "other",
+      ],
+      advance_status: [
+        "requested",
+        "approved",
+        "partial",
+        "declined",
+        "disbursed",
+        "repaid",
+      ],
       dispute_status: [
         "open",
         "resolved_refunded",

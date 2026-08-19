@@ -21,6 +21,40 @@ export async function releasePayoutForOrder(orderId: string) {
     .maybeSingle();
   if (existingPayout) return; // already released
 
+  // If a Nyx Advance was disbursed against this order, the advanced portion
+  // is settled here rather than paid out again — the creative already has
+  // it. This is bookkeeping only: no money actually moves back to the
+  // lending partner through this codebase, since there's no partner payment
+  // rail integrated yet. Reconciling that transfer is a manual, outside-the-app
+  // step for now (see the admin Advance Requests page).
+  const { data: advance } = await service
+    .from("advance_requests")
+    .select("id, approved_amount_kes")
+    .eq("order_id", orderId)
+    .eq("status", "disbursed")
+    .maybeSingle();
+
+  const advancedAmount = advance?.approved_amount_kes ?? 0;
+  const payoutAmount = Math.max(0, order.amount_kes - advancedAmount);
+
+  if (advance) {
+    await service
+      .from("advance_requests")
+      .update({ status: "repaid", repaid_at: new Date().toISOString() })
+      .eq("id", advance.id);
+  }
+
+  if (payoutAmount === 0) {
+    await service.from("payments").insert({
+      order_id: order.id,
+      kind: "payout",
+      status: "successful",
+      amount_kes: 0,
+      raw_callback: { note: "Fully covered by a Nyx Advance; nothing left to pay out." },
+    });
+    return;
+  }
+
   const { data: creative } = await service
     .from("profiles")
     .select("phone, first_name, last_name")
@@ -32,7 +66,7 @@ export async function releasePayoutForOrder(orderId: string) {
       order_id: order.id,
       kind: "payout",
       status: "pending",
-      amount_kes: order.amount_kes,
+      amount_kes: payoutAmount,
       raw_callback: { note: "Creative has no phone number on file; payout not yet initiated." },
     });
     return;
@@ -40,7 +74,7 @@ export async function releasePayoutForOrder(orderId: string) {
 
   try {
     const payout = await initiatePayout({
-      amountKes: order.amount_kes,
+      amountKes: payoutAmount,
       phoneNumber: normalizeKenyanPhone(creative.phone),
       name: `${creative.first_name} ${creative.last_name}`.trim(),
       narrative: `Nyx Creators Hub order ${order.id}`,
@@ -53,7 +87,7 @@ export async function releasePayoutForOrder(orderId: string) {
       order_id: order.id,
       kind: "payout",
       status,
-      amount_kes: order.amount_kes,
+      amount_kes: payoutAmount,
       provider_ref: payout.tracking_id,
       raw_callback: payout,
     });
@@ -62,7 +96,7 @@ export async function releasePayoutForOrder(orderId: string) {
       order_id: order.id,
       kind: "payout",
       status: "failed",
-      amount_kes: order.amount_kes,
+      amount_kes: payoutAmount,
       raw_callback: { error: err instanceof Error ? err.message : String(err) },
     });
   }

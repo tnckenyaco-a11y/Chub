@@ -14,6 +14,7 @@ import {
   FileEdit,
   Newspaper,
   Settings,
+  Wallet,
 } from "lucide-react";
 import { signOut } from "@/app/(auth)/actions";
 
@@ -23,6 +24,7 @@ const links = [
   { href: "/admin/listings", label: "Listings Moderation", icon: ClipboardCheck },
   { href: "/admin/categories", label: "Categories", icon: Tags },
   { href: "/admin/orders", label: "Orders & Payments", icon: Receipt },
+  { href: "/admin/advances", label: "Advance Requests", icon: Wallet },
   { href: "/admin/disputes", label: "Disputes", icon: Flag },
   { href: "/admin/contact", label: "Messages", icon: Mail },
   { href: "/admin/content", label: "Content (CMS)", icon: FileEdit },

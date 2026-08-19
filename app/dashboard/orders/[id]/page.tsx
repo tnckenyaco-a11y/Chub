@@ -8,6 +8,15 @@ import {
   raiseDispute,
   submitReview,
 } from "@/app/dashboard/orders/actions";
+import { requestAdvance } from "@/app/dashboard/advances/actions";
+import { getAdvanceEligibility } from "@/lib/finance/advance-eligibility";
+
+const ADVANCE_REASON_LABEL: Record<string, string> = {
+  below_eligibility_threshold: "Below eligibility threshold",
+  requested_amount_too_high: "Requested amount too high",
+  gig_risk_concern: "Risk concern with this gig",
+  other: "Other",
+};
 
 export default async function OrderDetailPage({
   params,
@@ -31,21 +40,28 @@ export default async function OrderDetailPage({
 
   if (!order || (order.brand_id !== profile.id && order.creative_id !== profile.id)) notFound();
 
-  const [{ data: payments }, { data: dispute }, { data: reviews }, { data: parties }] = await Promise.all([
-    supabase
-      .from("payments")
-      .select("kind, status, amount_kes, created_at")
-      .eq("order_id", id)
-      .order("created_at"),
-    supabase.from("disputes").select("reason, status, admin_notes").eq("order_id", id).maybeSingle(),
-    supabase.from("reviews").select("reviewer_id").eq("order_id", id),
-    // Joining orders -> profiles directly hits RLS ("owner or admin only"), so
-    // counterparty names come from public_profiles instead — same as everywhere else.
-    supabase
-      .from("public_profiles")
-      .select("id, first_name, last_name")
-      .in("id", [order.brand_id, order.creative_id]),
-  ]);
+  const [{ data: payments }, { data: dispute }, { data: reviews }, { data: parties }, { data: advance }] =
+    await Promise.all([
+      supabase
+        .from("payments")
+        .select("kind, status, amount_kes, created_at")
+        .eq("order_id", id)
+        .order("created_at"),
+      supabase.from("disputes").select("reason, status, admin_notes").eq("order_id", id).maybeSingle(),
+      supabase.from("reviews").select("reviewer_id").eq("order_id", id),
+      // Joining orders -> profiles directly hits RLS ("owner or admin only"), so
+      // counterparty names come from public_profiles instead — same as everywhere else.
+      supabase
+        .from("public_profiles")
+        .select("id, first_name, last_name")
+        .in("id", [order.brand_id, order.creative_id]),
+      supabase
+        .from("advance_requests")
+        .select("status, requested_amount_kes, approved_amount_kes, reason_code, reason_note")
+        .eq("order_id", id)
+        .neq("status", "declined")
+        .maybeSingle(),
+    ]);
 
   const partyById = new Map((parties ?? []).map((p) => [p.id, p]));
   const brandProfile = partyById.get(order.brand_id);
@@ -56,10 +72,16 @@ export default async function OrderDetailPage({
     ? `${order.service_packages.services?.title} — ${order.service_packages.title}`
     : order.proposals?.projects?.title;
 
+  const advanceEligibility =
+    !isBrand && !advance && ["paid", "in_progress", "delivered"].includes(order.status)
+      ? await getAdvanceEligibility(supabase, profile.id, id)
+      : null;
+
   const startWork = markInProgress.bind(null, id);
   const deliver = markDelivered.bind(null, id);
   const release = approveAndRelease.bind(null, id);
   const dispute_ = raiseDispute.bind(null, id);
+  const request_ = requestAdvance.bind(null, id);
   const review = submitReview.bind(null, id);
   const alreadyReviewed = reviews?.some((r) => r.reviewer_id === profile.id);
 
@@ -151,6 +173,55 @@ export default async function OrderDetailPage({
             ))}
           </div>
         </div>
+      )}
+
+      {advance && (
+        <div className="mt-10 rounded-2xl border border-brand/30 p-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-brand">
+            Nyx Advance — {advance.status.replace("_", " ")}
+          </p>
+          <p className="mt-2 text-sm text-ink/70">
+            Requested Ksh {advance.requested_amount_kes.toLocaleString()}
+            {advance.approved_amount_kes != null &&
+              ` · Approved Ksh ${advance.approved_amount_kes.toLocaleString()}`}
+          </p>
+          {advance.reason_code && (
+            <p className="mt-2 text-sm text-ink/50">
+              Reason: {ADVANCE_REASON_LABEL[advance.reason_code] ?? advance.reason_code}
+            </p>
+          )}
+          {advance.reason_note && (
+            <p className="mt-1 text-sm text-ink/50">{advance.reason_note}</p>
+          )}
+        </div>
+      )}
+
+      {advanceEligibility?.eligible && (
+        <details className="mt-10">
+          <summary className="cursor-pointer text-xs uppercase tracking-wide text-ink/40 hover:text-brand">
+            Request a Nyx Advance
+          </summary>
+          <form action={request_} className="mt-4 space-y-3">
+            <p className="text-xs text-ink/50">
+              Up to Ksh {advanceEligibility.maxAmountKes.toLocaleString()} available on this order.
+            </p>
+            <input
+              type="number"
+              name="amount_kes"
+              required
+              min={1}
+              max={advanceEligibility.maxAmountKes}
+              placeholder="Amount in Ksh"
+              className="w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-sm text-ink outline-none focus:border-brand"
+            />
+            <button
+              type="submit"
+              className="rounded-full border border-brand/40 px-5 py-2.5 text-xs font-semibold uppercase tracking-wide text-brand"
+            >
+              Request Advance
+            </button>
+          </form>
+        </details>
       )}
 
       {dispute ? (

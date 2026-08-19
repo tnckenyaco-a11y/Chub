@@ -13,6 +13,7 @@ import {
   TrendingUp,
   User,
   Settings,
+  Wallet,
 } from "lucide-react";
 import { signOut } from "@/app/(auth)/actions";
 
@@ -33,7 +34,10 @@ export function DashboardNav({ role }: { role: "creative" | "brand" | "admin" })
       : []),
     { href: "/dashboard/orders", label: "Orders", icon: ShoppingBag },
     ...(role === "creative"
-      ? [{ href: "/dashboard/earnings", label: "Earnings", icon: TrendingUp }]
+      ? [
+          { href: "/dashboard/earnings", label: "Earnings", icon: TrendingUp },
+          { href: "/dashboard/advances", label: "Nyx Advance", icon: Wallet },
+        ]
       : []),
     { href: "/dashboard/messages", label: "Messages", icon: MessageCircle },
   ];
