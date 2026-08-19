@@ -32,6 +32,18 @@ export async function approveAndRelease(orderId: string) {
   const profile = await requireProfile();
   const supabase = await createClient();
 
+  const { data: existing } = await supabase
+    .from("orders")
+    .select("status")
+    .eq("id", orderId)
+    .eq("brand_id", profile.id)
+    .maybeSingle();
+
+  if (!existing || existing.status !== "delivered") {
+    revalidatePath(`/dashboard/orders/${orderId}`);
+    return;
+  }
+
   const { data: order, error } = await supabase
     .from("orders")
     .update({ status: "completed" })
