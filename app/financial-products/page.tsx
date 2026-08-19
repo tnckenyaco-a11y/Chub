@@ -21,7 +21,7 @@ type FinancialProductsContent = {
 const SPINE_ICONS = [ShieldCheck, Landmark, Smartphone, Wallet];
 
 const STATUS_STYLE: Record<string, string> = {
-  "Rolling Out": "bg-brand/10 text-brand",
+  "Applications Opening Soon": "bg-brand/10 text-brand",
   "Coming Later": "bg-ink/8 text-ink/50",
 };
 
