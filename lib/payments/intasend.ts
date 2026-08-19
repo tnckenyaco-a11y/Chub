@@ -1,3 +1,5 @@
+export { normalizeKenyanPhone } from "@/lib/payments/phone";
+
 const TEST_MODE = process.env.INTASEND_TEST_MODE !== "false";
 const BASE_URL = TEST_MODE ? "https://sandbox.intasend.com" : "https://payment.intasend.com";
 
@@ -89,13 +91,4 @@ export async function initiatePayout({
   }
 
   return (await res.json()) as PayoutResponse;
-}
-
-// IntaSend phone numbers are expected as 2547XXXXXXXX / 2541XXXXXXXX (no leading +).
-export function normalizeKenyanPhone(raw: string) {
-  const digits = raw.replace(/\D/g, "");
-  if (digits.startsWith("254")) return digits;
-  if (digits.startsWith("0")) return `254${digits.slice(1)}`;
-  if (digits.startsWith("7") || digits.startsWith("1")) return `254${digits}`;
-  return digits;
 }

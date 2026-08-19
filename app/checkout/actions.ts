@@ -3,7 +3,8 @@
 import { redirect, forbidden } from "next/navigation";
 import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
-import { initiateSTKPush, normalizeKenyanPhone } from "@/lib/payments/intasend";
+import { createServiceClient } from "@/lib/supabase/service";
+import { initiateCollection } from "@/lib/payments/provider";
 
 async function requireBrand() {
   const profile = await requireProfile();
@@ -52,18 +53,30 @@ async function startCheckout({
   }
 
   // The payments table only accepts admin/service-role writes (see the
-  // orders_payments_reviews migration), so the payment row itself is
-  // created by the webhook below once IntaSend reports the first state —
-  // not here under the brand's own session.
+  // orders_payments_reviews migration). On the IntaSend path that's fine —
+  // the webhook below creates the row reactively once IntaSend reports the
+  // first state, keyed by the order id it echoes back. Daraja's callback
+  // carries no order id of its own, so on that path we pre-create the
+  // pending row ourselves right here, via the service client, keyed by
+  // whatever provider reference Safaricom just handed back.
   try {
-    const normalizedPhone = normalizeKenyanPhone(phoneNumber);
-    await initiateSTKPush({
+    const result = await initiateCollection({
       amountKes,
-      phoneNumber: normalizedPhone,
+      phoneNumber,
       email: user?.email ?? "no-email@nyxcreatorshub.africa",
-      apiRef: order.id,
+      orderId: order.id,
       name: `${profile.first_name} ${profile.last_name}`.trim() || profile.username,
     });
+
+    if (result.provider === "daraja") {
+      await createServiceClient().from("payments").insert({
+        order_id: order.id,
+        kind: "collection",
+        status: "pending",
+        amount_kes: amountKes,
+        provider_ref: result.providerRef,
+      });
+    }
   } catch (err) {
     redirect(
       `/dashboard/orders/${order.id}?error=${encodeURIComponent(

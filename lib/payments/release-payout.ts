@@ -1,5 +1,5 @@
 import { createServiceClient } from "@/lib/supabase/service";
-import { initiatePayout, normalizeKenyanPhone } from "@/lib/payments/intasend";
+import { initiatePayout } from "@/lib/payments/provider";
 
 // Called once an order reaches 'completed' (brand approval or admin dispute
 // resolution) to push the M-Pesa payout to the creative and record it.
@@ -73,23 +73,24 @@ export async function releasePayoutForOrder(orderId: string) {
   }
 
   try {
-    const payout = await initiatePayout({
+    const result = await initiatePayout({
       amountKes: payoutAmount,
-      phoneNumber: normalizeKenyanPhone(creative.phone),
+      phoneNumber: creative.phone,
       name: `${creative.first_name} ${creative.last_name}`.trim(),
       narrative: `Nyx Creators Hub order ${order.id}`,
     });
 
-    const txStatus = payout.transactions?.[0]?.status;
-    const status = txStatus === "COMPLETE" ? "successful" : txStatus === "FAILED" ? "failed" : "pending";
-
+    // IntaSend reports an immediate status; Daraja's B2C is always fully
+    // async (syncStatus is null), so it stays "pending" here and the
+    // b2c-result/b2c-timeout callback routes update it once Safaricom
+    // actually reports an outcome.
     await service.from("payments").insert({
       order_id: order.id,
       kind: "payout",
-      status,
+      status: result.syncStatus ?? "pending",
       amount_kes: payoutAmount,
-      provider_ref: payout.tracking_id,
-      raw_callback: payout,
+      provider_ref: result.providerRef,
+      raw_callback: result,
     });
   } catch (err) {
     await service.from("payments").insert({
