@@ -1,20 +1,12 @@
 import { notFound } from "next/navigation";
-import { FileText, Paperclip } from "lucide-react";
 import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 import { signMessageAttachment } from "@/lib/storage";
-import { sendMessage } from "@/app/dashboard/messages/actions";
+import { ConversationThread } from "@/components/messages/conversation-thread";
 
-export default async function MessageThreadPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ error?: string }>;
-}) {
+export default async function MessageThreadPage({ params }: { params: Promise<{ id: string }> }) {
   const profile = await requireProfile();
   const { id } = await params;
-  const { error } = await searchParams;
   const supabase = await createClient();
 
   const { data: conversation } = await supabase
@@ -36,7 +28,7 @@ export default async function MessageThreadPage({
   const [{ data: other }, { data: messages }] = await Promise.all([
     supabase
       .from("public_profiles")
-      .select("first_name, last_name")
+      .select("first_name, last_name, username, avatar_url")
       .eq("id", otherId)
       .maybeSingle(),
     supabase
@@ -53,76 +45,16 @@ export default async function MessageThreadPage({
     }))
   );
 
-  const send = sendMessage.bind(null, id);
+  const otherName = other
+    ? `${other.first_name} ${other.last_name}`.trim() || other.username || "Unknown user"
+    : "Unknown user";
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <h1 className="font-display text-2xl text-ink">
-        {other ? `${other.first_name} ${other.last_name}` : "Conversation"}
-      </h1>
-
-      <div className="mt-8 space-y-3">
-        {messagesWithSignedUrls.map((m) => (
-          <div
-            key={m.id}
-            className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${
-              m.sender_id === profile.id
-                ? "ml-auto bg-grad-brand text-paper"
-                : "border border-line bg-paper text-ink/80"
-            }`}
-          >
-            {m.signedUrl && m.attachment_type === "image" && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={m.signedUrl} alt="Attachment" className="mb-2 max-h-64 rounded-lg" />
-            )}
-            {m.signedUrl && m.attachment_type === "pdf" && (
-              <a
-                href={m.signedUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="mb-2 flex items-center gap-1.5 underline"
-              >
-                <FileText className="h-3.5 w-3.5" /> View PDF
-              </a>
-            )}
-            {m.body && <p>{m.body}</p>}
-          </div>
-        ))}
-        {!messagesWithSignedUrls.length && (
-          <p className="text-sm text-ink/40">Say hello to start the conversation.</p>
-        )}
-      </div>
-
-      {error && (
-        <p className="mt-6 rounded-lg border border-magenta/40 bg-magenta/10 px-4 py-3 text-sm text-magenta">
-          {error}
-        </p>
-      )}
-
-      <form action={send} className="mt-8 space-y-2">
-        <div className="flex gap-2">
-          <input
-            name="body"
-            placeholder="Write a message…"
-            className="flex-1 rounded-full border border-line bg-transparent px-4 py-2.5 text-sm text-ink outline-none focus:border-brand"
-          />
-          <button
-            type="submit"
-            className="rounded-full bg-grad-brand px-5 py-2.5 text-xs font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
-          >
-            Send
-          </button>
-        </div>
-        <label className="flex w-fit cursor-pointer items-center gap-1.5 text-xs text-ink/50 hover:text-brand">
-          <Paperclip className="h-3.5 w-3.5" /> Attach image or PDF
-          <input
-            type="file"
-            name="attachment"
-            accept="image/png,image/jpeg,image/webp,image/gif,application/pdf"
-            className="hidden"
-          />
-        </label>
-      </form>
-    </div>
+    <ConversationThread
+      conversationId={id}
+      currentUserId={profile.id}
+      otherUser={{ name: otherName, avatarUrl: other?.avatar_url ?? null }}
+      initialMessages={messagesWithSignedUrls}
+    />
   );
 }
