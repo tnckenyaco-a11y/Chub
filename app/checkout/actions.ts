@@ -56,9 +56,10 @@ async function startCheckout({
   // orders_payments_reviews migration). On the IntaSend path that's fine —
   // the webhook below creates the row reactively once IntaSend reports the
   // first state, keyed by the order id it echoes back. Daraja's callback
-  // carries no order id of its own, so on that path we pre-create the
-  // pending row ourselves right here, via the service client, keyed by
-  // whatever provider reference Safaricom just handed back.
+  // carries no order id of its own, and manual mode has no callback at all,
+  // so on both of those paths we pre-create the pending row ourselves right
+  // here, via the service client, keyed by whatever provider reference was
+  // generated.
   try {
     const result = await initiateCollection({
       amountKes,
@@ -68,7 +69,7 @@ async function startCheckout({
       name: `${profile.first_name} ${profile.last_name}`.trim() || profile.username,
     });
 
-    if (result.provider === "daraja") {
+    if (result.provider === "daraja" || result.provider === "manual") {
       await createServiceClient().from("payments").insert({
         order_id: order.id,
         kind: "collection",

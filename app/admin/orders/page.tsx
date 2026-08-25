@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { confirmManualPayment, confirmManualPayout } from "@/app/admin/orders/actions";
 
 const statusStyle: Record<string, string> = {
   pending_payment: "bg-ink/8 text-ink/55",
@@ -42,7 +43,7 @@ export default async function AdminOrdersPage() {
             </div>
             <p className="mt-1.5 text-xs text-ink/40">Ksh {o.amount_kes.toLocaleString()}</p>
             {o.payments && o.payments.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2 text-xs">
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
                 {o.payments.map((p, i) => (
                   <span
                     key={i}
@@ -57,6 +58,26 @@ export default async function AdminOrdersPage() {
                     {p.kind}: {p.status}
                   </span>
                 ))}
+                {o.payments.some((p) => p.kind === "collection" && p.status === "pending") && (
+                  <form action={confirmManualPayment.bind(null, o.id)}>
+                    <button
+                      type="submit"
+                      className="rounded-full border border-brand/40 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-brand hover:bg-brand/10"
+                    >
+                      Mark payment received
+                    </button>
+                  </form>
+                )}
+                {o.payments.some((p) => p.kind === "payout" && p.status === "pending") && (
+                  <form action={confirmManualPayout.bind(null, o.id)}>
+                    <button
+                      type="submit"
+                      className="rounded-full border border-brand/40 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-brand hover:bg-brand/10"
+                    >
+                      Mark payout sent
+                    </button>
+                  </form>
+                )}
               </div>
             )}
           </div>

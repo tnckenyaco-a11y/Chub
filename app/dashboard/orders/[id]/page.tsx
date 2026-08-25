@@ -10,6 +10,11 @@ import {
 } from "@/app/dashboard/orders/actions";
 import { requestAdvance } from "@/app/dashboard/advances/actions";
 import { getAdvanceEligibility } from "@/lib/finance/advance-eligibility";
+import { getSitePage } from "@/lib/site-pages";
+
+const MANUAL_PAYMENTS = process.env.PAYMENT_PROVIDER === "manual";
+
+type ManualPaymentInstructions = { mpesa_number: string; note: string };
 
 const ADVANCE_REASON_LABEL: Record<string, string> = {
   below_eligibility_threshold: "Below eligibility threshold",
@@ -77,6 +82,11 @@ export default async function OrderDetailPage({
       ? await getAdvanceEligibility(supabase, profile.id, id)
       : null;
 
+  const manualInstructions =
+    MANUAL_PAYMENTS && isBrand && order.status === "pending_payment"
+      ? (await getSitePage<ManualPaymentInstructions>("manual_payment_instructions"))?.content
+      : null;
+
   const startWork = markInProgress.bind(null, id);
   const deliver = markDelivered.bind(null, id);
   const release = approveAndRelease.bind(null, id);
@@ -103,8 +113,9 @@ export default async function OrderDetailPage({
 
       {checkout && (
         <p className="mt-6 rounded-lg border border-brand/40 bg-brand/10 px-4 py-3 text-sm text-brand">
-          M-Pesa prompt sent — check your phone to complete payment. This page updates once IntaSend
-          confirms it.
+          {MANUAL_PAYMENTS
+            ? "Send payment as instructed below — we'll confirm once it's received."
+            : "M-Pesa prompt sent — check your phone to complete payment. This page updates once IntaSend confirms it."}
         </p>
       )}
       {error && (
@@ -113,7 +124,16 @@ export default async function OrderDetailPage({
         </p>
       )}
 
-      {order.status === "pending_payment" && (
+      {order.status === "pending_payment" && manualInstructions && (
+        <div className="mt-8 rounded-2xl border border-brand/30 bg-brand/5 p-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-brand">
+            Send payment via M-Pesa
+          </p>
+          <p className="font-display mt-2 text-xl text-ink">{manualInstructions.mpesa_number}</p>
+          <p className="mt-2 text-sm text-ink/60">{manualInstructions.note}</p>
+        </div>
+      )}
+      {order.status === "pending_payment" && !manualInstructions && (
         <p className="mt-8 text-sm text-ink/50">Waiting for M-Pesa payment confirmation…</p>
       )}
 
