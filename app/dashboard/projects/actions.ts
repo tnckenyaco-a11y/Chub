@@ -5,7 +5,7 @@ import { redirect, forbidden } from "next/navigation";
 import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/slugify";
-import { uploadPublicMedia } from "@/lib/storage";
+import { uploadPublicMedia, fileKind } from "@/lib/storage";
 
 async function requireBrand() {
   const profile = await requireProfile();
@@ -24,9 +24,17 @@ export async function createProject(formData: FormData) {
   const pricingType = formData.get("pricing_type") === "hourly" ? "hourly" : "fixed";
   const budgetMin = Number(formData.get("budget_min"));
   const budgetMax = Number(formData.get("budget_max"));
+  const briefFile = formData.get("brief") as File | null;
 
   if (!title || Number.isNaN(budgetMin) || Number.isNaN(budgetMax) || budgetMax < budgetMin) {
     redirect("/projects/new?error=Please+fill+in+a+title+and+a+valid+budget+range.");
+  }
+
+  let briefUrl: string | null = null;
+  let briefType: "image" | "pdf" | null = null;
+  if (briefFile && briefFile.size > 0) {
+    briefUrl = await uploadPublicMedia(supabase, profile.id, "brief", briefFile);
+    briefType = fileKind(briefFile.type);
   }
 
   const { data: project, error } = await supabase
@@ -39,6 +47,8 @@ export async function createProject(formData: FormData) {
       pricing_type: pricingType,
       budget_min: budgetMin,
       budget_max: budgetMax,
+      brief_url: briefUrl,
+      brief_type: briefType,
       slug: `${slugify(title)}-${Math.random().toString(36).slice(2, 7)}`,
     })
     .select("id")

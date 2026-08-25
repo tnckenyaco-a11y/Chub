@@ -2,6 +2,7 @@ import { forbidden } from "next/navigation";
 import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 import { createProject } from "@/app/dashboard/projects/actions";
+import { BriefField } from "@/components/projects/brief-field";
 
 export default async function NewProjectPage({
   searchParams,
@@ -37,6 +38,7 @@ export default async function NewProjectPage({
             Title
           </span>
           <input
+            id="project-title"
             name="title"
             required
             placeholder="e.g. Videographer needed for product launch"
@@ -44,16 +46,7 @@ export default async function NewProjectPage({
           />
         </label>
 
-        <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">
-            Description
-          </span>
-          <textarea
-            name="description"
-            rows={5}
-            className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-3 text-ink outline-none focus:border-brand"
-          />
-        </label>
+        <BriefField titleFieldId="project-title" />
 
         <label className="block">
           <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">

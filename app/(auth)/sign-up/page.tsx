@@ -69,7 +69,10 @@ export default async function SignUpPage({
             </p>
           )}
 
-          <form action={signUp} className="mt-8 space-y-5">
+          <form
+            action={signUp}
+            className="mt-8 space-y-5 [&:has(input[name=role][value=brand]:checked)_.company-field]:block"
+          >
             <fieldset className="flex gap-2 rounded-full border border-line p-1">
               <legend className="sr-only">Account type</legend>
               {(["creative", "brand"] as const).map((value) => (
@@ -88,6 +91,18 @@ export default async function SignUpPage({
                 </label>
               ))}
             </fieldset>
+
+            <div className="company-field hidden">
+              <label className="block">
+                <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">
+                  Company Name *
+                </span>
+                <input
+                  name="company_name"
+                  className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-brand"
+                />
+              </label>
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <Field label="First name" name="first_name" required />

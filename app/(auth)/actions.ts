@@ -20,11 +20,15 @@ export async function signUp(formData: FormData) {
   const phone = String(formData.get("phone") ?? "").trim();
   const country = String(formData.get("country") ?? "").trim();
   const city = String(formData.get("city") ?? "").trim();
+  const companyName = String(formData.get("company_name") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const confirmPassword = String(formData.get("confirm_password") ?? "");
 
   if (!firstName || !lastName || !username || !email || !password) {
     redirect(`/sign-up?error=${encodeURIComponent("Please fill in all required fields.")}&role=${role}`);
+  }
+  if (role === "brand" && !companyName) {
+    redirect(`/sign-up?error=${encodeURIComponent("Please enter your company name.")}&role=${role}`);
   }
   if (password !== confirmPassword) {
     redirect(`/sign-up?error=${encodeURIComponent("Passwords do not match.")}&role=${role}`);
@@ -46,6 +50,7 @@ export async function signUp(formData: FormData) {
         phone: phone || null,
         country: country || null,
         city: city || null,
+        company_name: role === "brand" ? companyName : null,
       },
     },
   });

@@ -25,7 +25,7 @@ function extensionFor(file: File) {
 export async function uploadPublicMedia(
   supabase: SupabaseClient<Database>,
   userId: string,
-  folder: "avatar" | "cover" | "portfolio" | "service" | "project" | "branding",
+  folder: "avatar" | "cover" | "portfolio" | "service" | "project" | "branding" | "brief",
   file: File
 ) {
   const error = validateUpload(file);

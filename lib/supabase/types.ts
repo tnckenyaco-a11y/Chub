@@ -606,6 +606,7 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           city: string | null
+          company_name: string | null
           country: string | null
           cover_url: string | null
           created_at: string
@@ -625,6 +626,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
+          company_name?: string | null
           country?: string | null
           cover_url?: string | null
           created_at?: string
@@ -644,6 +646,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
+          company_name?: string | null
           country?: string | null
           cover_url?: string | null
           created_at?: string
@@ -781,6 +784,8 @@ export type Database = {
       projects: {
         Row: {
           brand_id: string
+          brief_type: string | null
+          brief_url: string | null
           budget_max: number
           budget_min: number
           category_id: string | null
@@ -795,6 +800,8 @@ export type Database = {
         }
         Insert: {
           brand_id: string
+          brief_type?: string | null
+          brief_url?: string | null
           budget_max: number
           budget_min: number
           category_id?: string | null
@@ -809,6 +816,8 @@ export type Database = {
         }
         Update: {
           brand_id?: string
+          brief_type?: string | null
+          brief_url?: string | null
           budget_max?: number
           budget_min?: number
           category_id?: string | null
@@ -1191,6 +1200,7 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           city: string | null
+          company_name: string | null
           country: string | null
           cover_url: string | null
           created_at: string | null
@@ -1206,6 +1216,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
+          company_name?: string | null
           country?: string | null
           cover_url?: string | null
           created_at?: string | null
@@ -1221,6 +1232,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
+          company_name?: string | null
           country?: string | null
           cover_url?: string | null
           created_at?: string | null

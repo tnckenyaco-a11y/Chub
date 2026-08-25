@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { Tag, Wallet } from "lucide-react";
+import { FileText, Tag, Wallet } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/current-user";
 import { submitProposal } from "@/app/proposals/actions";
@@ -20,7 +20,7 @@ export default async function ProjectDetailPage({
   const { data: project } = await supabase
     .from("projects")
     .select(
-      "id, title, description, pricing_type, budget_min, budget_max, brand_id, categories(name), project_images(file_url, sort_order)"
+      "id, title, description, pricing_type, budget_min, budget_max, brand_id, brief_url, brief_type, categories(name), project_images(file_url, sort_order)"
     )
     .eq("slug", slug)
     .eq("status", "published")
@@ -30,7 +30,7 @@ export default async function ProjectDetailPage({
 
   const { data: brand } = await supabase
     .from("public_profiles")
-    .select("first_name, last_name, city")
+    .select("first_name, last_name, city, company_name")
     .eq("id", project.brand_id)
     .maybeSingle();
 
@@ -70,13 +70,27 @@ export default async function ProjectDetailPage({
         <h1 className="font-display mt-3 text-3xl text-ink sm:text-4xl">{project.title}</h1>
         {brand && (
           <p className="mt-3 text-sm text-ink/60">
-            Posted by <span className="font-semibold">{brand.first_name} {brand.last_name}</span>
+            Posted by{" "}
+            <span className="font-semibold">
+              {brand.company_name || `${brand.first_name} ${brand.last_name}`}
+            </span>
             {brand.city ? ` · ${brand.city}` : ""}
           </p>
         )}
         <p className="mt-8 whitespace-pre-wrap leading-relaxed text-ink/70">
           {project.description}
         </p>
+        {project.brief_url && (
+          <a
+            href={project.brief_url}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-line px-4 py-2 text-xs font-semibold uppercase tracking-wide text-brand hover:border-brand"
+          >
+            <FileText className="h-3.5 w-3.5" />
+            View creative brief
+          </a>
+        )}
       </div>
 
       <div className="lg:sticky lg:top-24 lg:self-start">
