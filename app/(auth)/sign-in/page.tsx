@@ -63,11 +63,12 @@ export default async function SignInPage({
           <form action={signIn} className="mt-8 space-y-5">
             <label className="block">
               <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">
-                Email
+                Email or Username
               </span>
               <input
-                name="email"
-                type="email"
+                name="identifier"
+                type="text"
+                autoComplete="username"
                 required
                 className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-brand"
               />
