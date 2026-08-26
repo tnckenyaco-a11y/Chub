@@ -257,7 +257,7 @@ export default async function OrderDetailPage({
       ) : (
         ["paid", "in_progress", "delivered"].includes(order.status) && (
           <details className="mt-10">
-            <summary className="cursor-pointer text-xs uppercase tracking-wide text-ink/40 hover:text-magenta">
+            <summary className="inline-flex w-fit list-none items-center rounded-full border border-magenta/40 px-5 py-2.5 text-xs font-semibold uppercase tracking-wide text-magenta transition hover:bg-magenta/10 [&::-webkit-details-marker]:hidden">
               Raise a dispute
             </summary>
             <form action={dispute_} className="mt-4 space-y-3">
