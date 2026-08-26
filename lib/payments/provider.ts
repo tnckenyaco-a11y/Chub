@@ -1,11 +1,12 @@
-// Single switch point between payment providers. Defaults to IntaSend (the
-// one with working, tested credentials today) so the live app keeps
-// functioning until Daraja has been verified with real credentials — set
-// PAYMENT_PROVIDER=daraja once that's confirmed, or PAYMENT_PROVIDER=manual
-// to collect/disburse by hand over personal M-Pesa during the trial period
-// (no automated rail approved yet).
+// Switch point between payment providers. Collection and payout are
+// switched independently — a provider can be enabled for one and not the
+// other (e.g. IntaSend's live account here has collection approved but
+// disbursement/payout not yet enabled, so payouts stay manual until that's
+// separately approved). COLLECTION_PROVIDER/PAYOUT_PROVIDER each default to
+// "intasend"; set either to "daraja" once Daraja is verified, or "manual" to
+// collect/disburse by hand over personal M-Pesa.
 //
-// None of the three providers behave identically after initiation: IntaSend's
+// The providers don't behave identically after initiation: IntaSend's
 // collection webhook echoes back our own order id (api_ref), so nothing
 // needs to be written here. Daraja's callbacks and manual confirmations only
 // ever carry Safaricom-generated or locally-generated IDs, so callers on
@@ -16,12 +17,12 @@ import * as intasend from "@/lib/payments/intasend";
 import * as daraja from "@/lib/payments/daraja";
 import { normalizeKenyanPhone } from "@/lib/payments/phone";
 
-const PROVIDER =
-  process.env.PAYMENT_PROVIDER === "daraja"
-    ? "daraja"
-    : process.env.PAYMENT_PROVIDER === "manual"
-      ? "manual"
-      : "intasend";
+function resolveProvider(envVar: string | undefined) {
+  return envVar === "daraja" ? "daraja" : envVar === "manual" ? "manual" : "intasend";
+}
+
+const COLLECTION_PROVIDER = resolveProvider(process.env.COLLECTION_PROVIDER ?? process.env.PAYMENT_PROVIDER);
+const PAYOUT_PROVIDER = resolveProvider(process.env.PAYOUT_PROVIDER ?? process.env.PAYMENT_PROVIDER);
 
 export type CollectionInitiation = {
   provider: "intasend" | "daraja" | "manual";
@@ -37,11 +38,11 @@ export async function initiateCollection(params: {
 }): Promise<CollectionInitiation> {
   const phoneNumber = normalizeKenyanPhone(params.phoneNumber);
 
-  if (PROVIDER === "manual") {
+  if (COLLECTION_PROVIDER === "manual") {
     return { provider: "manual", providerRef: crypto.randomUUID() };
   }
 
-  if (PROVIDER === "daraja") {
+  if (COLLECTION_PROVIDER === "daraja") {
     const res = await daraja.initiateStkPush({
       amountKes: params.amountKes,
       phoneNumber,
@@ -79,11 +80,11 @@ export async function initiatePayout(params: {
 }): Promise<PayoutInitiation> {
   const phoneNumber = normalizeKenyanPhone(params.phoneNumber);
 
-  if (PROVIDER === "manual") {
+  if (PAYOUT_PROVIDER === "manual") {
     return { provider: "manual", providerRef: crypto.randomUUID(), syncStatus: null };
   }
 
-  if (PROVIDER === "daraja") {
+  if (PAYOUT_PROVIDER === "daraja") {
     const res = await daraja.initiateB2C({
       amountKes: params.amountKes,
       phoneNumber,
