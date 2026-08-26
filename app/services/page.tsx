@@ -1,7 +1,17 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Eye, MapPin, Tag } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ListingHero } from "@/components/listing-hero";
+
+export const metadata: Metadata = {
+  title: "Services",
+  description: "Browse ready-to-book creative services from vetted African talent.",
+  openGraph: {
+    title: "Services",
+    description: "Browse ready-to-book creative services from vetted African talent.",
+  },
+};
 
 export default async function ServicesPage({
   searchParams,

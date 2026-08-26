@@ -1,6 +1,16 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { ComingSoon } from "@/components/coming-soon";
+
+export const metadata: Metadata = {
+  title: "Blog",
+  description: "Guides and insights for African creatives and the brands who hire them.",
+  openGraph: {
+    title: "Blog",
+    description: "Guides and insights for African creatives and the brands who hire them.",
+  },
+};
 
 export default async function BlogPage() {
   const supabase = await createClient();

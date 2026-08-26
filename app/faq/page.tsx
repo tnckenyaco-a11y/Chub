@@ -1,5 +1,17 @@
+import type { Metadata } from "next";
 import { getSitePage } from "@/lib/site-pages";
 import { ComingSoon } from "@/components/coming-soon";
+
+export const metadata: Metadata = {
+  title: "FAQ",
+  description:
+    "Answers to common questions about hiring, getting paid, escrow, and Nyx Advance on Nyx Creators Hub.",
+  openGraph: {
+    title: "FAQ",
+    description:
+      "Answers to common questions about hiring, getting paid, escrow, and Nyx Advance on Nyx Creators Hub.",
+  },
+};
 
 export default async function FaqPage() {
   const page = await getSitePage<{ items: { question: string; answer: string }[] }>("faq");

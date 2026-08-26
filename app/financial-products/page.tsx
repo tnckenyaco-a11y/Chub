@@ -1,8 +1,20 @@
 import Image from "next/image";
+import type { Metadata } from "next";
 import { Landmark, ShieldCheck, Smartphone, Wallet } from "lucide-react";
 import { getSitePage } from "@/lib/site-pages";
 import { ComingSoon } from "@/components/coming-soon";
 import { LottieIcon } from "@/components/motion/lottie-icon";
+
+export const metadata: Metadata = {
+  title: "Financial Products",
+  description:
+    "Nyx Advance, Nyx Gear, and Nyx Capital — financial products built around how African creatives actually earn.",
+  openGraph: {
+    title: "Financial Products",
+    description:
+      "Nyx Advance, Nyx Gear, and Nyx Capital — financial products built around how African creatives actually earn.",
+  },
+};
 
 type FinancialProductsContent = {
   hero: { eyebrow: string; title: string; body: string };

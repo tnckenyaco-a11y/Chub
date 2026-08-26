@@ -30,9 +30,14 @@ export async function generateMetadata(): Promise<Metadata> {
   const identity = await getSiteIdentity();
 
   return {
-    title: `${identity.site_name} — The Future of African Creativity`,
+    metadataBase: new URL("https://chub.nyxcollective.africa"),
+    title: {
+      default: `${identity.site_name} — The Future of African Creativity`,
+      template: `%s · ${identity.site_name}`,
+    },
     description: identity.tagline,
     openGraph: {
+      siteName: identity.site_name,
       title: identity.site_name,
       description: identity.tagline,
       images: identity.og_image_url ? [identity.og_image_url] : undefined,

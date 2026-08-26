@@ -1,11 +1,42 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { Globe, MapPin, Star } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/current-user";
 import { startConversation } from "@/app/messages/actions";
 import { inviteCreativeToProject } from "@/app/dashboard/projects/actions";
 import { ProfileTabs } from "@/components/profile-tabs";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ username: string }>;
+}): Promise<Metadata> {
+  const { username } = await params;
+  const supabase = await createClient();
+  const { data: profile } = await supabase
+    .from("public_profiles")
+    .select("first_name, last_name, bio, role, city, country, avatar_url")
+    .eq("username", username)
+    .maybeSingle();
+
+  if (!profile || profile.role !== "creative") return {};
+
+  const name = `${profile.first_name} ${profile.last_name}`.trim();
+  const location = [profile.city, profile.country].filter(Boolean).join(", ");
+  const description = profile.bio?.slice(0, 160) || `${name}${location ? ` — ${location}` : ""} on Nyx Creators Hub.`;
+
+  return {
+    title: name,
+    description,
+    openGraph: {
+      title: name,
+      description,
+      images: profile.avatar_url ? [profile.avatar_url] : undefined,
+    },
+  };
+}
 
 const SOCIAL_LABELS: Record<string, string> = {
   instagram: "Instagram",

@@ -1,8 +1,18 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Clock, Tag, Users, Wallet } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ListingHero } from "@/components/listing-hero";
 import { timeAgo } from "@/lib/format";
+
+export const metadata: Metadata = {
+  title: "Projects",
+  description: "Browse open creative projects posted by brands across Africa.",
+  openGraph: {
+    title: "Projects",
+    description: "Browse open creative projects posted by brands across Africa.",
+  },
+};
 
 export default async function ProjectsPage({
   searchParams,

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { LifeBuoy } from "lucide-react";
 import { getSitePage } from "@/lib/site-pages";
 import { ComingSoon } from "@/components/coming-soon";
@@ -5,6 +6,11 @@ import { ComingSoon } from "@/components/coming-soon";
 type HelpContent = {
   intro: string;
   sections: { heading: string; body: string }[];
+};
+
+export const metadata: Metadata = {
+  title: "Help Center",
+  openGraph: { title: "Help Center" },
 };
 
 export default async function HelpCenterPage() {

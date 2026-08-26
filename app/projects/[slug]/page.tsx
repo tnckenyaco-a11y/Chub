@@ -1,9 +1,37 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { FileText, Tag, Wallet } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/current-user";
 import { submitProposal } from "@/app/proposals/actions";
 import { ImageGallery } from "@/components/image-gallery";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = await createClient();
+  const { data: project } = await supabase
+    .from("projects")
+    .select("title, description, project_images(file_url, sort_order)")
+    .eq("slug", slug)
+    .eq("status", "published")
+    .maybeSingle();
+
+  if (!project) return {};
+
+  const description = project.description?.slice(0, 160);
+  const image = [...(project.project_images ?? [])].sort((a, b) => a.sort_order - b.sort_order)[0]
+    ?.file_url;
+
+  return {
+    title: project.title,
+    description,
+    openGraph: { title: project.title, description, images: image ? [image] : undefined },
+  };
+}
 
 export default async function ProjectDetailPage({
   params,

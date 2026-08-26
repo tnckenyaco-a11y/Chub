@@ -1,7 +1,17 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { MapPin } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ListingHero } from "@/components/listing-hero";
+
+export const metadata: Metadata = {
+  title: "Creatives",
+  description: "Discover vetted African creative talent — photographers, designers, videographers, and more.",
+  openGraph: {
+    title: "Creatives",
+    description: "Discover vetted African creative talent — photographers, designers, videographers, and more.",
+  },
+};
 
 export default async function CreativesPage({
   searchParams,

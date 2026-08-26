@@ -1,7 +1,14 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { CheckCircle2, Clock, HelpCircle } from "lucide-react";
 import { getSitePage } from "@/lib/site-pages";
 import { submitContactMessage } from "@/app/contact/actions";
+
+export const metadata: Metadata = {
+  title: "Contact Us",
+  description: "Get in touch with the Nyx Creators Hub team.",
+  openGraph: { title: "Contact Us", description: "Get in touch with the Nyx Creators Hub team." },
+};
 
 type ContactContent = {
   intro?: string;

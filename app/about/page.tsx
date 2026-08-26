@@ -1,5 +1,17 @@
+import type { Metadata } from "next";
 import { getSitePage } from "@/lib/site-pages";
 import { ComingSoon } from "@/components/coming-soon";
+
+export const metadata: Metadata = {
+  title: "About Us",
+  description:
+    "Learn about Nyx Creators Hub's mission to build a trusted, secure marketplace for Africa's creative economy.",
+  openGraph: {
+    title: "About Us",
+    description:
+      "Learn about Nyx Creators Hub's mission to build a trusted, secure marketplace for Africa's creative economy.",
+  },
+};
 
 type AboutContent = {
   story: { eyebrow: string; title: string; body: string };

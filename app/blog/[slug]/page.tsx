@@ -1,8 +1,40 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/format";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = await createClient();
+  const { data: post } = await supabase
+    .from("blog_posts")
+    .select("title, excerpt, body, cover_image_url, published_at")
+    .eq("slug", slug)
+    .eq("status", "published")
+    .maybeSingle();
+
+  if (!post) return {};
+
+  const description = post.excerpt || post.body?.slice(0, 160);
+
+  return {
+    title: post.title,
+    description,
+    openGraph: {
+      title: post.title,
+      description,
+      images: post.cover_image_url ? [post.cover_image_url] : undefined,
+      type: "article",
+      publishedTime: post.published_at ?? undefined,
+    },
+  };
+}
 
 export default async function BlogPostPage({
   params,

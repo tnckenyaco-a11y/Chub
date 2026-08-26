@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getSitePage } from "@/lib/site-pages";
 import { ComingSoon } from "@/components/coming-soon";
 
@@ -5,6 +6,11 @@ type LegalContent = {
   effective_date: string;
   intro: string;
   sections: { heading: string; body: string }[];
+};
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  openGraph: { title: "Privacy Policy" },
 };
 
 export default async function PrivacyPolicyPage() {

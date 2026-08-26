@@ -1,10 +1,38 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { Clock, RefreshCw, Tag } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/current-user";
 import { initiateServiceCheckout } from "@/app/checkout/actions";
 import { ImageGallery } from "@/components/image-gallery";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = await createClient();
+  const { data: service } = await supabase
+    .from("services")
+    .select("title, description, service_images(file_url, sort_order)")
+    .eq("slug", slug)
+    .eq("status", "published")
+    .maybeSingle();
+
+  if (!service) return {};
+
+  const description = service.description?.slice(0, 160);
+  const image = [...(service.service_images ?? [])].sort((a, b) => a.sort_order - b.sort_order)[0]
+    ?.file_url;
+
+  return {
+    title: service.title,
+    description,
+    openGraph: { title: service.title, description, images: image ? [image] : undefined },
+  };
+}
 
 export default async function ServiceDetailPage({
   params,
