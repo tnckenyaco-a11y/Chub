@@ -2,6 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/require-admin";
+import { createServiceClient } from "@/lib/supabase/service";
+import type { Database } from "@/lib/supabase/types";
+
+type OrderStatus = Database["public"]["Enums"]["order_status"];
+type PaymentStatus = Database["public"]["Enums"]["payment_status"];
 
 // Manual-mode confirmations: mirrors what the IntaSend webhook does
 // automatically (see app/api/payments/intasend/webhook/route.ts), just
@@ -52,5 +57,60 @@ export async function confirmManualPayout(orderId: string) {
   }
 
   await supabase.from("payments").update({ status: "successful" }).eq("id", payment.id);
+  revalidatePath("/admin/orders");
+}
+
+export async function setOrderStatus(orderId: string, formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const status = formData.get("status") as OrderStatus;
+
+  await supabase.from("orders").update({ status }).eq("id", orderId);
+  revalidatePath("/admin/orders");
+}
+
+export async function setPaymentStatus(paymentId: string, formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const status = formData.get("status") as PaymentStatus;
+
+  const { data: payment } = await supabase
+    .from("payments")
+    .update({ status })
+    .eq("id", paymentId)
+    .select("order_id, kind")
+    .single();
+
+  // Mirror confirmManualPayment: a collection payment turning successful
+  // should carry the order from pending_payment to paid, same as the
+  // IntaSend webhook does automatically.
+  if (payment && payment.kind === "collection" && status === "successful") {
+    await supabase
+      .from("orders")
+      .update({ status: "paid" })
+      .eq("id", payment.order_id)
+      .eq("status", "pending_payment");
+  }
+
+  revalidatePath("/admin/orders");
+}
+
+// Deleting an order cascades to its payments/reviews/disputes (all ON
+// DELETE CASCADE), but advance_requests.order_id is ON DELETE NO ACTION —
+// a hard FK block, not an RLS issue — so any advance tied to this order has
+// to go first. Uses the service-role client because orders/payments have no
+// RLS DELETE policy at all, and RLS still applies to rows removed by
+// cascade.
+export async function deleteOrder(orderId: string) {
+  await requireAdmin();
+  const service = createServiceClient();
+
+  await service.from("advance_requests").delete().eq("order_id", orderId);
+  await service.from("orders").delete().eq("id", orderId);
+
+  revalidatePath("/admin/orders");
+}
+
+export async function deletePayment(paymentId: string) {
+  await requireAdmin();
+  await createServiceClient().from("payments").delete().eq("id", paymentId);
   revalidatePath("/admin/orders");
 }

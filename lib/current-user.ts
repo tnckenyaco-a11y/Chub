@@ -14,7 +14,7 @@ export const getCurrentProfile = cache(async () => {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, role, first_name, last_name, username, avatar_url, company_name")
+    .select("id, role, first_name, last_name, username, avatar_url, company_name, is_suspended")
     .eq("id", user.id)
     .single();
 
@@ -24,5 +24,10 @@ export const getCurrentProfile = cache(async () => {
 export async function requireProfile() {
   const profile = await getCurrentProfile();
   if (!profile) redirect("/sign-in");
+  if (profile.is_suspended) {
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+    redirect("/suspended");
+  }
   return profile;
 }
