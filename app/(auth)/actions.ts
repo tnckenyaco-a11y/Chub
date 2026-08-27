@@ -1,16 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
-
-async function siteOrigin() {
-  const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host");
-  const protocol = h.get("x-forwarded-proto") ?? (host?.includes("localhost") ? "http" : "https");
-  return host ? `${protocol}://${host}` : "http://localhost:3000";
-}
+import { siteOrigin } from "@/lib/site-origin";
 
 // Sign-in accepts a username as well as an email — usernames aren't stored
 // with an email address (that lives in auth.users, not public.profiles), so

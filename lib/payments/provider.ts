@@ -27,6 +27,10 @@ const PAYOUT_PROVIDER = resolveProvider(process.env.PAYOUT_PROVIDER ?? process.e
 export type CollectionInitiation = {
   provider: "intasend" | "daraja" | "manual";
   providerRef: string;
+  // Set when the payer must be redirected to finish paying (card entry can't
+  // happen over an API call, unlike M-Pesa's STK push) — the caller should
+  // redirect the browser here instead of straight to the order page.
+  checkoutUrl?: string;
 };
 
 export async function initiateCollection(params: {
@@ -35,7 +39,28 @@ export async function initiateCollection(params: {
   email: string;
   orderId: string;
   name: string;
+  // "mpesa" (default) pushes an STK prompt to the phone; "card" is only
+  // supported on IntaSend and requires redirectUrl.
+  method?: "mpesa" | "card";
+  redirectUrl?: string;
 }): Promise<CollectionInitiation> {
+  if (params.method === "card") {
+    if (COLLECTION_PROVIDER !== "intasend") {
+      throw new Error("Card payments are only available via IntaSend.");
+    }
+    if (!params.redirectUrl) {
+      throw new Error("redirectUrl is required for card checkout.");
+    }
+    const res = await intasend.initiateCardCheckout({
+      amountKes: params.amountKes,
+      email: params.email,
+      apiRef: params.orderId,
+      name: params.name,
+      redirectUrl: params.redirectUrl,
+    });
+    return { provider: "intasend", providerRef: res.id ?? res.url, checkoutUrl: res.url };
+  }
+
   const phoneNumber = normalizeKenyanPhone(params.phoneNumber);
 
   if (COLLECTION_PROVIDER === "manual") {

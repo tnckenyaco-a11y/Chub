@@ -5,6 +5,7 @@ import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { initiateCollection } from "@/lib/payments/provider";
+import { siteOrigin } from "@/lib/site-origin";
 
 async function requireBrand() {
   const profile = await requireProfile();
@@ -16,6 +17,7 @@ async function startCheckout({
   amountKes,
   orderInsert,
   phoneNumber,
+  paymentMethod,
   redirectBackTo,
 }: {
   amountKes: number;
@@ -26,6 +28,7 @@ async function startCheckout({
     creative_id: string;
   };
   phoneNumber: string;
+  paymentMethod: "mpesa" | "card";
   redirectBackTo: string;
 }) {
   const profile = await requireBrand();
@@ -60,6 +63,7 @@ async function startCheckout({
   // so on both of those paths we pre-create the pending row ourselves right
   // here, via the service client, keyed by whatever provider reference was
   // generated.
+  let checkoutUrl: string | undefined;
   try {
     const result = await initiateCollection({
       amountKes,
@@ -67,6 +71,11 @@ async function startCheckout({
       email: user?.email ?? "no-email@nyxcreatorshub.africa",
       orderId: order.id,
       name: `${profile.first_name} ${profile.last_name}`.trim() || profile.username,
+      method: paymentMethod,
+      redirectUrl:
+        paymentMethod === "card"
+          ? `${await siteOrigin()}/dashboard/orders/${order.id}?checkout=1`
+          : undefined,
     });
 
     if (result.provider === "daraja" || result.provider === "manual") {
@@ -78,6 +87,8 @@ async function startCheckout({
         provider_ref: result.providerRef,
       });
     }
+
+    checkoutUrl = result.checkoutUrl;
   } catch (err) {
     redirect(
       `/dashboard/orders/${order.id}?error=${encodeURIComponent(
@@ -86,12 +97,15 @@ async function startCheckout({
     );
   }
 
-  redirect(`/dashboard/orders/${order.id}?checkout=1`);
+  // Card payments redirect to IntaSend's hosted page to complete payment;
+  // everything else (M-Pesa STK push, manual) just waits on the order page.
+  redirect(checkoutUrl ?? `/dashboard/orders/${order.id}?checkout=1`);
 }
 
 export async function initiateServiceCheckout(packageId: string, formData: FormData) {
   const supabase = await createClient();
   const phoneNumber = String(formData.get("phone_number") ?? "");
+  const paymentMethod = formData.get("payment_method") === "card" ? "card" : "mpesa";
 
   const { data: pkg } = await supabase
     .from("service_packages")
@@ -105,6 +119,7 @@ export async function initiateServiceCheckout(packageId: string, formData: FormD
     amountKes: pkg.price_kes,
     orderInsert: { package_id: packageId, creative_id: pkg.services.creative_id },
     phoneNumber,
+    paymentMethod,
     redirectBackTo: `/services/${pkg.services.slug}`,
   });
 }
@@ -112,6 +127,7 @@ export async function initiateServiceCheckout(packageId: string, formData: FormD
 export async function initiateProposalCheckout(proposalId: string, formData: FormData) {
   const supabase = await createClient();
   const phoneNumber = String(formData.get("phone_number") ?? "");
+  const paymentMethod = formData.get("payment_method") === "card" ? "card" : "mpesa";
 
   const { data: proposal } = await supabase
     .from("proposals")
@@ -127,6 +143,7 @@ export async function initiateProposalCheckout(proposalId: string, formData: For
     amountKes: proposal!.rate,
     orderInsert: { proposal_id: proposalId, creative_id: proposal!.creative_id },
     phoneNumber,
+    paymentMethod,
     redirectBackTo: `/dashboard/projects/${proposal!.project_id}`,
   });
 }
@@ -134,6 +151,7 @@ export async function initiateProposalCheckout(proposalId: string, formData: For
 export async function initiateSquadCheckout(squadInviteId: string, formData: FormData) {
   const supabase = await createClient();
   const phoneNumber = String(formData.get("phone_number") ?? "");
+  const paymentMethod = formData.get("payment_method") === "card" ? "card" : "mpesa";
 
   const { data: invite } = await supabase
     .from("project_squad_invites")
@@ -149,6 +167,7 @@ export async function initiateSquadCheckout(squadInviteId: string, formData: For
     amountKes: invite!.rate_kes,
     orderInsert: { squad_invite_id: squadInviteId, creative_id: invite!.creative_id },
     phoneNumber,
+    paymentMethod,
     redirectBackTo: `/dashboard/projects/${invite!.project_id}`,
   });
 }

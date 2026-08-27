@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/current-user";
 import { initiateServiceCheckout } from "@/app/checkout/actions";
 import { ImageGallery } from "@/components/image-gallery";
+import { CheckoutMethodFields } from "@/components/checkout-method-fields";
 
 export async function generateMetadata({
   params,
@@ -136,12 +137,7 @@ export default async function ServiceDetailPage({
 
               {viewer?.role === "brand" ? (
                 <form action={checkout} className="mt-4 space-y-2">
-                  <input
-                    name="phone_number"
-                    required
-                    placeholder="M-Pesa phone (07XXXXXXXX)"
-                    className="w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-sm text-ink outline-none focus:border-brand"
-                  />
+                  <CheckoutMethodFields />
                   <button
                     type="submit"
                     className="w-full rounded-full bg-grad-brand px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"

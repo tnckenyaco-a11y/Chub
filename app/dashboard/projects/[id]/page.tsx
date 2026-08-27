@@ -14,6 +14,7 @@ import {
 } from "@/app/dashboard/projects/actions";
 import { initiateProposalCheckout, initiateSquadCheckout } from "@/app/checkout/actions";
 import { AutoSubmitFileInput } from "@/components/auto-submit-file-input";
+import { CheckoutMethodFields } from "@/components/checkout-method-fields";
 
 export default async function EditProjectPage({
   params,
@@ -248,12 +249,7 @@ export default async function EditProjectPage({
                       </Link>
                     ) : (
                       <form action={initiateProposalCheckout.bind(null, p.id)} className="space-y-2">
-                        <input
-                          name="phone_number"
-                          required
-                          placeholder="M-Pesa phone (07XXXXXXXX)"
-                          className="w-full rounded-lg border border-line bg-transparent px-4 py-2 text-sm text-ink outline-none focus:border-brand"
-                        />
+                        <CheckoutMethodFields compact />
                         <button
                           type="submit"
                           className="rounded-full bg-grad-brand px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
@@ -370,12 +366,7 @@ export default async function EditProjectPage({
                       </Link>
                     ) : (
                       <form action={initiateSquadCheckout.bind(null, s.id)} className="space-y-2">
-                        <input
-                          name="phone_number"
-                          required
-                          placeholder="M-Pesa phone (07XXXXXXXX)"
-                          className="w-full rounded-lg border border-line bg-transparent px-4 py-2 text-sm text-ink outline-none focus:border-brand"
-                        />
+                        <CheckoutMethodFields compact />
                         <button
                           type="submit"
                           className="rounded-full bg-grad-brand px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"

@@ -48,6 +48,54 @@ export async function initiateSTKPush({
   return (await res.json()) as CollectionResponse;
 }
 
+type CheckoutResponse = {
+  id?: string;
+  url: string;
+};
+
+// Card payments need PCI-compliant card entry, so unlike STK push there's no
+// API-only flow — IntaSend's hosted Checkout page handles that, and we
+// redirect the payer there. It resolves back to `redirectUrl` on success,
+// and (like STK push) the real confirmation still comes from the webhook.
+export async function initiateCardCheckout({
+  amountKes,
+  email,
+  apiRef,
+  name,
+  redirectUrl,
+}: {
+  amountKes: number;
+  email: string;
+  apiRef: string;
+  name: string;
+  redirectUrl: string;
+}) {
+  const [firstName, ...rest] = name.trim().split(/\s+/);
+
+  const res = await fetch(`${BASE_URL}/api/v1/checkout/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      public_key: process.env.INTASEND_PUBLISHABLE_KEY,
+      currency: "KES",
+      method: "CARD-PAYMENT",
+      amount: amountKes,
+      api_ref: apiRef,
+      email,
+      first_name: firstName || undefined,
+      last_name: rest.join(" ") || undefined,
+      redirect_url: redirectUrl,
+      card_tarrif: "BUSINESS-PAYS",
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`IntaSend checkout request failed: ${res.status} ${await res.text()}`);
+  }
+
+  return (await res.json()) as CheckoutResponse;
+}
+
 type PayoutResponse = {
   tracking_id: string;
   status: string;
