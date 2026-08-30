@@ -1,9 +1,12 @@
 import { requireAdmin } from "@/lib/require-admin";
 import { toCsv } from "@/lib/csv";
 import { formatDate } from "@/lib/format";
+import { expireStalePayments } from "@/lib/payments/expire-stale";
 
 export async function GET() {
   const { supabase } = await requireAdmin();
+
+  await expireStalePayments();
 
   const { data: orders } = await supabase
     .from("orders")

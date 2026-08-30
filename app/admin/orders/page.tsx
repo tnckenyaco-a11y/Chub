@@ -10,6 +10,7 @@ import {
 import { SubmitButton } from "@/components/submit-button";
 import { AutoSubmitSelect } from "@/components/auto-submit-select";
 import { formatDate } from "@/lib/format";
+import { expireStalePayments } from "@/lib/payments/expire-stale";
 
 const statusStyle: Record<string, string> = {
   pending_payment: "bg-ink/8 text-ink/55",
@@ -42,6 +43,8 @@ export default async function AdminOrdersPage({
 }) {
   const { status } = await searchParams;
   const supabase = await createClient();
+
+  await expireStalePayments();
 
   let query = supabase
     .from("orders")

@@ -11,6 +11,7 @@ import {
 import { requestAdvance } from "@/app/dashboard/advances/actions";
 import { getAdvanceEligibility } from "@/lib/finance/advance-eligibility";
 import { getSitePage } from "@/lib/site-pages";
+import { expireStalePayments } from "@/lib/payments/expire-stale";
 
 const MANUAL_PAYMENTS = process.env.PAYMENT_PROVIDER === "manual";
 
@@ -34,6 +35,8 @@ export default async function OrderDetailPage({
   const { id } = await params;
   const { checkout, error } = await searchParams;
   const supabase = await createClient();
+
+  await expireStalePayments();
 
   const { data: order } = await supabase
     .from("orders")
