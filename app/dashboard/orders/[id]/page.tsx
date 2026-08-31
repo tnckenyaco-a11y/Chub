@@ -12,6 +12,9 @@ import { requestAdvance } from "@/app/dashboard/advances/actions";
 import { getAdvanceEligibility } from "@/lib/finance/advance-eligibility";
 import { getSitePage } from "@/lib/site-pages";
 import { expireStalePayments } from "@/lib/payments/expire-stale";
+import { retryOrderPayment } from "@/app/checkout/actions";
+import { CheckoutMethodFields } from "@/components/checkout-method-fields";
+import { SubmitButton } from "@/components/submit-button";
 
 const MANUAL_PAYMENTS = process.env.PAYMENT_PROVIDER === "manual";
 
@@ -90,7 +93,11 @@ export default async function OrderDetailPage({
       ? (await getSitePage<ManualPaymentInstructions>("manual_payment_instructions"))?.content
       : null;
 
+  const collectionPayment = payments?.find((p) => p.kind === "collection");
+  const paymentFailed = order.status === "pending_payment" && collectionPayment?.status === "failed";
+
   const startWork = markInProgress.bind(null, id);
+  const retry = retryOrderPayment.bind(null, id);
   const deliver = markDelivered.bind(null, id);
   const release = approveAndRelease.bind(null, id);
   const dispute_ = raiseDispute.bind(null, id);
@@ -136,8 +143,31 @@ export default async function OrderDetailPage({
           <p className="mt-2 text-sm text-ink/60">{manualInstructions.note}</p>
         </div>
       )}
-      {order.status === "pending_payment" && !manualInstructions && (
+      {order.status === "pending_payment" && !manualInstructions && !paymentFailed && (
         <p className="mt-8 text-sm text-ink/50">Waiting for M-Pesa payment confirmation…</p>
+      )}
+
+      {paymentFailed && isBrand && (
+        <div className="mt-8 rounded-2xl border border-magenta/30 bg-magenta/5 p-5">
+          <p className="text-sm font-semibold text-magenta">Payment didn&apos;t go through</p>
+          <p className="mt-1 text-sm text-ink/60">
+            The payment attempt timed out or failed. Try again below.
+          </p>
+          <form action={retry} className="mt-4 space-y-2">
+            <CheckoutMethodFields />
+            <SubmitButton
+              pendingText="Retrying…"
+              className="w-full justify-center rounded-full bg-grad-brand px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
+            >
+              Try Again
+            </SubmitButton>
+          </form>
+        </div>
+      )}
+      {paymentFailed && !isBrand && (
+        <p className="mt-8 text-sm text-ink/50">
+          The brand&apos;s payment attempt didn&apos;t go through — waiting for them to try again.
+        </p>
       )}
 
       {order.status === "paid" && !isBrand && (

@@ -88,24 +88,36 @@ export async function updateProject(id: string, formData: FormData) {
 }
 
 export async function closeProject(id: string) {
-  await requireBrand();
+  const profile = await requireBrand();
   const supabase = await createClient();
-  await supabase.from("projects").update({ status: "archived" }).eq("id", id);
+  await supabase.from("projects").update({ status: "archived" }).eq("id", id).eq("brand_id", profile.id);
   revalidatePath("/dashboard/projects");
   revalidatePath(`/dashboard/projects/${id}`);
 }
 
 export async function deleteProject(id: string) {
-  await requireBrand();
+  const profile = await requireBrand();
   const supabase = await createClient();
-  await supabase.from("projects").delete().eq("id", id);
+  await supabase.from("projects").delete().eq("id", id).eq("brand_id", profile.id);
   revalidatePath("/dashboard/projects");
   redirect("/dashboard/projects");
+}
+
+async function requireOwnedProject(supabase: Awaited<ReturnType<typeof createClient>>, projectId: string, brandId: string) {
+  const { data: project } = await supabase
+    .from("projects")
+    .select("id")
+    .eq("id", projectId)
+    .eq("brand_id", brandId)
+    .maybeSingle();
+  return Boolean(project);
 }
 
 export async function addProjectImage(projectId: string, formData: FormData) {
   const profile = await requireBrand();
   const supabase = await createClient();
+
+  if (!(await requireOwnedProject(supabase, projectId, profile.id))) return;
 
   const file = formData.get("file") as File | null;
   if (!file || file.size === 0) return;
@@ -126,15 +138,27 @@ export async function addProjectImage(projectId: string, formData: FormData) {
 }
 
 export async function deleteProjectImage(projectId: string, imageId: string) {
-  await requireBrand();
+  const profile = await requireBrand();
   const supabase = await createClient();
-  await supabase.from("project_images").delete().eq("id", imageId);
+
+  if (!(await requireOwnedProject(supabase, projectId, profile.id))) return;
+
+  await supabase.from("project_images").delete().eq("id", imageId).eq("project_id", projectId);
   revalidatePath(`/dashboard/projects/${projectId}`);
 }
 
 export async function decideProposal(id: string, status: "accepted" | "rejected") {
-  await requireBrand();
+  const profile = await requireBrand();
   const supabase = await createClient();
+
+  const { data: existing } = await supabase
+    .from("proposals")
+    .select("project_id, projects(brand_id)")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (!existing || existing.projects?.brand_id !== profile.id) return;
+
   const { data: proposal } = await supabase
     .from("proposals")
     .update({ status })
@@ -212,8 +236,17 @@ export async function inviteCreativeToProject(creativeId: string, formData: Form
 }
 
 export async function withdrawSquadInvite(id: string) {
-  await requireBrand();
+  const profile = await requireBrand();
   const supabase = await createClient();
+
+  const { data: existing } = await supabase
+    .from("project_squad_invites")
+    .select("project_id, projects(brand_id)")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (!existing || existing.projects?.brand_id !== profile.id) return;
+
   const { data: invite } = await supabase
     .from("project_squad_invites")
     .update({ status: "withdrawn" })

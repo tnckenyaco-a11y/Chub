@@ -85,16 +85,28 @@ export async function updateService(id: string, formData: FormData) {
 }
 
 export async function deleteService(id: string) {
-  await requireCreative();
+  const profile = await requireCreative();
   const supabase = await createClient();
-  await supabase.from("services").delete().eq("id", id);
+  await supabase.from("services").delete().eq("id", id).eq("creative_id", profile.id);
   revalidatePath("/dashboard/services");
   redirect("/dashboard/services");
 }
 
+async function requireOwnedService(supabase: Awaited<ReturnType<typeof createClient>>, serviceId: string, creativeId: string) {
+  const { data: service } = await supabase
+    .from("services")
+    .select("id")
+    .eq("id", serviceId)
+    .eq("creative_id", creativeId)
+    .maybeSingle();
+  return Boolean(service);
+}
+
 export async function addPackage(serviceId: string, formData: FormData) {
-  await requireCreative();
+  const profile = await requireCreative();
   const supabase = await createClient();
+
+  if (!(await requireOwnedService(supabase, serviceId, profile.id))) return;
 
   await supabase.from("service_packages").insert({
     service_id: serviceId,
@@ -109,15 +121,20 @@ export async function addPackage(serviceId: string, formData: FormData) {
 }
 
 export async function deletePackage(serviceId: string, packageId: string) {
-  await requireCreative();
+  const profile = await requireCreative();
   const supabase = await createClient();
-  await supabase.from("service_packages").delete().eq("id", packageId);
+
+  if (!(await requireOwnedService(supabase, serviceId, profile.id))) return;
+
+  await supabase.from("service_packages").delete().eq("id", packageId).eq("service_id", serviceId);
   revalidatePath(`/dashboard/services/${serviceId}`);
 }
 
 export async function addServiceImage(serviceId: string, formData: FormData) {
   const profile = await requireCreative();
   const supabase = await createClient();
+
+  if (!(await requireOwnedService(supabase, serviceId, profile.id))) return;
 
   const file = formData.get("file") as File | null;
   if (!file || file.size === 0) return;
@@ -138,8 +155,11 @@ export async function addServiceImage(serviceId: string, formData: FormData) {
 }
 
 export async function deleteServiceImage(serviceId: string, imageId: string) {
-  await requireCreative();
+  const profile = await requireCreative();
   const supabase = await createClient();
-  await supabase.from("service_images").delete().eq("id", imageId);
+
+  if (!(await requireOwnedService(supabase, serviceId, profile.id))) return;
+
+  await supabase.from("service_images").delete().eq("id", imageId).eq("service_id", serviceId);
   revalidatePath(`/dashboard/services/${serviceId}`);
 }

@@ -21,6 +21,14 @@ export async function sendMessage(conversationId: string, formData: FormData) {
 
   const supabase = await createClient();
 
+  const { data: conversation } = await supabase
+    .from("conversations")
+    .select("id")
+    .eq("id", conversationId)
+    .or(`user_one_id.eq.${profile.id},user_two_id.eq.${profile.id}`)
+    .maybeSingle();
+  if (!conversation) throw new Error("You're not part of this conversation.");
+
   let attachmentPath: string | null = null;
   let attachmentType: "image" | "pdf" | null = null;
   if (file && file.size > 0) {
