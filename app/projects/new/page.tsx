@@ -3,6 +3,7 @@ import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 import { createProject } from "@/app/dashboard/projects/actions";
 import { BriefField } from "@/components/projects/brief-field";
+import { SubmitButton } from "@/components/submit-button";
 
 export default async function NewProjectPage({
   searchParams,
@@ -124,12 +125,12 @@ export default async function NewProjectPage({
           </label>
         </div>
 
-        <button
-          type="submit"
+        <SubmitButton
+          pendingText="Submitting…"
           className="rounded-full bg-grad-brand px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
         >
           Submit for Review
-        </button>
+        </SubmitButton>
       </form>
     </div>
   );

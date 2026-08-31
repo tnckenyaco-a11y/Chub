@@ -8,7 +8,9 @@ const BASE_URL =
 
 function callbackUrl(path: string) {
   const base = process.env.DARAJA_CALLBACK_BASE_URL?.replace(/\/$/, "") ?? "";
-  return `${base}${path}`;
+  const secret = process.env.DARAJA_CALLBACK_SECRET;
+  const query = secret ? `?secret=${encodeURIComponent(secret)}` : "";
+  return `${base}${path}${query}`;
 }
 
 let cachedToken: { token: string; expiresAt: number } | null = null;

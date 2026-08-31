@@ -26,7 +26,7 @@ export default async function SettingsPage() {
           <p className="mt-1 capitalize text-ink">{profile.role}</p>
         </div>
         <a
-          href="/sign-in"
+          href="/forgot-password"
           className="inline-block text-sm font-semibold text-brand hover:underline"
         >
           Reset your password →

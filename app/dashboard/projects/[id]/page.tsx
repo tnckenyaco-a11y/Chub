@@ -15,6 +15,7 @@ import {
 import { initiateProposalCheckout, initiateSquadCheckout } from "@/app/checkout/actions";
 import { AutoSubmitFileInput } from "@/components/auto-submit-file-input";
 import { CheckoutMethodFields } from "@/components/checkout-method-fields";
+import { SubmitButton } from "@/components/submit-button";
 
 export default async function EditProjectPage({
   params,
@@ -162,12 +163,12 @@ export default async function EditProjectPage({
             ))}
           </select>
         </label>
-        <button
-          type="submit"
+        <SubmitButton
+          pendingText="Saving…"
           className="rounded-full bg-grad-brand px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
         >
           Save
-        </button>
+        </SubmitButton>
       </form>
 
       <section className="mt-14 max-w-2xl">
@@ -182,12 +183,12 @@ export default async function EditProjectPage({
                   style={{ backgroundImage: `url(${img.file_url})` }}
                 />
                 <form action={removeImg}>
-                  <button
-                    type="submit"
-                    className="w-full py-1.5 text-xs text-ink/40 hover:text-magenta"
+                  <SubmitButton
+                    pendingText="Removing…"
+                    className="w-full justify-center py-1.5 text-xs text-ink/40 hover:text-magenta"
                   >
                     Remove
-                  </button>
+                  </SubmitButton>
                 </form>
               </div>
             );
@@ -221,20 +222,14 @@ export default async function EditProjectPage({
                 {p.status === "pending" && (
                   <div className="mt-4 flex gap-3">
                     <form action={accept}>
-                      <button
-                        type="submit"
-                        className="rounded-full bg-grad-brand px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
-                      >
+                      <SubmitButton className="rounded-full bg-grad-brand px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90">
                         Accept
-                      </button>
+                      </SubmitButton>
                     </form>
                     <form action={reject}>
-                      <button
-                        type="submit"
-                        className="rounded-full border border-magenta/40 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-magenta"
-                      >
+                      <SubmitButton className="rounded-full border border-magenta/40 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-magenta">
                         Reject
-                      </button>
+                      </SubmitButton>
                     </form>
                   </div>
                 )}
@@ -250,12 +245,12 @@ export default async function EditProjectPage({
                     ) : (
                       <form action={initiateProposalCheckout.bind(null, p.id)} className="space-y-2">
                         <CheckoutMethodFields compact />
-                        <button
-                          type="submit"
+                        <SubmitButton
+                          pendingText="Processing…"
                           className="rounded-full bg-grad-brand px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
                         >
                           Pay &amp; Start (Ksh {p.rate.toLocaleString()})
-                        </button>
+                        </SubmitButton>
                       </form>
                     )}
                   </div>
@@ -322,12 +317,12 @@ export default async function EditProjectPage({
               className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand"
             />
           </label>
-          <button
-            type="submit"
+          <SubmitButton
+            pendingText="Inviting…"
             className="rounded-full bg-grad-volt px-5 py-2.5 text-xs font-bold uppercase tracking-wide text-ink shadow-sm transition hover:opacity-90"
           >
             Invite
-          </button>
+          </SubmitButton>
         </form>
 
         <div className="mt-4 space-y-4">
@@ -349,9 +344,12 @@ export default async function EditProjectPage({
                   <span className="text-xs uppercase text-ink/40">{s.status}</span>
                   {s.status !== "withdrawn" && !orderBySquadInvite.has(s.id) && (
                     <form action={withdraw}>
-                      <button type="submit" className="text-xs text-ink/40 hover:text-magenta">
+                      <SubmitButton
+                        pendingText="Withdrawing…"
+                        className="text-xs text-ink/40 hover:text-magenta"
+                      >
                         Withdraw
-                      </button>
+                      </SubmitButton>
                     </form>
                   )}
                 </div>
@@ -367,12 +365,12 @@ export default async function EditProjectPage({
                     ) : (
                       <form action={initiateSquadCheckout.bind(null, s.id)} className="space-y-2">
                         <CheckoutMethodFields compact />
-                        <button
-                          type="submit"
+                        <SubmitButton
+                          pendingText="Processing…"
                           className="rounded-full bg-grad-brand px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
                         >
                           Pay &amp; Start (Ksh {s.rate_kes.toLocaleString()})
-                        </button>
+                        </SubmitButton>
                       </form>
                     )}
                   </div>
@@ -386,20 +384,18 @@ export default async function EditProjectPage({
 
       <div className="mt-10 flex flex-wrap gap-3">
         <form action={close}>
-          <button
-            type="submit"
-            className="rounded-full border border-line px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink hover:border-ink"
-          >
+          <SubmitButton className="rounded-full border border-line px-6 py-3 text-sm font-semibold uppercase tracking-wide text-ink hover:border-ink">
             Close Project
-          </button>
+          </SubmitButton>
         </form>
         <form action={remove}>
-          <button
-            type="submit"
+          <SubmitButton
+            pendingText="Deleting…"
+            confirmMessage="Permanently delete this project? This cannot be undone."
             className="rounded-full border border-magenta/40 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-magenta hover:border-magenta"
           >
             Delete Project
-          </button>
+          </SubmitButton>
         </form>
       </div>
     </div>

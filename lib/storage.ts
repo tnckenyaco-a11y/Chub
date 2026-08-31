@@ -10,16 +10,53 @@ const ALLOWED_TYPES = new Set([
   "application/pdf",
 ]);
 
-export function validateUpload(file: File) {
-  if (file.size > MAX_BYTES) return "File must be under 10MB.";
-  if (!ALLOWED_TYPES.has(file.type)) return "Only images and PDFs are allowed.";
+const EXTENSION_BY_TYPE: Record<string, string> = {
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "image/webp": "webp",
+  "image/gif": "gif",
+  "application/pdf": "pdf",
+};
+
+// The client-supplied Content-Type on a multipart upload can't be trusted on
+// its own — a crafted request can declare any type it likes. This checks the
+// actual leading bytes against known signatures for the types we accept.
+async function sniffType(file: File): Promise<string | null> {
+  const buf = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+
+  if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) return "image/png";
+  if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return "image/jpeg";
+  if (buf[0] === 0x47 && buf[1] === 0x49 && buf[2] === 0x46 && buf[3] === 0x38) return "image/gif";
+  if (
+    buf[0] === 0x52 &&
+    buf[1] === 0x49 &&
+    buf[2] === 0x46 &&
+    buf[3] === 0x46 && // "RIFF"
+    buf[8] === 0x57 &&
+    buf[9] === 0x45 &&
+    buf[10] === 0x42 &&
+    buf[11] === 0x50 // "WEBP"
+  )
+    return "image/webp";
+  if (buf[0] === 0x25 && buf[1] === 0x50 && buf[2] === 0x44 && buf[3] === 0x46) return "application/pdf";
+
   return null;
 }
 
-function extensionFor(file: File) {
-  const fromName = file.name.split(".").pop();
-  if (fromName && fromName.length <= 5) return fromName.toLowerCase();
-  return file.type === "application/pdf" ? "pdf" : "png";
+export async function validateUpload(file: File): Promise<string | null> {
+  if (file.size > MAX_BYTES) return "File must be under 10MB.";
+  if (!ALLOWED_TYPES.has(file.type)) return "Only images and PDFs are allowed.";
+
+  const sniffed = await sniffType(file);
+  if (!sniffed || sniffed !== file.type) return "File content doesn't match its declared type.";
+
+  return null;
+}
+
+// Derived from the (now content-verified) declared type — never from the
+// client-supplied filename, which is untrusted input.
+function extensionFor(mimeType: string) {
+  return EXTENSION_BY_TYPE[mimeType] ?? "bin";
 }
 
 export async function uploadPublicMedia(
@@ -28,10 +65,10 @@ export async function uploadPublicMedia(
   folder: "avatar" | "cover" | "portfolio" | "service" | "project" | "branding" | "brief",
   file: File
 ) {
-  const error = validateUpload(file);
+  const error = await validateUpload(file);
   if (error) throw new Error(error);
 
-  const path = `${userId}/${folder}/${crypto.randomUUID()}.${extensionFor(file)}`;
+  const path = `${userId}/${folder}/${crypto.randomUUID()}.${extensionFor(file.type)}`;
   const { error: uploadError } = await supabase.storage
     .from("public-media")
     .upload(path, file, { contentType: file.type, upsert: false });
@@ -51,10 +88,10 @@ export async function uploadMessageAttachment(
   conversationId: string,
   file: File
 ) {
-  const error = validateUpload(file);
+  const error = await validateUpload(file);
   if (error) throw new Error(error);
 
-  const path = `${conversationId}/${crypto.randomUUID()}.${extensionFor(file)}`;
+  const path = `${conversationId}/${crypto.randomUUID()}.${extensionFor(file.type)}`;
   const { error: uploadError } = await supabase.storage
     .from("message-attachments")
     .upload(path, file, { contentType: file.type, upsert: false });

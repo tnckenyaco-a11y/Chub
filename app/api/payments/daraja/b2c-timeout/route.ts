@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
+import { verifyDarajaCallback } from "@/lib/payments/verify-daraja-callback";
 
 // Safaricom requires a QueueTimeOutURL registered alongside ResultURL for
 // every B2C request, even though a timeout should be rare — if the payout
@@ -16,6 +17,8 @@ type B2CTimeoutBody = {
 const ACK = { ResultCode: 0, ResultDesc: "Accepted" };
 
 export async function POST(request: Request) {
+  if (!verifyDarajaCallback(request)) return NextResponse.json(ACK);
+
   const body = (await request.json().catch(() => null)) as B2CTimeoutBody | null;
   const result = body?.Result;
   if (!result) return NextResponse.json(ACK);

@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/current-user";
 import { submitProposal } from "@/app/proposals/actions";
 import { ImageGallery } from "@/components/image-gallery";
+import { SubmitButton } from "@/components/submit-button";
 
 export async function generateMetadata({
   params,
@@ -172,12 +173,12 @@ export default async function ProjectDetailPage({
                       className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-3 text-ink outline-none focus:border-brand"
                     />
                   </label>
-                  <button
-                    type="submit"
-                    className="w-full rounded-full bg-grad-brand px-5 py-3 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
+                  <SubmitButton
+                    pendingText="Sending…"
+                    className="w-full justify-center rounded-full bg-grad-brand px-5 py-3 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
                   >
                     Send Proposal
-                  </button>
+                  </SubmitButton>
                 </form>
               )
             ) : (

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 import { uploadPublicMedia, fileKind } from "@/lib/storage";
@@ -40,6 +41,7 @@ export async function updateProfileDetails(formData: FormData) {
     .eq("id", profile.id);
 
   revalidatePath("/dashboard/profile");
+  redirect("/dashboard/profile?saved=1");
 }
 
 async function uploadAndSave(

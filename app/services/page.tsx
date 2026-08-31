@@ -16,9 +16,9 @@ export const metadata: Metadata = {
 export default async function ServicesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; q?: string }>;
+  searchParams: Promise<{ category?: string; q?: string; error?: string }>;
 }) {
-  const { category, q } = await searchParams;
+  const { category, q, error } = await searchParams;
   const supabase = await createClient();
 
   const [{ data: categories }, { data: services }] = await Promise.all([
@@ -72,6 +72,11 @@ export default async function ServicesPage({
       />
 
       <div className="mx-auto max-w-7xl px-6 py-12 lg:px-10">
+        {error && (
+          <p className="mb-6 rounded-lg border border-magenta/40 bg-magenta/10 px-4 py-3 text-sm text-magenta">
+            {error}
+          </p>
+        )}
         <div className="flex flex-wrap gap-2">
           <Link
             href="/services"

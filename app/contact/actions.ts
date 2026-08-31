@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 
 export async function submitContactMessage(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
@@ -11,6 +12,10 @@ export async function submitContactMessage(formData: FormData) {
 
   if (!name || !email || !message) {
     redirect("/contact?error=Please+fill+in+your+name%2C+email+and+message.");
+  }
+
+  if (!(await checkRateLimit(`contact:${await clientIp()}`, 5, 60))) {
+    redirect(`/contact?error=${encodeURIComponent("Too many attempts. Try again later.")}`);
   }
 
   const supabase = await createClient();

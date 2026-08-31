@@ -24,13 +24,13 @@ export function ProfileTabs({
 
   return (
     <div>
-      <div className="flex gap-8 border-b border-line">
+      <div className="flex gap-8 overflow-x-auto border-b border-line">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             type="button"
             onClick={() => setActive(tab.id)}
-            className={`-mb-px border-b-2 pb-3 text-sm font-semibold transition ${
+            className={`-mb-px shrink-0 whitespace-nowrap border-b-2 pb-3 text-sm font-semibold transition ${
               active === tab.id
                 ? "border-brand text-brand"
                 : "border-transparent text-ink/45 hover:text-ink"

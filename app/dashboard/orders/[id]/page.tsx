@@ -172,34 +172,35 @@ export default async function OrderDetailPage({
 
       {order.status === "paid" && !isBrand && (
         <form action={startWork} className="mt-8">
-          <button
-            type="submit"
+          <SubmitButton
+            pendingText="Starting…"
             className="rounded-full bg-grad-brand px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
           >
             Start Work
-          </button>
+          </SubmitButton>
         </form>
       )}
 
       {order.status === "in_progress" && !isBrand && (
         <form action={deliver} className="mt-8">
-          <button
-            type="submit"
+          <SubmitButton
+            pendingText="Marking…"
             className="rounded-full bg-grad-brand px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
           >
             Mark Delivered
-          </button>
+          </SubmitButton>
         </form>
       )}
 
       {order.status === "delivered" && isBrand && (
         <form action={release} className="mt-8">
-          <button
-            type="submit"
+          <SubmitButton
+            pendingText="Releasing…"
+            confirmMessage="Release payment to the creative? This cannot be undone."
             className="rounded-full bg-grad-brand px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
           >
             Approve &amp; Release Payment
-          </button>
+          </SubmitButton>
         </form>
       )}
 
@@ -267,12 +268,12 @@ export default async function OrderDetailPage({
               placeholder="Amount in Ksh"
               className="w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-sm text-ink outline-none focus:border-brand"
             />
-            <button
-              type="submit"
+            <SubmitButton
+              pendingText="Requesting…"
               className="rounded-full border border-brand/40 px-5 py-2.5 text-xs font-semibold uppercase tracking-wide text-brand"
             >
               Request Advance
-            </button>
+            </SubmitButton>
           </form>
         </details>
       )}
@@ -301,12 +302,12 @@ export default async function OrderDetailPage({
                 placeholder="What went wrong?"
                 className="w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-sm text-ink outline-none focus:border-magenta"
               />
-              <button
-                type="submit"
+              <SubmitButton
+                pendingText="Submitting…"
                 className="rounded-full border border-magenta/40 px-5 py-2.5 text-xs font-semibold uppercase tracking-wide text-magenta"
               >
                 Submit Dispute
-              </button>
+              </SubmitButton>
             </form>
           </details>
         )
@@ -328,12 +329,12 @@ export default async function OrderDetailPage({
             placeholder="Share details of your experience…"
             className="w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-sm text-ink outline-none focus:border-brand"
           />
-          <button
-            type="submit"
+          <SubmitButton
+            pendingText="Submitting…"
             className="rounded-full bg-grad-brand px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
           >
             Submit Review
-          </button>
+          </SubmitButton>
         </form>
       )}
     </div>

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { signIn } from "@/app/(auth)/actions";
 import { getBranding } from "@/lib/branding";
+import { SubmitButton } from "@/components/submit-button";
 
 export default async function SignInPage({
   searchParams,
@@ -89,12 +90,12 @@ export default async function SignInPage({
                 className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2.5 text-ink outline-none focus:border-brand"
               />
             </label>
-            <button
-              type="submit"
-              className="w-full rounded-full bg-grad-brand px-6 py-3.5 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
+            <SubmitButton
+              pendingText="Signing in…"
+              className="w-full justify-center rounded-full bg-grad-brand px-6 py-3.5 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
             >
               Sign In
-            </button>
+            </SubmitButton>
           </form>
         </div>
       </div>

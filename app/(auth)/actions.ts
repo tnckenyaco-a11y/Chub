@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { siteOrigin } from "@/lib/site-origin";
+import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 
 // Sign-in accepts a username as well as an email — usernames aren't stored
 // with an email address (that lives in auth.users, not public.profiles), so
@@ -29,6 +30,10 @@ async function emailForUsername(username: string): Promise<string | null> {
 
 export async function signUp(formData: FormData) {
   const role = formData.get("role") === "creative" ? "creative" : "brand";
+
+  if (!(await checkRateLimit(`signup:${await clientIp()}`, 5, 60))) {
+    redirect(`/sign-up?error=${encodeURIComponent("Too many attempts. Try again later.")}&role=${role}`);
+  }
   const firstName = String(formData.get("first_name") ?? "").trim();
   const lastName = String(formData.get("last_name") ?? "").trim();
   const username = String(formData.get("username") ?? "").trim();
@@ -108,6 +113,10 @@ export async function requestPasswordReset(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
   if (!email) {
     redirect(`/forgot-password?error=${encodeURIComponent("Enter your email address.")}`);
+  }
+
+  if (!(await checkRateLimit(`password-reset:${await clientIp()}`, 5, 60))) {
+    redirect(`/forgot-password?error=${encodeURIComponent("Too many attempts. Try again later.")}`);
   }
 
   const supabase = await createClient();

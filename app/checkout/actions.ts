@@ -194,17 +194,18 @@ export async function initiateServiceCheckout(packageId: string, formData: FormD
 }
 
 export async function initiateProposalCheckout(proposalId: string, formData: FormData) {
+  const profile = await requireBrand();
   const supabase = await createClient();
   const phoneNumber = String(formData.get("phone_number") ?? "");
   const paymentMethod = formData.get("payment_method") === "card" ? "card" : "mpesa";
 
   const { data: proposal } = await supabase
     .from("proposals")
-    .select("rate, creative_id, project_id, status")
+    .select("rate, creative_id, project_id, status, projects(brand_id)")
     .eq("id", proposalId)
     .maybeSingle();
 
-  if (!proposal || proposal.status !== "accepted") {
+  if (!proposal || proposal.status !== "accepted" || proposal.projects?.brand_id !== profile.id) {
     redirect("/dashboard/projects?error=Proposal+not+ready+for+checkout.");
   }
 
@@ -218,17 +219,18 @@ export async function initiateProposalCheckout(proposalId: string, formData: For
 }
 
 export async function initiateSquadCheckout(squadInviteId: string, formData: FormData) {
+  const profile = await requireBrand();
   const supabase = await createClient();
   const phoneNumber = String(formData.get("phone_number") ?? "");
   const paymentMethod = formData.get("payment_method") === "card" ? "card" : "mpesa";
 
   const { data: invite } = await supabase
     .from("project_squad_invites")
-    .select("rate_kes, creative_id, project_id, status")
+    .select("rate_kes, creative_id, project_id, status, projects(brand_id)")
     .eq("id", squadInviteId)
     .maybeSingle();
 
-  if (!invite || invite.status !== "accepted") {
+  if (!invite || invite.status !== "accepted" || invite.projects?.brand_id !== profile.id) {
     redirect("/dashboard/projects?error=Squad+member+not+ready+for+checkout.");
   }
 

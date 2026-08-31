@@ -2,6 +2,7 @@ import { forbidden } from "next/navigation";
 import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 import { createService } from "@/app/dashboard/services/actions";
+import { SubmitButton } from "@/components/submit-button";
 
 export default async function NewServicePage({
   searchParams,
@@ -135,12 +136,12 @@ export default async function NewServicePage({
           </div>
         </div>
 
-        <button
-          type="submit"
+        <SubmitButton
+          pendingText="Submitting…"
           className="rounded-full bg-grad-brand px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
         >
           Submit for Review
-        </button>
+        </SubmitButton>
       </form>
     </div>
   );

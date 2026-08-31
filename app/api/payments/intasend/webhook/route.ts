@@ -1,6 +1,18 @@
 import { NextResponse } from "next/server";
+import { timingSafeEqual } from "crypto";
 import { createServiceClient } from "@/lib/supabase/service";
 import { notifyOrderPaid, notifyPayoutCompleted } from "@/lib/email/notify";
+
+// Plain !== leaks timing information about how many leading characters
+// matched — irrelevant for most checks, but this challenge is the entire
+// trust boundary for marking orders paid, so it's worth doing properly.
+function safeEqual(a: string | undefined, b: string | undefined): boolean {
+  if (!a || !b) return false;
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return timingSafeEqual(bufA, bufB);
+}
 
 // IntaSend collection (STK push) event — has invoice_id + state + challenge.
 type CollectionEvent = {
@@ -20,7 +32,7 @@ type PayoutEvent = {
 export async function POST(request: Request) {
   const body = (await request.json()) as CollectionEvent | PayoutEvent;
 
-  if (body.challenge !== process.env.INTASEND_WEBHOOK_CHALLENGE) {
+  if (!safeEqual(body.challenge, process.env.INTASEND_WEBHOOK_CHALLENGE)) {
     return NextResponse.json({ error: "Invalid challenge" }, { status: 401 });
   }
 

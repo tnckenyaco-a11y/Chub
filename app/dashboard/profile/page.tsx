@@ -8,6 +8,7 @@ import {
   uploadCover,
 } from "@/app/dashboard/profile/actions";
 import { AutoSubmitFileInput } from "@/components/auto-submit-file-input";
+import { SubmitButton } from "@/components/submit-button";
 
 type SocialLinks = {
   instagram?: string;
@@ -17,8 +18,13 @@ type SocialLinks = {
   youtube?: string;
 };
 
-export default async function ProfilePage() {
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ saved?: string }>;
+}) {
   const profile = await requireProfile();
+  const { saved } = await searchParams;
   const supabase = await createClient();
 
   const [{ data: full }, { data: portfolio }] = await Promise.all([
@@ -39,6 +45,12 @@ export default async function ProfilePage() {
   return (
     <div className="max-w-3xl">
       <h1 className="font-display text-3xl text-ink">Profile</h1>
+
+      {saved && (
+        <p className="mt-6 rounded-lg border border-green/40 bg-green/10 px-4 py-3 text-sm text-green">
+          Profile saved.
+        </p>
+      )}
 
       {/* Avatar + cover uploads */}
       <div className="mt-8 grid gap-6 sm:grid-cols-2">
@@ -110,12 +122,12 @@ export default async function ProfilePage() {
           </div>
         </fieldset>
 
-        <button
-          type="submit"
+        <SubmitButton
+          pendingText="Saving…"
           className="rounded-full bg-grad-brand px-6 py-3 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
         >
           Save
-        </button>
+        </SubmitButton>
       </form>
 
       {/* Portfolio */}

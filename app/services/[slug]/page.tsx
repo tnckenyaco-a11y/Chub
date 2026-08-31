@@ -7,6 +7,7 @@ import { getCurrentProfile } from "@/lib/current-user";
 import { initiateServiceCheckout } from "@/app/checkout/actions";
 import { ImageGallery } from "@/components/image-gallery";
 import { CheckoutMethodFields } from "@/components/checkout-method-fields";
+import { SubmitButton } from "@/components/submit-button";
 
 export async function generateMetadata({
   params,
@@ -138,12 +139,12 @@ export default async function ServiceDetailPage({
               {viewer?.role === "brand" ? (
                 <form action={checkout} className="mt-4 space-y-2">
                   <CheckoutMethodFields />
-                  <button
-                    type="submit"
-                    className="w-full rounded-full bg-grad-brand px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
+                  <SubmitButton
+                    pendingText="Processing…"
+                    className="w-full justify-center rounded-full bg-grad-brand px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
                   >
                     Continue (Ksh {p.price_kes.toLocaleString()})
-                  </button>
+                  </SubmitButton>
                 </form>
               ) : (
                 <p className="mt-4 text-xs text-ink/40">Sign in as a brand to book this.</p>

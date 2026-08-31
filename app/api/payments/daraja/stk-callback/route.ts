@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
+import { verifyDarajaCallback } from "@/lib/payments/verify-daraja-callback";
 
 // Daraja's STK push callback shape — see
 // lib/payments/daraja.ts for where CheckoutRequestID first appears (the
@@ -23,6 +24,8 @@ type StkCallbackBody = {
 const ACK = { ResultCode: 0, ResultDesc: "Accepted" };
 
 export async function POST(request: Request) {
+  if (!verifyDarajaCallback(request)) return NextResponse.json(ACK);
+
   const body = (await request.json().catch(() => null)) as StkCallbackBody | null;
   const callback = body?.Body?.stkCallback;
   if (!callback) return NextResponse.json(ACK);

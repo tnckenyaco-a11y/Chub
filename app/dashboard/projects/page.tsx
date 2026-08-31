@@ -10,10 +10,15 @@ const statusStyle: Record<string, string> = {
   archived: "bg-ink/5 text-ink/35",
 };
 
-export default async function MyProjectsPage() {
+export default async function MyProjectsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   const profile = await requireProfile();
   if (profile.role !== "brand") forbidden();
 
+  const { error } = await searchParams;
   const supabase = await createClient();
   const { data: projects } = await supabase
     .from("projects")
@@ -32,6 +37,12 @@ export default async function MyProjectsPage() {
           Post a Project
         </Link>
       </div>
+
+      {error && (
+        <p className="mt-6 rounded-lg border border-magenta/40 bg-magenta/10 px-4 py-3 text-sm text-magenta">
+          {error}
+        </p>
+      )}
 
       <ul className="mt-8 space-y-2">
         {projects?.map((p) => (

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { notifyPayoutCompleted } from "@/lib/email/notify";
+import { verifyDarajaCallback } from "@/lib/payments/verify-daraja-callback";
 
 // Daraja's B2C result callback shape. Correlation is by ConversationID,
 // pre-inserted as provider_ref by lib/payments/release-payout.ts right after
@@ -20,6 +21,8 @@ type B2CResultBody = {
 const ACK = { ResultCode: 0, ResultDesc: "Accepted" };
 
 export async function POST(request: Request) {
+  if (!verifyDarajaCallback(request)) return NextResponse.json(ACK);
+
   const body = (await request.json().catch(() => null)) as B2CResultBody | null;
   const result = body?.Result;
   if (!result) return NextResponse.json(ACK);

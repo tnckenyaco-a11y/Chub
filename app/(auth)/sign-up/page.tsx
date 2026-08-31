@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ShieldCheck, Sparkles, Wallet } from "lucide-react";
 import { signUp } from "@/app/(auth)/actions";
 import { getBranding } from "@/lib/branding";
+import { SubmitButton } from "@/components/submit-button";
 
 const perks = [
   { icon: ShieldCheck, text: "Every creative profile is manually vetted before it goes live" },
@@ -118,12 +119,12 @@ export default async function SignUpPage({
             <Field label="Password" name="password" type="password" required />
             <Field label="Confirm password" name="confirm_password" type="password" required />
 
-            <button
-              type="submit"
-              className="w-full rounded-full bg-grad-brand px-6 py-3.5 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
+            <SubmitButton
+              pendingText="Signing up…"
+              className="w-full justify-center rounded-full bg-grad-brand px-6 py-3.5 text-sm font-semibold uppercase tracking-wide text-paper shadow-sm transition hover:opacity-90"
             >
               Sign Up
-            </button>
+            </SubmitButton>
           </form>
         </div>
       </div>
