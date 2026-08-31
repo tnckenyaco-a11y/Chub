@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 import { releasePayoutForOrder } from "@/lib/payments/release-payout";
+import { notifyOrderDelivered, notifyDisputeRaised } from "@/lib/email/notify";
 
 export async function markInProgress(orderId: string) {
   const profile = await requireProfile();
@@ -20,11 +21,14 @@ export async function markInProgress(orderId: string) {
 export async function markDelivered(orderId: string) {
   const profile = await requireProfile();
   const supabase = await createClient();
-  await supabase
+  const { data: updated } = await supabase
     .from("orders")
     .update({ status: "delivered" })
     .eq("id", orderId)
-    .eq("creative_id", profile.id);
+    .eq("creative_id", profile.id)
+    .select("id")
+    .maybeSingle();
+  if (updated) await notifyOrderDelivered(orderId);
   revalidatePath(`/dashboard/orders/${orderId}`);
 }
 
@@ -81,6 +85,7 @@ export async function raiseDispute(orderId: string, formData: FormData) {
   }
 
   await supabase.from("disputes").insert({ order_id: orderId, raised_by: profile.id, reason });
+  await notifyDisputeRaised(orderId, profile.id, reason);
   revalidatePath(`/dashboard/orders/${orderId}`);
   redirect(`/dashboard/orders/${orderId}`);
 }

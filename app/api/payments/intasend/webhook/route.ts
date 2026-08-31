@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
+import { notifyOrderPaid, notifyPayoutCompleted } from "@/lib/email/notify";
 
 // IntaSend collection (STK push) event — has invoice_id + state + challenge.
 type CollectionEvent = {
@@ -75,7 +76,14 @@ async function handleCollectionEvent(
   }
 
   if (status === "successful") {
-    await supabase.from("orders").update({ status: "paid" }).eq("id", orderId).eq("status", "pending_payment");
+    const { data: updated } = await supabase
+      .from("orders")
+      .update({ status: "paid" })
+      .eq("id", orderId)
+      .eq("status", "pending_payment")
+      .select("id")
+      .maybeSingle();
+    if (updated) await notifyOrderPaid(orderId);
   }
 }
 
@@ -90,9 +98,13 @@ async function handlePayoutEvent(
         ? "failed"
         : "pending";
 
-  await supabase
+  const { data: updated } = await supabase
     .from("payments")
     .update({ status, raw_callback: event })
     .eq("provider_ref", event.tracking_id)
-    .eq("kind", "payout");
+    .eq("kind", "payout")
+    .select("order_id")
+    .maybeSingle();
+
+  if (status === "successful" && updated) await notifyPayoutCompleted(updated.order_id);
 }

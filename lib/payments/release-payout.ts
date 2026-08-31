@@ -1,5 +1,6 @@
 import { createServiceClient } from "@/lib/supabase/service";
 import { initiatePayout } from "@/lib/payments/provider";
+import { notifyPayoutCompleted } from "@/lib/email/notify";
 
 // Called once an order reaches 'completed' (brand approval or admin dispute
 // resolution) to push the M-Pesa payout to the creative and record it.
@@ -92,6 +93,8 @@ export async function releasePayoutForOrder(orderId: string) {
       provider_ref: result.providerRef,
       raw_callback: result,
     });
+
+    if (result.syncStatus === "successful") await notifyPayoutCompleted(order.id);
   } catch (err) {
     await service.from("payments").insert({
       order_id: order.id,

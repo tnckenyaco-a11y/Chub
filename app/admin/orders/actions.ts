@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/require-admin";
 import { createServiceClient } from "@/lib/supabase/service";
+import { notifyOrderPaid, notifyPayoutCompleted } from "@/lib/email/notify";
 import type { Database } from "@/lib/supabase/types";
 
 type OrderStatus = Database["public"]["Enums"]["order_status"];
@@ -31,12 +32,15 @@ export async function confirmManualPayment(orderId: string) {
   }
 
   await supabase.from("payments").update({ status: "successful" }).eq("id", payment.id);
-  await supabase
+  const { data: updated } = await supabase
     .from("orders")
     .update({ status: "paid" })
     .eq("id", orderId)
-    .eq("status", "pending_payment");
+    .eq("status", "pending_payment")
+    .select("id")
+    .maybeSingle();
 
+  if (updated) await notifyOrderPaid(orderId);
   revalidatePath("/admin/orders");
 }
 
@@ -57,6 +61,7 @@ export async function confirmManualPayout(orderId: string) {
   }
 
   await supabase.from("payments").update({ status: "successful" }).eq("id", payment.id);
+  await notifyPayoutCompleted(orderId);
   revalidatePath("/admin/orders");
 }
 
@@ -79,15 +84,22 @@ export async function setPaymentStatus(paymentId: string, formData: FormData) {
     .select("order_id, kind")
     .single();
 
-  // Mirror confirmManualPayment: a collection payment turning successful
-  // should carry the order from pending_payment to paid, same as the
-  // IntaSend webhook does automatically.
-  if (payment && payment.kind === "collection" && status === "successful") {
-    await supabase
-      .from("orders")
-      .update({ status: "paid" })
-      .eq("id", payment.order_id)
-      .eq("status", "pending_payment");
+  if (payment && status === "successful") {
+    if (payment.kind === "collection") {
+      // Mirror confirmManualPayment: a collection payment turning
+      // successful should carry the order from pending_payment to paid,
+      // same as the IntaSend webhook does automatically.
+      const { data: updated } = await supabase
+        .from("orders")
+        .update({ status: "paid" })
+        .eq("id", payment.order_id)
+        .eq("status", "pending_payment")
+        .select("id")
+        .maybeSingle();
+      if (updated) await notifyOrderPaid(payment.order_id);
+    } else {
+      await notifyPayoutCompleted(payment.order_id);
+    }
   }
 
   revalidatePath("/admin/orders");

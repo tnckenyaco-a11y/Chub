@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
+import { notifyPayoutCompleted } from "@/lib/email/notify";
 
 // Daraja's B2C result callback shape. Correlation is by ConversationID,
 // pre-inserted as provider_ref by lib/payments/release-payout.ts right after
@@ -25,11 +26,15 @@ export async function POST(request: Request) {
 
   const status = result.ResultCode === 0 ? "successful" : "failed";
 
-  await createServiceClient()
+  const { data: updated } = await createServiceClient()
     .from("payments")
     .update({ status, raw_callback: result })
     .eq("provider_ref", result.ConversationID)
-    .eq("kind", "payout");
+    .eq("kind", "payout")
+    .select("order_id")
+    .maybeSingle();
+
+  if (status === "successful" && updated) await notifyPayoutCompleted(updated.order_id);
 
   return NextResponse.json(ACK);
 }
