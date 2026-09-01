@@ -51,6 +51,8 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+const SITE_URL = "https://chub.nyxcollective.africa";
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -62,7 +64,42 @@ export default async function RootLayout({
       data: { user },
     },
     branding,
-  ] = await Promise.all([supabase.auth.getUser(), getBranding()]);
+    identity,
+  ] = await Promise.all([supabase.auth.getUser(), getBranding(), getSiteIdentity()]);
+
+  // Organization + WebSite structured data — helps search engines understand
+  // the business (and can unlock a sitelinks search box in results) once the
+  // site is actually indexed. Content is admin-controlled (site_pages), not
+  // user input, so safe to inline directly.
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${SITE_URL}/#organization`,
+        name: identity.site_name,
+        legalName: identity.legal_name,
+        url: SITE_URL,
+        logo: identity.og_image_url ?? `${SITE_URL}/logo-icon-purple.png`,
+        description: identity.tagline,
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        name: identity.site_name,
+        url: SITE_URL,
+        publisher: { "@id": `${SITE_URL}/#organization` },
+        potentialAction: {
+          "@type": "SearchAction",
+          target: {
+            "@type": "EntryPoint",
+            urlTemplate: `${SITE_URL}/services?q={search_term_string}`,
+          },
+          "query-input": "required name=search_term_string",
+        },
+      },
+    ],
+  };
 
   // Custom branding is opt-in: only override the CSS vars when the admin has
   // actually changed a color, so an untouched install renders the defaults
@@ -87,6 +124,10 @@ export default async function RootLayout({
       className={`${dmSans.variable} ${playfair.variable} ${montserrat.variable} h-full`}
     >
       <body className="flex min-h-full flex-col bg-paper text-ink antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         {brandingStyle && <style dangerouslySetInnerHTML={{ __html: brandingStyle }} />}
         <SiteNav isSignedIn={Boolean(user)} logoUrl={branding.logo_dark_url} />
         <main className="flex-1">{children}</main>
