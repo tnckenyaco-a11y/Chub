@@ -2,18 +2,27 @@
 
 import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
-import { signMessageAttachment, uploadMessageAttachment, fileKind } from "@/lib/storage";
+import { signMessageAttachment, fileKind } from "@/lib/storage";
+import { verifyMessageAttachment } from "@/lib/message-attachment-verify";
 import { containsContactInfo, CONTACT_INFO_BLOCKED_MESSAGE } from "@/lib/contact-filter";
 
 // Returns the inserted row (rather than redirecting/revalidating) so the
 // client-side thread can reconcile its optimistic message immediately —
 // the realtime subscription also receives this same insert and dedupes by id.
+//
+// The attachment itself, if any, has already been uploaded directly from the
+// browser to Storage by the caller (see conversation-thread.tsx) — routing
+// it through this action's own request body would hit Vercel's 4.5MB
+// serverless function body limit for anything bigger than a small image.
+// This only receives the resulting storage path and re-verifies it
+// server-side before trusting it.
 export async function sendMessage(conversationId: string, formData: FormData) {
   const profile = await requireProfile();
   const body = String(formData.get("body") ?? "").trim();
-  const file = formData.get("attachment") as File | null;
+  const attachmentPath = String(formData.get("attachment_path") ?? "") || null;
+  const declaredMimeType = String(formData.get("attachment_type") ?? "");
 
-  if (!body && (!file || file.size === 0)) return null;
+  if (!body && !attachmentPath) return null;
 
   if (body && containsContactInfo(body)) {
     throw new Error(CONTACT_INFO_BLOCKED_MESSAGE);
@@ -29,11 +38,14 @@ export async function sendMessage(conversationId: string, formData: FormData) {
     .maybeSingle();
   if (!conversation) throw new Error("You're not part of this conversation.");
 
-  let attachmentPath: string | null = null;
   let attachmentType: "image" | "pdf" | null = null;
-  if (file && file.size > 0) {
-    attachmentPath = await uploadMessageAttachment(supabase, conversationId, file);
-    attachmentType = fileKind(file.type);
+  if (attachmentPath) {
+    if (!attachmentPath.startsWith(`${conversationId}/`)) {
+      throw new Error("Could not send message. Try again.");
+    }
+    const verified = await verifyMessageAttachment(attachmentPath, declaredMimeType);
+    if (!verified) throw new Error("That attachment couldn't be verified. Try a different file.");
+    attachmentType = fileKind(declaredMimeType);
   }
 
   const { data: message, error } = await supabase

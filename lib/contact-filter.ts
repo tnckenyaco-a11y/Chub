@@ -15,5 +15,15 @@ export function containsContactInfo(text: string): boolean {
   return candidates.some((c) => c.replace(/\D/g, "").length >= MIN_PHONE_DIGITS);
 }
 
+// Direct-messaging-app domains — same intent as containsContactInfo, but for
+// URL-shaped fields (website/social links) where the general phone-digit
+// heuristic false-positives on ordinary platform IDs (a YouTube channel URL
+// routinely contains an 8+ digit run with no separators).
+const CONTACT_LINK_DOMAIN_RE = /\b(wa\.me|api\.whatsapp\.com|whatsapp\.com|t\.me|telegram\.me|m\.me|messenger\.com)\b/i;
+
+export function containsContactLink(url: string): boolean {
+  return EMAIL_RE.test(url) || OBFUSCATED_EMAIL_RE.test(url) || CONTACT_LINK_DOMAIN_RE.test(url);
+}
+
 export const CONTACT_INFO_BLOCKED_MESSAGE =
   "For your safety, phone numbers and email addresses can't be sent in messages. Keep the conversation and payments on Nyx Creators Hub.";

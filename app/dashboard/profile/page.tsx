@@ -21,10 +21,10 @@ type SocialLinks = {
 export default async function ProfilePage({
   searchParams,
 }: {
-  searchParams: Promise<{ saved?: string }>;
+  searchParams: Promise<{ saved?: string; error?: string }>;
 }) {
   const profile = await requireProfile();
-  const { saved } = await searchParams;
+  const { saved, error } = await searchParams;
   const supabase = await createClient();
 
   const [{ data: full }, { data: portfolio }] = await Promise.all([
@@ -49,6 +49,11 @@ export default async function ProfilePage({
       {saved && (
         <p className="mt-6 rounded-lg border border-green/40 bg-green/10 px-4 py-3 text-sm text-green">
           Profile saved.
+        </p>
+      )}
+      {error && (
+        <p className="mt-6 rounded-lg border border-magenta/40 bg-magenta/10 px-4 py-3 text-sm text-magenta">
+          {error}
         </p>
       )}
 

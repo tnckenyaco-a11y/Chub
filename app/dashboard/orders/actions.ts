@@ -6,6 +6,7 @@ import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 import { releasePayoutForOrder } from "@/lib/payments/release-payout";
 import { notifyOrderDelivered, notifyDisputeRaised } from "@/lib/email/notify";
+import { containsContactInfo, CONTACT_INFO_BLOCKED_MESSAGE } from "@/lib/contact-filter";
 
 export async function markInProgress(orderId: string) {
   const profile = await requireProfile();
@@ -71,6 +72,12 @@ export async function raiseDispute(orderId: string, formData: FormData) {
   const reason = String(formData.get("reason") ?? "").trim();
   if (!reason) return;
 
+  // Both parties see the dispute reason on the shared order page — must
+  // never become a channel for exchanging off-platform contact info.
+  if (containsContactInfo(reason)) {
+    redirect(`/dashboard/orders/${orderId}?error=${encodeURIComponent(CONTACT_INFO_BLOCKED_MESSAGE)}`);
+  }
+
   const { data: order } = await supabase
     .from("orders")
     .update({ status: "disputed" })
@@ -108,6 +115,14 @@ export async function submitReview(orderId: string, formData: FormData) {
     return v >= 1 && v <= 5 ? v : null;
   };
 
+  const comment = String(formData.get("comment") ?? "").trim();
+
+  // Reviews are shown publicly on the creative's profile — must never become
+  // a channel for exchanging off-platform contact info.
+  if (comment && containsContactInfo(comment)) {
+    redirect(`/dashboard/orders/${orderId}?error=${encodeURIComponent(CONTACT_INFO_BLOCKED_MESSAGE)}`);
+  }
+
   await supabase.from("reviews").insert({
     order_id: orderId,
     reviewer_id: profile.id,
@@ -117,7 +132,7 @@ export async function submitReview(orderId: string, formData: FormData) {
     communication_rating: rating("communication_rating"),
     timeliness_rating: rating("timeliness_rating"),
     value_rating: rating("value_rating"),
-    comment: String(formData.get("comment") ?? "").trim(),
+    comment,
   });
 
   revalidatePath(`/dashboard/orders/${orderId}`);

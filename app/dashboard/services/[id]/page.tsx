@@ -16,13 +16,13 @@ export default async function EditServicePage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ saved?: string }>;
+  searchParams: Promise<{ saved?: string; error?: string }>;
 }) {
   const profile = await requireProfile();
   if (profile.role !== "creative") forbidden();
 
   const { id } = await params;
-  const { saved } = await searchParams;
+  const { saved, error } = await searchParams;
   const supabase = await createClient();
 
   const [{ data: service }, { data: categories }, { data: packages }, { data: images }] =
@@ -62,6 +62,11 @@ export default async function EditServicePage({
       {saved && (
         <p className="mt-6 rounded-lg border border-green/40 bg-green/10 px-4 py-3 text-sm text-green">
           Saved. Changes to a published service go back through review.
+        </p>
+      )}
+      {error && (
+        <p className="mt-6 rounded-lg border border-magenta/40 bg-magenta/10 px-4 py-3 text-sm text-magenta">
+          {error}
         </p>
       )}
 

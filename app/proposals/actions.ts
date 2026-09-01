@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect, forbidden } from "next/navigation";
 import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
+import { containsContactInfo, CONTACT_INFO_BLOCKED_MESSAGE } from "@/lib/contact-filter";
 
 export async function submitProposal(projectSlug: string, formData: FormData) {
   const profile = await requireProfile();
@@ -16,6 +17,10 @@ export async function submitProposal(projectSlug: string, formData: FormData) {
 
   if (!projectId || !rate) {
     redirect(`/projects/${projectSlug}?error=Please+include a rate.`);
+  }
+
+  if (message && containsContactInfo(message)) {
+    redirect(`/projects/${projectSlug}?error=${encodeURIComponent(CONTACT_INFO_BLOCKED_MESSAGE)}`);
   }
 
   const { error } = await supabase

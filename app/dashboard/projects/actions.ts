@@ -6,6 +6,7 @@ import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/slugify";
 import { uploadPublicMedia, fileKind } from "@/lib/storage";
+import { containsContactInfo, CONTACT_INFO_BLOCKED_MESSAGE } from "@/lib/contact-filter";
 
 async function requireBrand() {
   const profile = await requireProfile();
@@ -28,6 +29,12 @@ export async function createProject(formData: FormData) {
 
   if (!title || Number.isNaN(budgetMin) || Number.isNaN(budgetMax) || budgetMax < budgetMin) {
     redirect("/projects/new?error=Please+fill+in+a+title+and+a+valid+budget+range.");
+  }
+
+  // Project briefs are public — a brand must never be able to route around
+  // the platform by dropping contact info into one.
+  if (containsContactInfo(title) || containsContactInfo(description)) {
+    redirect(`/projects/new?error=${encodeURIComponent(CONTACT_INFO_BLOCKED_MESSAGE)}`);
   }
 
   let briefUrl: string | null = null;
@@ -75,6 +82,10 @@ export async function updateProject(id: string, formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const categoryId = String(formData.get("category_id") ?? "") || null;
+
+  if (containsContactInfo(title) || containsContactInfo(description)) {
+    redirect(`/dashboard/projects/${id}?error=${encodeURIComponent(CONTACT_INFO_BLOCKED_MESSAGE)}`);
+  }
 
   await supabase
     .from("projects")
@@ -186,6 +197,10 @@ async function createSquadInvite({
 
   if (!creativeId || !role || !rateKes || rateKes <= 0) {
     redirect(`${redirectTo}?error=${encodeURIComponent("Pick a creative, a role, and a positive rate.")}`);
+  }
+
+  if (containsContactInfo(role)) {
+    redirect(`${redirectTo}?error=${encodeURIComponent(CONTACT_INFO_BLOCKED_MESSAGE)}`);
   }
 
   const { error } = await supabase

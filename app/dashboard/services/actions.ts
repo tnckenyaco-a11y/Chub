@@ -6,6 +6,7 @@ import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/slugify";
 import { uploadPublicMedia } from "@/lib/storage";
+import { containsContactInfo, CONTACT_INFO_BLOCKED_MESSAGE } from "@/lib/contact-filter";
 
 async function requireCreative() {
   const profile = await requireProfile();
@@ -29,6 +30,12 @@ export async function createService(formData: FormData) {
 
   if (!title || !priceKes || !deliveryDays) {
     redirect("/dashboard/services/new?error=Title,+price,+and+delivery+time+are+required.");
+  }
+
+  // Service listings are public — a creative must never be able to route
+  // around the platform by dropping contact info into one.
+  if (containsContactInfo(title) || containsContactInfo(description)) {
+    redirect(`/dashboard/services/new?error=${encodeURIComponent(CONTACT_INFO_BLOCKED_MESSAGE)}`);
   }
 
   const { data: service, error } = await supabase
@@ -72,6 +79,10 @@ export async function updateService(id: string, formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const categoryId = String(formData.get("category_id") ?? "") || null;
+
+  if (containsContactInfo(title) || containsContactInfo(description)) {
+    redirect(`/dashboard/services/${id}?error=${encodeURIComponent(CONTACT_INFO_BLOCKED_MESSAGE)}`);
+  }
 
   await supabase
     .from("services")

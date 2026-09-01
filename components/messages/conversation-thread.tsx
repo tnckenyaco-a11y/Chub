@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, FileText, Paperclip, Send, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { signMessageAttachment } from "@/lib/storage";
+import { signMessageAttachment, uploadMessageAttachment } from "@/lib/storage";
 import { sendMessage } from "@/app/dashboard/messages/actions";
 import { formatBubbleTime, formatDayDivider } from "@/components/messages/format-timestamp";
 import { ClientTime } from "@/components/messages/client-time";
@@ -124,7 +124,22 @@ export function ConversationThread({
     setSending(true);
 
     try {
-      const result = await sendMessage(conversationId, formData);
+      const payload = new FormData();
+      payload.set("body", body);
+
+      if (file) {
+        // Uploaded directly from the browser to Storage rather than through
+        // the server action's own request body — a real photo or PDF
+        // routinely exceeds Vercel's hard 4.5MB serverless function body
+        // limit, which previously made attaching anything but a small image
+        // fail with an opaque error.
+        const supabase = createClient();
+        const path = await uploadMessageAttachment(supabase, conversationId, file);
+        payload.set("attachment_path", path);
+        payload.set("attachment_type", file.type);
+      }
+
+      const result = await sendMessage(conversationId, payload);
       setMessages((prev) => {
         const withoutTemp = prev.filter((m) => m.id !== tempId);
         if (!result || withoutTemp.some((m) => m.id === result.id)) return withoutTemp;

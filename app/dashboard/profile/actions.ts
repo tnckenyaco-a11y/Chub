@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 import { uploadPublicMedia, fileKind } from "@/lib/storage";
+import { containsContactInfo, containsContactLink, CONTACT_INFO_BLOCKED_MESSAGE } from "@/lib/contact-filter";
 
 export async function updateProfileDetails(formData: FormData) {
   const profile = await requireProfile();
@@ -25,6 +26,17 @@ export async function updateProfileDetails(formData: FormData) {
     tiktok: String(formData.get("social_tiktok") ?? "").trim() || undefined,
     youtube: String(formData.get("social_youtube") ?? "").trim() || undefined,
   };
+
+  // Bio, website, and social links are all publicly visible to the other
+  // side of a deal — a brand and creative must never be able to exchange
+  // contact info off-platform, in messages or anywhere else. Bio is free
+  // text (full check, including phone numbers); website/social are URLs,
+  // where the phone-digit heuristic false-positives on ordinary platform
+  // IDs (e.g. a YouTube channel URL), so those get the link-specific check.
+  const linkFields = [websiteUrl, ...Object.values(socialLinks).filter(Boolean)];
+  if (containsContactInfo(bio) || linkFields.some((v) => v && containsContactLink(v))) {
+    redirect(`/dashboard/profile?error=${encodeURIComponent(CONTACT_INFO_BLOCKED_MESSAGE)}`);
+  }
 
   await supabase
     .from("profiles")
@@ -77,6 +89,10 @@ export async function addPortfolioItem(formData: FormData) {
 
   const title = String(formData.get("title") ?? "").trim() || null;
   const linkUrl = String(formData.get("link_url") ?? "").trim() || null;
+
+  if ((title && containsContactInfo(title)) || (linkUrl && containsContactLink(linkUrl))) {
+    redirect(`/dashboard/profile?error=${encodeURIComponent(CONTACT_INFO_BLOCKED_MESSAGE)}`);
+  }
 
   const url = await uploadPublicMedia(supabase, profile.id, "portfolio", file);
 
