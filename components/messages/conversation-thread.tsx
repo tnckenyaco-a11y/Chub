@@ -44,11 +44,13 @@ export function ConversationThread({
   currentUserId,
   otherUser,
   initialMessages,
+  prefillBody,
 }: {
   conversationId: string;
   currentUserId: string;
   otherUser: { name: string; avatarUrl: string | null };
   initialMessages: ThreadMessage[];
+  prefillBody?: string;
 }) {
   const [messages, setMessages] = useState(() => sortByCreatedAt(initialMessages));
   const [error, setError] = useState<string | null>(null);
@@ -271,6 +273,7 @@ export function ConversationThread({
             name="body"
             placeholder="Write a message…"
             autoComplete="off"
+            defaultValue={prefillBody}
             className="flex-1 rounded-full border border-line bg-transparent px-4 py-2.5 text-sm text-ink outline-none focus:border-brand"
           />
           <button

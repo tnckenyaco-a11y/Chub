@@ -88,9 +88,14 @@ export async function addPortfolioItem(formData: FormData) {
   if (!file || file.size === 0) return;
 
   const title = String(formData.get("title") ?? "").trim() || null;
+  const description = String(formData.get("description") ?? "").trim() || null;
   const linkUrl = String(formData.get("link_url") ?? "").trim() || null;
 
-  if ((title && containsContactInfo(title)) || (linkUrl && containsContactLink(linkUrl))) {
+  if (
+    (title && containsContactInfo(title)) ||
+    (description && containsContactInfo(description)) ||
+    (linkUrl && containsContactLink(linkUrl))
+  ) {
     redirect(`/dashboard/profile?error=${encodeURIComponent(CONTACT_INFO_BLOCKED_MESSAGE)}`);
   }
 
@@ -101,6 +106,7 @@ export async function addPortfolioItem(formData: FormData) {
     file_url: url,
     file_type: fileKind(file.type),
     title,
+    description,
     link_url: linkUrl,
   });
 

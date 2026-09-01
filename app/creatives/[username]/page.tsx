@@ -7,6 +7,7 @@ import { getCurrentProfile } from "@/lib/current-user";
 import { startConversation } from "@/app/messages/actions";
 import { inviteCreativeToProject } from "@/app/dashboard/projects/actions";
 import { ProfileTabs } from "@/components/profile-tabs";
+import { PortfolioLightbox } from "@/components/portfolio-lightbox";
 
 export async function generateMetadata({
   params,
@@ -85,7 +86,7 @@ export default async function CreativeProfilePage({
       .order("created_at", { ascending: false }),
     supabase
       .from("portfolio_items")
-      .select("id, title, file_url, file_type, link_url")
+      .select("id, title, description, file_url, file_type, link_url")
       .eq("profile_id", creativeId)
       .order("sort_order"),
     viewer?.role === "brand"
@@ -128,39 +129,21 @@ export default async function CreativeProfilePage({
     </div>
   );
 
-  const portfolioContent =
-    portfolio && portfolio.length > 0 ? (
-      <div className="grid gap-4 sm:grid-cols-3">
-        {portfolio.map((item) => {
-          const Wrapper = item.link_url ? "a" : "div";
-          return (
-            <Wrapper
-              key={item.id}
-              {...(item.link_url
-                ? { href: item.link_url, target: "_blank", rel: "noreferrer" }
-                : {})}
-              className="group block overflow-hidden rounded-xl border border-line transition hover:shadow-md"
-            >
-              {item.file_type === "pdf" ? (
-                <div className="flex h-36 items-center justify-center bg-bg text-xs uppercase text-ink/60">
-                  PDF Document
-                </div>
-              ) : (
-                <div
-                  className="h-36 bg-cover bg-center transition group-hover:scale-[1.02]"
-                  style={{ backgroundImage: `url(${item.file_url})` }}
-                />
-              )}
-              {item.title && (
-                <p className="truncate p-2 text-xs text-ink/70">{item.title}</p>
-              )}
-            </Wrapper>
-          );
-        })}
-      </div>
-    ) : (
-      <p className="text-sm text-ink/40">No portfolio pieces added yet.</p>
-    );
+  // Brands can message a creative straight from a portfolio piece, prefilled
+  // with a reference to it — not shown for the creative's own view of their
+  // profile, or to a signed-out visitor (who'd just bounce to sign-in).
+  const portfolioMessageAction =
+    viewer && viewer.role === "brand" && viewer.id !== creativeId
+      ? startConversation.bind(null, creativeId)
+      : null;
+
+  const portfolioContent = (
+    <PortfolioLightbox
+      items={portfolio ?? []}
+      creativeName={profile.first_name || "there"}
+      messageAction={portfolioMessageAction}
+    />
+  );
 
   const servicesContent = services?.length ? (
     <div className="grid gap-4 sm:grid-cols-2">

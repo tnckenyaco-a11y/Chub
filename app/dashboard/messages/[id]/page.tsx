@@ -4,9 +4,16 @@ import { createClient } from "@/lib/supabase/server";
 import { signMessageAttachment } from "@/lib/storage";
 import { ConversationThread } from "@/components/messages/conversation-thread";
 
-export default async function MessageThreadPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function MessageThreadPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ about?: string }>;
+}) {
   const profile = await requireProfile();
   const { id } = await params;
+  const { about } = await searchParams;
   const supabase = await createClient();
 
   const { data: conversation } = await supabase
@@ -55,6 +62,7 @@ export default async function MessageThreadPage({ params }: { params: Promise<{ 
       currentUserId={profile.id}
       otherUser={{ name: otherName, avatarUrl: other?.avatar_url ?? null }}
       initialMessages={messagesWithSignedUrls}
+      prefillBody={about}
     />
   );
 }

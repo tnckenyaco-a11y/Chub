@@ -556,6 +556,7 @@ export type Database = {
       portfolio_items: {
         Row: {
           created_at: string
+          description: string | null
           file_type: string
           file_url: string
           id: string
@@ -566,6 +567,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          description?: string | null
           file_type?: string
           file_url: string
           id?: string
@@ -576,6 +578,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          description?: string | null
           file_type?: string
           file_url?: string
           id?: string

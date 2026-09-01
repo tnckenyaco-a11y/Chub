@@ -35,7 +35,7 @@ export default async function ProfilePage({
       .single(),
     supabase
       .from("portfolio_items")
-      .select("id, title, file_url, file_type, link_url")
+      .select("id, title, description, file_url, file_type, link_url")
       .eq("profile_id", profile.id)
       .order("sort_order"),
   ]);
@@ -158,13 +158,21 @@ export default async function ProfilePage({
                     style={{ backgroundImage: `url(${item.file_url})` }}
                   />
                 )}
-                <div className="flex items-center justify-between p-2">
-                  <p className="truncate text-xs text-ink/70">{item.title || "Untitled"}</p>
-                  <form action={remove}>
-                    <button type="submit" className="text-xs text-ink/40 hover:text-magenta">
-                      Remove
-                    </button>
-                  </form>
+                <div className="p-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="truncate text-xs font-medium text-ink/70">{item.title || "Untitled"}</p>
+                    <form action={remove}>
+                      <SubmitButton
+                        pendingText="Removing…"
+                        className="shrink-0 text-xs text-ink/40 hover:text-magenta"
+                      >
+                        Remove
+                      </SubmitButton>
+                    </form>
+                  </div>
+                  {item.description && (
+                    <p className="mt-0.5 line-clamp-2 text-[11px] text-ink/45">{item.description}</p>
+                  )}
                 </div>
               </div>
             );
@@ -198,12 +206,21 @@ export default async function ProfilePage({
               className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2 text-sm text-ink outline-none focus:border-brand"
             />
           </label>
-          <button
-            type="submit"
+          <label className="block sm:col-span-2">
+            <span className="text-xs text-ink/50">Description (optional)</span>
+            <textarea
+              name="description"
+              rows={2}
+              placeholder="What was this project? Who was it for, what did you do…"
+              className="mt-1.5 w-full rounded-lg border border-line bg-transparent px-4 py-2 text-sm text-ink outline-none focus:border-brand"
+            />
+          </label>
+          <SubmitButton
+            pendingText="Adding…"
             className="col-span-full rounded-full border border-line px-5 py-2.5 text-xs font-semibold uppercase tracking-wide text-ink hover:border-volt"
           >
             Add to Portfolio
-          </button>
+          </SubmitButton>
         </form>
       </section>
     </div>
