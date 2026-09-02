@@ -9,7 +9,22 @@ const SYSTEM_PROMPT = `You are Nyx, helping a brand write a creative brief for a
 
 Expand the brand's short description into a clear, concise creative brief a creative professional could act on directly. Cover: the objective, concrete deliverables, tone/style notes, and a rough timeline expectation if one can reasonably be inferred — skip any section that doesn't apply rather than padding it out.
 
-Write it as plain text sized for a text box (no markdown headers, no bullet-heavy formatting) — short paragraphs are fine. Do not invent specifics the brand didn't imply (exact budget figures, dates, or names) — stay general where the brand's prompt was general.`;
+Output plain prose only — this text is inserted verbatim into a plain text box with no markdown rendering, so any markdown syntax shows up as literal stray characters on screen. Concretely: no **bold**, no # headers, no bullet or numbered lists, no markdown of any kind. Use short paragraphs separated by a blank line instead of headers, and write deliverables as a sentence or two instead of a list. Do not invent specifics the brand didn't imply (exact budget figures, dates, or names) — stay general where the brand's prompt was general.`;
+
+// The system prompt asks for plain prose, but the model doesn't always
+// comply — this strips common markdown artifacts (bold, headers, bullet/
+// numbered lists) as a safety net regardless, since the output goes
+// straight into a plain <textarea> with no markdown rendering.
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, "$1")
+    .replace(/__(.+?)__/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^[ \t]*[-*•]\s+/gm, "")
+    .replace(/^[ \t]*\d+\.\s+/gm, "")
+    .trim();
+}
 
 export async function POST(req: NextRequest) {
   const profile = await getCurrentProfile();
@@ -51,11 +66,13 @@ export async function POST(req: NextRequest) {
       messages: [{ role: "user", content: context }],
     });
 
-    const brief = response.content
-      .filter((block): block is Anthropic.TextBlock => block.type === "text")
-      .map((block) => block.text)
-      .join("\n")
-      .trim();
+    const brief = stripMarkdown(
+      response.content
+        .filter((block): block is Anthropic.TextBlock => block.type === "text")
+        .map((block) => block.text)
+        .join("\n")
+        .trim()
+    );
 
     if (!brief) {
       return NextResponse.json({ error: "Couldn't generate a brief — try rephrasing." }, { status: 502 });
