@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Users } from "lucide-react";
 import { forbidden, notFound } from "next/navigation";
 import { requireProfile } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
@@ -266,9 +267,26 @@ export default async function EditProjectPage({
         <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">
           Squad ({squadInvites?.length ?? 0})
         </h2>
-        <p className="mt-1 text-xs text-ink/40">
-          Invite specific creatives onto this project, each with their own role and rate.
-        </p>
+
+        <details
+          className="group mt-3 rounded-xl border border-brand/20 bg-brand/[0.03] p-4"
+          open={!squadInvites?.length}
+        >
+          <summary className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-brand marker:content-none">
+            <Users className="h-4 w-4 shrink-0" />
+            What is Squad?
+            <span className="ml-auto shrink-0 text-lg leading-none transition group-open:rotate-45">
+              +
+            </span>
+          </summary>
+          <p className="mt-3 text-sm leading-relaxed text-ink/70">
+            Squad lets you bring more than one creative onto this project, each with their own role
+            and rate — a videographer, an editor, and a designer for the same shoot, for example.
+            Invite each person individually below. Every invite becomes its own order once accepted,
+            so each creative gets paid separately through the same secure escrow as soon as their
+            part is approved — no need to coordinate one combined payment across a whole team.
+          </p>
+        </details>
 
         <form
           action={invite}
