@@ -39,6 +39,7 @@ type HomeContent = {
   };
   how_it_works: { step: string; title: string; body: string }[];
   testimonials: { name: string; role: string; quote: string }[];
+  trusted_brands?: { name: string; logo_url: string; website_url?: string }[];
 };
 
 const PORTFOLIO_SHOWCASE = [
@@ -316,6 +317,42 @@ export default async function Home() {
           </Reveal>
         </div>
       </section>
+
+      {/* Trusted by */}
+      {content?.trusted_brands && content.trusted_brands.length > 0 && (
+        <section className="border-t border-line bg-paper py-16">
+          <div className="mx-auto max-w-6xl px-6 lg:px-10">
+            <Reveal>
+              <p className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-ink/40">
+                Brands we&apos;ve worked with
+              </p>
+            </Reveal>
+            <StaggerGroup className="mt-8 flex flex-wrap items-center justify-center gap-x-12 gap-y-8">
+              {content.trusted_brands.map((brand) => {
+                const logo = (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={brand.logo_url}
+                    alt={brand.name}
+                    className="h-8 w-auto object-contain grayscale opacity-60 transition hover:grayscale-0 hover:opacity-100 sm:h-10"
+                  />
+                );
+                return (
+                  <StaggerItem key={brand.name}>
+                    {brand.website_url ? (
+                      <a href={brand.website_url} target="_blank" rel="noreferrer" aria-label={brand.name}>
+                        {logo}
+                      </a>
+                    ) : (
+                      logo
+                    )}
+                  </StaggerItem>
+                );
+              })}
+            </StaggerGroup>
+          </div>
+        </section>
+      )}
 
       {/* Category ticker */}
       {tickerItems.length > 0 && (
