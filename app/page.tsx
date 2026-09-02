@@ -1,10 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
+  CalendarDays,
   CheckCircle2,
   FileText,
   Landmark,
   Lock,
+  MapPin,
   MessageCircle,
   Package,
   Repeat,
@@ -14,6 +16,7 @@ import {
   Star,
   Users,
 } from "lucide-react";
+import { formatDate } from "@/lib/format";
 import { getSitePage } from "@/lib/site-pages";
 import { createClient } from "@/lib/supabase/server";
 import { Reveal } from "@/components/motion/reveal";
@@ -157,7 +160,7 @@ export default async function Home() {
   ]);
   const teaser = financialProductsPage?.content.teaser;
   const supabase = await createClient();
-  const [{ data: categories }, { data: featuredProject }] = await Promise.all([
+  const [{ data: categories }, { data: featuredProject }, { data: upcomingEvents }] = await Promise.all([
     supabase.from("categories").select("name").order("sort_order"),
     supabase
       .from("projects")
@@ -166,6 +169,13 @@ export default async function Home() {
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle(),
+    supabase
+      .from("events")
+      .select("slug, title, event_type, location, starts_at, cover_image_url")
+      .eq("status", "published")
+      .gte("starts_at", new Date().toISOString())
+      .order("starts_at", { ascending: true })
+      .limit(3),
   ]);
 
   // Public aggregate only (no PII) — orders RLS restricts SELECT to the
@@ -351,6 +361,65 @@ export default async function Home() {
               );
             })}
           </StaggerGroup>
+        </section>
+      )}
+
+      {/* Upcoming events & workshops */}
+      {upcomingEvents && upcomingEvents.length > 0 && (
+        <section className="border-t border-line py-24">
+          <div className="mx-auto max-w-7xl px-6 lg:px-10">
+            <Reveal>
+              <div className="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
+                    Get Involved
+                  </p>
+                  <h2 className="font-display mt-3 text-4xl text-ink sm:text-5xl">
+                    Upcoming Events &amp; Workshops
+                  </h2>
+                </div>
+                <Link
+                  href="/events"
+                  className="font-display text-xs font-semibold text-brand transition hover:opacity-70"
+                >
+                  View all
+                </Link>
+              </div>
+            </Reveal>
+
+            <StaggerGroup className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {upcomingEvents.map((event) => (
+                <StaggerItem key={event.slug}>
+                  <Link href={`/events/${event.slug}`} className="group block">
+                    <div
+                      className="aspect-4/3 rounded-2xl bg-cover bg-center bg-grad-brand transition group-hover:shadow-lg"
+                      style={
+                        event.cover_image_url
+                          ? { backgroundImage: `url(${event.cover_image_url})` }
+                          : undefined
+                      }
+                    />
+                    <span className="mt-4 inline-block rounded-full bg-brand/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-brand">
+                      {event.event_type}
+                    </span>
+                    <h3 className="font-display mt-2 text-lg text-ink transition group-hover:text-brand">
+                      {event.title}
+                    </h3>
+                    <p className="mt-1.5 flex items-center gap-1.5 text-xs text-ink/50">
+                      <CalendarDays className="h-3.5 w-3.5" />
+                      {formatDate(event.starts_at)}
+                    </p>
+                    {event.location && (
+                      <p className="mt-1 flex items-center gap-1.5 text-xs text-ink/50">
+                        <MapPin className="h-3.5 w-3.5" />
+                        {event.location}
+                      </p>
+                    )}
+                  </Link>
+                </StaggerItem>
+              ))}
+            </StaggerGroup>
+          </div>
         </section>
       )}
 

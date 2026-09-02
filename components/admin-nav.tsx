@@ -13,6 +13,7 @@ import {
   Mail,
   FileEdit,
   Newspaper,
+  CalendarDays,
   Settings,
   Wallet,
 } from "lucide-react";
@@ -29,6 +30,7 @@ const links = [
   { href: "/admin/contact", label: "Messages", icon: Mail },
   { href: "/admin/content", label: "Content (CMS)", icon: FileEdit },
   { href: "/admin/blog", label: "Blog", icon: Newspaper },
+  { href: "/admin/events", label: "Events & Workshops", icon: CalendarDays },
   { href: "/admin/settings", label: "Platform Settings", icon: Settings },
 ];
 
