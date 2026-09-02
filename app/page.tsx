@@ -364,65 +364,6 @@ export default async function Home() {
         </section>
       )}
 
-      {/* Upcoming events & workshops */}
-      {upcomingEvents && upcomingEvents.length > 0 && (
-        <section className="border-t border-line py-24">
-          <div className="mx-auto max-w-7xl px-6 lg:px-10">
-            <Reveal>
-              <div className="flex flex-wrap items-end justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
-                    Get Involved
-                  </p>
-                  <h2 className="font-display mt-3 text-4xl text-ink sm:text-5xl">
-                    Upcoming Events &amp; Workshops
-                  </h2>
-                </div>
-                <Link
-                  href="/events"
-                  className="font-display text-xs font-semibold text-brand transition hover:opacity-70"
-                >
-                  View all
-                </Link>
-              </div>
-            </Reveal>
-
-            <StaggerGroup className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {upcomingEvents.map((event) => (
-                <StaggerItem key={event.slug}>
-                  <Link href={`/events/${event.slug}`} className="group block">
-                    <div
-                      className="aspect-4/3 rounded-2xl bg-cover bg-center bg-grad-brand transition group-hover:shadow-lg"
-                      style={
-                        event.cover_image_url
-                          ? { backgroundImage: `url(${event.cover_image_url})` }
-                          : undefined
-                      }
-                    />
-                    <span className="mt-4 inline-block rounded-full bg-brand/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-brand">
-                      {event.event_type}
-                    </span>
-                    <h3 className="font-display mt-2 text-lg text-ink transition group-hover:text-brand">
-                      {event.title}
-                    </h3>
-                    <p className="mt-1.5 flex items-center gap-1.5 text-xs text-ink/50">
-                      <CalendarDays className="h-3.5 w-3.5" />
-                      {formatDate(event.starts_at)}
-                    </p>
-                    {event.location && (
-                      <p className="mt-1 flex items-center gap-1.5 text-xs text-ink/50">
-                        <MapPin className="h-3.5 w-3.5" />
-                        {event.location}
-                      </p>
-                    )}
-                  </Link>
-                </StaggerItem>
-              ))}
-            </StaggerGroup>
-          </div>
-        </section>
-      )}
-
       {/* Built for how you work */}
       <section className="border-t border-line py-24">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
@@ -678,6 +619,65 @@ export default async function Home() {
                       <p className="text-xs uppercase tracking-wide text-ink/50">{t.role}</p>
                     </footer>
                   </blockquote>
+                </StaggerItem>
+              ))}
+            </StaggerGroup>
+          </div>
+        </section>
+      )}
+
+      {/* Upcoming events & workshops */}
+      {upcomingEvents && upcomingEvents.length > 0 && (
+        <section className="border-t border-line py-24">
+          <div className="mx-auto max-w-7xl px-6 lg:px-10">
+            <Reveal>
+              <div className="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
+                    Get Involved
+                  </p>
+                  <h2 className="font-display mt-3 text-4xl text-ink sm:text-5xl">
+                    Upcoming Events &amp; Workshops
+                  </h2>
+                </div>
+                <Link
+                  href="/events"
+                  className="font-display text-xs font-semibold text-brand transition hover:opacity-70"
+                >
+                  View all
+                </Link>
+              </div>
+            </Reveal>
+
+            <StaggerGroup className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {upcomingEvents.map((event) => (
+                <StaggerItem key={event.slug}>
+                  <Link href={`/events/${event.slug}`} className="group block">
+                    <div
+                      className="aspect-4/3 rounded-2xl bg-cover bg-center bg-grad-brand transition group-hover:shadow-lg"
+                      style={
+                        event.cover_image_url
+                          ? { backgroundImage: `url(${event.cover_image_url})` }
+                          : undefined
+                      }
+                    />
+                    <span className="mt-4 inline-block rounded-full bg-brand/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-brand">
+                      {event.event_type}
+                    </span>
+                    <h3 className="font-display mt-2 text-lg text-ink transition group-hover:text-brand">
+                      {event.title}
+                    </h3>
+                    <p className="mt-1.5 flex items-center gap-1.5 text-xs text-ink/50">
+                      <CalendarDays className="h-3.5 w-3.5" />
+                      {formatDate(event.starts_at)}
+                    </p>
+                    {event.location && (
+                      <p className="mt-1 flex items-center gap-1.5 text-xs text-ink/50">
+                        <MapPin className="h-3.5 w-3.5" />
+                        {event.location}
+                      </p>
+                    )}
+                  </Link>
                 </StaggerItem>
               ))}
             </StaggerGroup>
