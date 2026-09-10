@@ -42,6 +42,8 @@ export async function signUp(formData: FormData) {
   const country = String(formData.get("country") ?? "").trim();
   const city = String(formData.get("city") ?? "").trim();
   const companyName = String(formData.get("company_name") ?? "").trim();
+  const categoryId = String(formData.get("category_id") ?? "").trim();
+  const focusAreaId = String(formData.get("focus_area_id") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const confirmPassword = String(formData.get("confirm_password") ?? "");
 
@@ -50,6 +52,9 @@ export async function signUp(formData: FormData) {
   }
   if (role === "brand" && !companyName) {
     redirect(`/sign-up?error=${encodeURIComponent("Please enter your company name.")}&role=${role}`);
+  }
+  if (role === "creative" && (!categoryId || !focusAreaId)) {
+    redirect(`/sign-up?error=${encodeURIComponent("Please select your creative type and area of focus.")}&role=${role}`);
   }
   if (password !== confirmPassword) {
     redirect(`/sign-up?error=${encodeURIComponent("Passwords do not match.")}&role=${role}`);
@@ -72,6 +77,8 @@ export async function signUp(formData: FormData) {
         country: country || null,
         city: city || null,
         company_name: role === "brand" ? companyName : null,
+        category_id: role === "creative" ? categoryId : null,
+        focus_area_id: role === "creative" ? focusAreaId : null,
       },
     },
   });

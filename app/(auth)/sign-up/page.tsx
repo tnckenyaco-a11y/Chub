@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ShieldCheck, Sparkles, Wallet } from "lucide-react";
 import { signUp } from "@/app/(auth)/actions";
 import { getBranding } from "@/lib/branding";
+import { createClient } from "@/lib/supabase/server";
 import { SubmitButton } from "@/components/submit-button";
 
 const perks = [
@@ -16,7 +17,13 @@ export default async function SignUpPage({
 }: {
   searchParams: Promise<{ role?: string; error?: string }>;
 }) {
-  const [params, branding] = await Promise.all([searchParams, getBranding()]);
+  const supabase = await createClient();
+  const [params, branding, { data: categories }, { data: focusAreas }] = await Promise.all([
+    searchParams,
+    getBranding(),
+    supabase.from("categories").select("id, name").order("sort_order"),
+    supabase.from("focus_areas").select("id, name").order("sort_order"),
+  ]);
   const role = params.role === "creative" ? "creative" : "brand";
 
   return (
@@ -72,7 +79,7 @@ export default async function SignUpPage({
 
           <form
             action={signUp}
-            className="mt-8 space-y-5 [&:has(input[name=role][value=brand]:checked)_.company-field]:block"
+            className="mt-8 space-y-5 [&:has(input[name=role][value=brand]:checked)_.company-field]:block [&:has(input[name=role][value=creative]:checked)_.creative-field]:grid"
           >
             <fieldset className="flex gap-2 rounded-full border border-line p-1">
               <legend className="sr-only">Account type</legend>
@@ -111,6 +118,42 @@ export default async function SignUpPage({
             </div>
             <Field label="Username" name="username" required />
             <Field label="Email" name="email" type="email" required />
+
+            <div className="creative-field hidden grid grid-cols-2 gap-4">
+              <label className="block">
+                <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">
+                  Type of creative *
+                </span>
+                <select
+                  name="category_id"
+                  className="mt-1.5 w-full rounded-lg border border-line bg-paper px-4 py-2.5 text-ink outline-none focus:border-brand"
+                >
+                  <option value="">Select one</option>
+                  {categories?.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
+                <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">
+                  Area of focus *
+                </span>
+                <select
+                  name="focus_area_id"
+                  className="mt-1.5 w-full rounded-lg border border-line bg-paper px-4 py-2.5 text-ink outline-none focus:border-brand"
+                >
+                  <option value="">Select one</option>
+                  {focusAreas?.map((f) => (
+                    <option key={f.id} value={f.id}>
+                      {f.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <Field label="Phone" name="phone" type="tel" />
               <Field label="City" name="city" defaultValue="Nairobi" />

@@ -680,12 +680,14 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          category_id: string | null
           city: string | null
           company_name: string | null
           country: string | null
           cover_url: string | null
           created_at: string
           first_name: string
+          focus_area_id: string | null
           id: string
           is_suspended: boolean
           last_name: string
@@ -700,12 +702,14 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          category_id?: string | null
           city?: string | null
           company_name?: string | null
           country?: string | null
           cover_url?: string | null
           created_at?: string
           first_name?: string
+          focus_area_id?: string | null
           id: string
           is_suspended?: boolean
           last_name?: string
@@ -720,12 +724,14 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          category_id?: string | null
           city?: string | null
           company_name?: string | null
           country?: string | null
           cover_url?: string | null
           created_at?: string
           first_name?: string
+          focus_area_id?: string | null
           id?: string
           is_suspended?: boolean
           last_name?: string
@@ -737,7 +743,22 @@ export type Database = {
           username?: string
           website_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_focus_area_id_fkey"
+            columns: ["focus_area_id"]
+            isOneToOne: false
+            referencedRelation: "focus_areas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       project_focus_areas: {
         Row: {
