@@ -27,10 +27,12 @@ export default async function ProfilePage({
   const { saved, error } = await searchParams;
   const supabase = await createClient();
 
-  const [{ data: full }, { data: portfolio }] = await Promise.all([
+  const isCreative = profile.role === "creative";
+
+  const [{ data: full }, { data: portfolio }, { data: categories }, { data: focusAreas }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("avatar_url, cover_url, bio, website_url, social_links, phone, city, country")
+      .select("avatar_url, cover_url, bio, website_url, social_links, phone, city, country, category_id, focus_area_id")
       .eq("id", profile.id)
       .single(),
     supabase
@@ -38,6 +40,12 @@ export default async function ProfilePage({
       .select("id, title, description, file_url, file_type, link_url")
       .eq("profile_id", profile.id)
       .order("sort_order"),
+    isCreative
+      ? supabase.from("categories").select("id, name").order("sort_order")
+      : Promise.resolve({ data: null }),
+    isCreative
+      ? supabase.from("focus_areas").select("id, name").order("sort_order")
+      : Promise.resolve({ data: null }),
   ]);
 
   const social = (full?.social_links ?? {}) as SocialLinks;
@@ -102,6 +110,47 @@ export default async function ProfilePage({
         </div>
         <Field label="Country" name="country" defaultValue={full?.country ?? ""} />
         <Field label="Website" name="website_url" type="url" defaultValue={full?.website_url ?? ""} />
+
+        {isCreative && (
+          <div className="grid grid-cols-2 gap-4">
+            <label className="block">
+              <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">
+                Type of creative *
+              </span>
+              <select
+                name="category_id"
+                required
+                defaultValue={full?.category_id ?? ""}
+                className="mt-1.5 w-full rounded-lg border border-line bg-paper px-4 py-2.5 text-ink outline-none focus:border-brand"
+              >
+                <option value="">Select one</option>
+                {categories?.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block">
+              <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">
+                Area of focus *
+              </span>
+              <select
+                name="focus_area_id"
+                required
+                defaultValue={full?.focus_area_id ?? ""}
+                className="mt-1.5 w-full rounded-lg border border-line bg-paper px-4 py-2.5 text-ink outline-none focus:border-brand"
+              >
+                <option value="">Select one</option>
+                {focusAreas?.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        )}
 
         <label className="block">
           <span className="text-xs font-semibold uppercase tracking-wide text-ink/50">Bio</span>

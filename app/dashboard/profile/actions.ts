@@ -18,6 +18,12 @@ export async function updateProfileDetails(formData: FormData) {
   const country = String(formData.get("country") ?? "").trim();
   const bio = String(formData.get("bio") ?? "").trim();
   const websiteUrl = String(formData.get("website_url") ?? "").trim();
+  const categoryId = String(formData.get("category_id") ?? "").trim();
+  const focusAreaId = String(formData.get("focus_area_id") ?? "").trim();
+
+  if (profile.role === "creative" && (!categoryId || !focusAreaId)) {
+    redirect(`/dashboard/profile?error=${encodeURIComponent("Please select your creative type and area of focus.")}`);
+  }
 
   const socialLinks = {
     instagram: String(formData.get("social_instagram") ?? "").trim() || undefined,
@@ -49,6 +55,9 @@ export async function updateProfileDetails(formData: FormData) {
       bio: bio || null,
       website_url: websiteUrl || null,
       social_links: socialLinks,
+      ...(profile.role === "creative"
+        ? { category_id: categoryId, focus_area_id: focusAreaId }
+        : {}),
     })
     .eq("id", profile.id);
 
